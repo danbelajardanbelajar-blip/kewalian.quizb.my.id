@@ -74,16 +74,17 @@ body.absen-page {
 
 /* ── Info box ─────────────────────────────────────────────── */
 .absen-info-box {
-    background: rgba(59, 130, 246, .08);
-    border: 1px solid rgba(59, 130, 246, .2);
+    background: #ffffff;
+    border: 1px solid #E2E8F0;
     border-radius: 12px;
-    padding: .75rem 1rem;
+    padding: .85rem 1rem;
     color: #1E3A5F;
     font-size: .875rem;
     font-weight: 500;
     line-height: 1.5;
     display: flex;
     align-items: flex-start;
+    box-shadow: 0 4px 12px rgba(0,0,0,.05);
 }
 
 .absen-info-box i {
