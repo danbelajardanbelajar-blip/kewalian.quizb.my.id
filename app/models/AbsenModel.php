@@ -122,4 +122,12 @@ class AbsenModel extends Model
 
         return $stats;
     }
+
+    /**
+     * Hapus data absen berdasarkan tanggal
+     */
+    public function deleteTanggal(string $tanggal): bool
+    {
+        return $this->db->delete($this->folder . '/' . $tanggal . '.json');
+    }
 }

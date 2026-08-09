@@ -207,4 +207,28 @@ class AbsenController extends Controller
 
         return $data;
     }
+
+    /**
+     * POST /absen/hapus — Hapus data absen satu hari penuh
+     */
+    public function hapus(): void
+    {
+        $this->requireAuth();
+        if (!$this->isPost()) {
+            $this->redirect('absen/rekap');
+        }
+
+        $tanggal = $_POST['tanggal'] ?? '';
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggal)) {
+            if ($this->absenModel->deleteTanggal($tanggal)) {
+                Flash::set('success', 'Data absen mandiri tanggal ' . date('d F Y', strtotime($tanggal)) . ' berhasil dihapus.');
+            } else {
+                Flash::set('error', 'Gagal menghapus data atau data tidak ditemukan.');
+            }
+        } else {
+            Flash::set('error', 'Format tanggal tidak valid.');
+        }
+
+        $this->redirect('absen/rekap');
+    }
 }

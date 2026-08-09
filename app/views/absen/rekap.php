@@ -42,6 +42,14 @@ $labelKat  = [
             <a href="<?= BASE_URL ?>/absen" target="_blank" class="btn btn-outline-primary btn-sm">
                 <i class="bi bi-box-arrow-up-right me-1"></i> Buka Form Siswa
             </a>
+            <?php if (!empty($siswaData)): ?>
+                <form action="<?= BASE_URL ?>/absen/hapus" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus seluruh data absen mandiri pada tanggal <?= $tanggal ?>? Tindakan ini tidak dapat dibatalkan.');">
+                    <input type="hidden" name="tanggal" value="<?= htmlspecialchars($tanggal) ?>">
+                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                        <i class="bi bi-trash me-1"></i> Hapus Rekap
+                    </button>
+                </form>
+            <?php endif; ?>
         </div>
     </div>
 </div>
