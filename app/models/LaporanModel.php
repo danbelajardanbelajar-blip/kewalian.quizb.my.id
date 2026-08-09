@@ -96,26 +96,34 @@ class LaporanModel extends Model
         foreach ($files as $file) {
             $data = $this->db->read($this->folder . '/' . $file);
             foreach ($data['siswa'] ?? [] as $siswa) {
+                $id = $siswa['id'] ?? null;
                 $nama = $siswa['nama'] ?? '';
-                if (empty($nama)) continue;
-
-                if (!isset($rekap[$nama])) {
-                    $rekap[$nama] = ['total_hadir' => 0, 'total_hari' => 0, 'kategori' => []];
+                
+                // Fallback for older data that doesn't have ID yet
+                if (empty($id)) {
+                    continue; // Skip if no ID, or we can use nama but that defeats the purpose. Let's assume migration script handles it.
                 }
 
-                $rekap[$nama]['total_hari']++;
+                if (!isset($rekap[$id])) {
+                    $rekap[$id] = ['id' => $id, 'nama' => $nama, 'total_hadir' => 0, 'total_hari' => 0, 'kategori' => []];
+                } else if ($nama) {
+                    $rekap[$id]['nama'] = $nama;
+                }
+
+                $rekap[$id]['total_hari']++;
                 foreach ($data['kategori'] ?? [] as $key => $label) {
-                    if (!isset($rekap[$nama]['kategori'][$key])) {
-                        $rekap[$nama]['kategori'][$key] = ['label' => $label, 'hadir' => 0];
+                    if (!isset($rekap[$id]['kategori'][$key])) {
+                        $rekap[$id]['kategori'][$key] = ['label' => $label, 'hadir' => 0];
                     }
                     if (!empty($siswa[$key])) {
-                        $rekap[$nama]['kategori'][$key]['hadir']++;
-                        $rekap[$nama]['total_hadir']++;
+                        $rekap[$id]['kategori'][$key]['hadir']++;
+                        $rekap[$id]['total_hadir']++;
                     }
                 }
             }
         }
 
+        // Ksort by ID, or we can let the controller sort by Name later if needed
         ksort($rekap);
         return $rekap;
     }

@@ -140,8 +140,8 @@ $labelKat  = [
                     <?php foreach ($siswa as $sObj): ?>
                         <?php 
                         $namaSiswa = $sObj['nama'];
-                        if (!isset($siswaData[$namaSiswa])) continue; 
-                        $s = $siswaData[$namaSiswa]; 
+                        if (!isset($siswaData[$sObj['id']])) continue; 
+                        $s = $siswaData[$sObj['id']]; 
                         ?>
                         <tr>
                             <td class="text-center text-muted" title="ID Siswa"><?= $sObj['id'] ?></td>

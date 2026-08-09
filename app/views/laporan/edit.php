@@ -101,26 +101,51 @@
                     </thead>
                     <tbody>
                         <?php foreach ($siswa as $index => $s): ?>
-                            <?php $existing = $existingSiswaData[$s['nama']] ?? []; ?>
-                            <tr>
-                                <td class="text-center fw-bold text-muted" title="ID Siswa"><?= $s['id'] ?></td>
-                                <td class="fw-medium">
-                                    <?= htmlspecialchars($s['nama']) ?>
-                                    <input type="hidden" name="data[<?= $index ?>][nama]" value="<?= htmlspecialchars($s['nama']) ?>">
+                        <?php 
+                        // Coba cari data absen harian (untuk pre-fill)
+                        // Data existing_siswa_data dari laporan sudah menggunakan kunci ID (atau fallback nama untuk data lama)
+                        $existing = $existingSiswaData[$s['id']] ?? $existingSiswaData[$s['nama']] ?? []; 
+                        
+                        // Default ke data harian jika belum ada laporan tersimpan
+                        if (empty($existing) && isset($dataAbsen[$s['id']])) {
+                            $existing = $dataAbsen[$s['id']];
+                        }
+                        ?>
+                        <tr>
+                            <td class="text-center text-muted"><?= $index + 1 ?></td>
+                            <td class="fw-medium">
+                                <?= htmlspecialchars($s['nama']) ?>
+                                <input type="hidden" name="data[<?= $s['id'] ?>][nama]" value="<?= htmlspecialchars($s['nama']) ?>">
+                            </td>
+                            <?php foreach ($kategori as $key => $label): ?>
+                                <?php
+                                // Tentukan nilai check
+                                $isChecked = false;
+                                if (!empty($existingSiswaData)) {
+                                    $isChecked = !empty($existing[$key]);
+                                } else {
+                                    $status = $existing[$key]['status'] ?? '';
+                                    if ($status === 'hadir' || $status === 'sekolah') {
+                                        $isChecked = true;
+                                    } elseif ($status === 'ikut') {
+                                        $isChecked = true;
+                                    } elseif ($status === 'ya') {
+                                        $isChecked = true;
+                                    }
+                                }
+                                ?>
+                                <td class="text-center p-0 align-middle">
+                                    <div class="form-check d-flex justify-content-center mb-0">
+                                        <input class="form-check-input check-presensi check-<?= htmlspecialchars($key) ?> shadow-none"
+                                               type="checkbox"
+                                               name="data[<?= $s['id'] ?>][<?= htmlspecialchars($key) ?>]"
+                                               value="1"
+                                               data-key="<?= htmlspecialchars($key) ?>"
+                                               <?= $isChecked ? 'checked' : '' ?>>
+                                    </div>
                                 </td>
-                                <?php foreach ($kategori as $key => $label): ?>
-                                    <td class="text-center">
-                                        <div class="form-check d-flex justify-content-center mb-0">
-                                            <input class="form-check-input check-presensi shadow-none"
-                                                   type="checkbox"
-                                                   name="data[<?= $index ?>][<?= htmlspecialchars($key) ?>]"
-                                                   value="1"
-                                                   data-key="<?= htmlspecialchars($key) ?>"
-                                                   <?= !empty($existing[$key]) ? 'checked' : '' ?>>
-                                        </div>
-                                    </td>
-                                <?php endforeach; ?>
-                            </tr>
+                            <?php endforeach; ?>
+                        </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
@@ -132,7 +157,7 @@
 <script>
 (function () {
     document.getElementById('btnCentangSemua').addEventListener('click', () => {
-        document.querySelectorAll('.check-presensi').forEach(cb => cb.checked = true);
+        document.querySelectorAll('.form-check-input').forEach(cb => cb.checked = true);
     });
     document.getElementById('btnHapusSemua').addEventListener('click', () => {
         document.querySelectorAll('.check-presensi').forEach(cb => cb.checked = false);

@@ -58,8 +58,9 @@ $totalLaporan = count(array_unique(array_column(array_values($rekap), 'total_har
                 </thead>
                 <tbody>
                     <?php $no = 1; ?>
-                    <?php foreach ($rekap as $nama => $data): ?>
+                    <?php foreach ($rekap as $id => $data): ?>
                         <?php
+                        $nama = $data['nama'] ?? '';
                         $totalKat   = count($kategori);
                         $totalHadir = 0;
                         $totalMax   = $data['total_hari'] * $totalKat;

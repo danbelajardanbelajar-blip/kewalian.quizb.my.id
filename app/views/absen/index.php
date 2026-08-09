@@ -51,8 +51,8 @@
     <!-- Daftar Siswa -->
     <div class="siswa-grid" id="gridSiswa">
         <?php foreach ($siswa as $i => $s): ?>
-            <?php $done = $sudahIsi[$s['nama']] ?? false; ?>
-            <?php $url  = BASE_URL . '/absen/isi/' . rawurlencode($s['nama']) . '?tanggal=' . $tanggal; ?>
+            <?php $done = $sudahIsi[$s['id']] ?? false; ?>
+            <?php $url  = BASE_URL . '/absen/isi/' . $s['id'] . '?tanggal=' . $tanggal; ?>
 
             <a href="<?= $url ?>"
                class="siswa-card <?= $done ? 'siswa-card--done' : '' ?>"

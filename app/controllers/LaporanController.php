@@ -57,11 +57,15 @@ class LaporanController extends Controller
         $rawData  = $_POST['data'] ?? [];
         $siswa    = [];
 
-        foreach ($rawData as $index => $row) {
+        foreach ($rawData as $idStr => $row) {
             $namaRaw = $row['nama'] ?? '';
-            if (empty($namaRaw)) continue;
+            $id      = (int) $idStr;
+            if (empty($namaRaw) || $id <= 0) continue;
 
-            $entry = ['nama' => strip_tags(trim($namaRaw))];
+            $entry = [
+                'id'   => $id,
+                'nama' => strip_tags(trim($namaRaw))
+            ];
 
             foreach ($kategori as $key => $label) {
                 $entry[$key] = isset($row[$key]) && $row[$key] == '1' ? true : false;
@@ -146,7 +150,8 @@ class LaporanController extends Controller
         // Map data existing siswa untuk pre-fill form
         $existingSiswaData = [];
         foreach ($data['siswa'] ?? [] as $s) {
-            $existingSiswaData[$s['nama']] = $s;
+            $key = $s['id'] ?? $s['nama']; // fallback for old data without ID
+            $existingSiswaData[$key] = $s;
         }
 
         $this->view('laporan/edit', [

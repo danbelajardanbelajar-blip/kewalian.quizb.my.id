@@ -31,7 +31,7 @@ class AbsenController extends Controller
         // Tandai siapa yang sudah isi
         $sudahIsi = [];
         foreach ($siswa as $s) {
-            $sudahIsi[$s['nama']] = $this->absenModel->sudahIsi($tanggal, $s['nama']);
+            $sudahIsi[$s['id']] = $this->absenModel->sudahIsi($tanggal, $s['id']);
         }
 
         $this->view('absen/index', [
@@ -44,31 +44,37 @@ class AbsenController extends Controller
     }
 
     /**
-     * GET /absen/isi/{nama_encoded} — Form pertanyaan untuk siswa
+     * GET /absen/isi/{id} — Form pertanyaan untuk siswa
      */
-    public function isi(string $namaEncoded = ''): void
+    public function isi(string $idStr = ''): void
     {
-        if (empty($namaEncoded)) {
+        if (empty($idStr)) {
             $this->redirect('absen');
         }
 
-        $nama    = urldecode($namaEncoded);
+        $id      = (int)$idStr;
         $tanggal = $_GET['tanggal'] ?? date('Y-m-d');
         $kelas   = $this->konfig->getKelas();
         $siswa   = $this->konfig->getSiswa();
 
-        // Validasi: nama harus ada di daftar
-        $daftarNama = array_column($siswa, 'nama');
-        if (!in_array($nama, $daftarNama)) {
-            Flash::set('error', 'Nama siswa tidak ditemukan.');
+        // Validasi: ID harus ada di daftar
+        $daftarId = array_column($siswa, 'id');
+        if (!in_array($id, $daftarId)) {
+            Flash::set('error', 'Data siswa tidak ditemukan.');
             $this->redirect('absen');
         }
 
+        $nama = '';
+        foreach ($siswa as $s) {
+            if ($s['id'] === $id) $nama = $s['nama'];
+        }
+
         // Ambil data existing jika sudah pernah isi
-        $existing = $this->absenModel->getSiswaByTanggal($tanggal, $nama);
+        $existing = $this->absenModel->getSiswaByTanggal($tanggal, $id);
 
         $this->view('absen/form', [
             'title'    => 'Absen Harian — ' . $nama,
+            'id'       => $id,
             'nama'     => $nama,
             'tanggal'  => $tanggal,
             'kelas'    => $kelas,
@@ -86,10 +92,11 @@ class AbsenController extends Controller
             $this->redirect('absen');
         }
 
+        $id      = (int)($_POST['id'] ?? 0);
         $nama    = trim($_POST['nama'] ?? '');
         $tanggal = trim($_POST['tanggal'] ?? date('Y-m-d'));
 
-        if (empty($nama) || empty($tanggal)) {
+        if ($id <= 0 || empty($nama) || empty($tanggal)) {
             Flash::set('error', 'Data tidak valid.');
             $this->redirect('absen');
         }
@@ -100,24 +107,24 @@ class AbsenController extends Controller
             $this->redirect('absen');
         }
 
-        // Validasi nama ada di daftar siswa
+        // Validasi ID ada di daftar siswa
         $daftarSiswa = $this->konfig->getSiswa();
-        $daftarNama = array_column($daftarSiswa, 'nama');
-        if (!in_array($nama, $daftarNama)) {
-            Flash::set('error', 'Nama siswa tidak ditemukan.');
+        $daftarId = array_column($daftarSiswa, 'id');
+        if (!in_array($id, $daftarId)) {
+            Flash::set('error', 'Siswa tidak ditemukan.');
             $this->redirect('absen');
         }
 
         // Bangun data absen
         $data = $this->buildAbsenData($_POST);
 
-        $isEdit = $this->absenModel->sudahIsi($tanggal, $nama);
+        $isEdit = $this->absenModel->sudahIsi($tanggal, $id);
 
-        if ($this->absenModel->simpanSiswa($tanggal, $nama, $data)) {
+        if ($this->absenModel->simpanSiswa($tanggal, $id, $nama, $data)) {
             $this->redirect('absen/selesai?nama=' . rawurlencode($nama) . '&tanggal=' . $tanggal . '&edit=' . ($isEdit ? '1' : '0'));
         } else {
             Flash::set('error', 'Gagal menyimpan. Silakan coba lagi.');
-            $this->redirect('absen/isi/' . rawurlencode($nama) . '?tanggal=' . $tanggal);
+            $this->redirect('absen/isi/' . $id . '?tanggal=' . $tanggal);
         }
     }
 
@@ -152,8 +159,7 @@ class AbsenController extends Controller
         $kelas   = $this->konfig->getKelas();
 
         $dataTanggal = $this->absenModel->getByTanggal($tanggal);
-        $daftarNama = array_column($siswa, 'nama');
-        $statistik   = $this->absenModel->getStatistik($tanggal, $daftarNama);
+        $statistik   = $this->absenModel->getStatistik($tanggal, $siswa);
         $allDates    = $this->absenModel->getAllDates();
 
         $this->view('absen/rekap', [

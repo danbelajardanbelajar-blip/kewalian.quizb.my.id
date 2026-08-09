@@ -130,6 +130,7 @@ $totalStep = count($pertanyaan);
 
 <!-- Form Wizard -->
 <form action="<?= BASE_URL ?>/absen/simpan" method="POST" id="formAbsen">
+    <input type="hidden" name="id" value="<?= $id ?>">
     <input type="hidden" name="nama" value="<?= htmlspecialchars($nama) ?>">
     <input type="hidden" name="tanggal" value="<?= htmlspecialchars($tanggal) ?>">
 

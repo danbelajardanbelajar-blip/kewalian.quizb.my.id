@@ -21,25 +21,25 @@ class AbsenModel extends Model
     /**
      * Ambil data absen satu siswa berdasarkan tanggal
      */
-    public function getSiswaByTanggal(string $tanggal, string $nama): array
+    public function getSiswaByTanggal(string $tanggal, int $id): array
     {
         $data = $this->getByTanggal($tanggal);
-        return $data['siswa'][$nama] ?? [];
+        return $data['siswa'][$id] ?? [];
     }
 
     /**
      * Cek apakah siswa sudah mengisi absen hari ini
      */
-    public function sudahIsi(string $tanggal, string $nama): bool
+    public function sudahIsi(string $tanggal, int $id): bool
     {
         $data = $this->getByTanggal($tanggal);
-        return !empty($data['siswa'][$nama]);
+        return !empty($data['siswa'][$id]);
     }
 
     /**
      * Simpan/update data absen satu siswa
      */
-    public function simpanSiswa(string $tanggal, string $nama, array $dataSiswa): bool
+    public function simpanSiswa(string $tanggal, int $id, string $nama, array $dataSiswa): bool
     {
         $existing = $this->getByTanggal($tanggal);
 
@@ -52,10 +52,11 @@ class AbsenModel extends Model
             ];
         }
 
+        $dataSiswa['id']        = $id;
         $dataSiswa['nama']      = $nama;
         $dataSiswa['waktu_isi'] = date('Y-m-d H:i:s');
 
-        $existing['siswa'][$nama] = $dataSiswa;
+        $existing['siswa'][$id] = $dataSiswa;
         $existing['updated_at']   = date('Y-m-d H:i:s');
 
         return $this->db->write($this->folder . '/' . $tanggal . '.json', $existing);
@@ -101,9 +102,9 @@ class AbsenModel extends Model
         ];
 
         // Siswa belum isi
-        foreach ($daftarSiswa as $nama) {
-            if (!isset($siswaData[$nama])) {
-                $stats['belum_isi'][] = $nama;
+        foreach ($daftarSiswa as $s) {
+            if (!isset($siswaData[$s['id']])) {
+                $stats['belum_isi'][] = $s['nama'];
             }
         }
 
