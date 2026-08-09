@@ -1,0 +1,14 @@
+# Storage files (laporan tersimpan — jangan di-track)
+storage/laporan/*.json
+storage/logs/*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo

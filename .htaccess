@@ -12,3 +12,39 @@
    php_flag log_errors On
 </IfModule>
 # END cPanel-generated php ini directives, do not edit
+
+# ── URL Rewriting — MVC Front Controller ────────────────────
+Options -Indexes
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Jangan redirect file/folder yang benar-benar ada
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Arahkan semua request ke index.php dengan ?url=...
+    RewriteRule ^(.+)$ index.php?url=$1 [QSA,L]
+</IfModule>
+
+# ── Keamanan: Blokir akses ke folder sensitif ───────────────
+<FilesMatch "\.(json|log|ini)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Izinkan akses ke data.json (dibaca oleh PHP, bukan langsung browser)
+# File ini diproteksi di atas — akses hanya melalui PHP
+
+# ── Keamanan Header ─────────────────────────────────────────
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>

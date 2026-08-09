@@ -1,0 +1,538 @@
+/* ============================================================
+   style.css — Dashboard Wali Kelas
+   Custom Design System (Bootstrap 5 + Custom)
+   ============================================================ */
+
+/* --- Google Fonts Import --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* --- CSS Custom Properties --- */
+:root {
+    --primary:        #3B82F6;
+    --primary-dark:   #2563EB;
+    --primary-light:  #EFF6FF;
+    --secondary:      #64748B;
+    --success:        #10B981;
+    --warning:        #F59E0B;
+    --danger:         #EF4444;
+    --info:           #06B6D4;
+    --bg-body:        #F1F5F9;
+    --bg-card:        #FFFFFF;
+    --text-main:      #1E293B;
+    --text-muted:     #64748B;
+    --text-light:     #94A3B8;
+    --border:         #E2E8F0;
+    --shadow-sm:      0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.05);
+    --shadow-md:      0 4px 6px -1px rgba(0,0,0,.08), 0 2px 4px -1px rgba(0,0,0,.05);
+    --shadow-lg:      0 10px 15px -3px rgba(0,0,0,.08), 0 4px 6px -2px rgba(0,0,0,.04);
+    --navbar-bg:      linear-gradient(135deg, #1E3A5F 0%, #2563EB 100%);
+    --radius:         12px;
+    --radius-sm:      8px;
+    --transition:     all .2s ease;
+}
+
+/* --- Reset & Base --- */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main { flex: 1; }
+
+/* ============================================================
+   NAVBAR
+   ============================================================ */
+#mainNavbar {
+    background: var(--navbar-bg);
+    box-shadow: 0 2px 20px rgba(37, 99, 235, .25);
+    padding: .6rem 0;
+    backdrop-filter: blur(10px);
+}
+
+.brand-icon {
+    width: 38px;
+    height: 38px;
+    background: rgba(255,255,255,.15);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.brand-title {
+    font-size: .95rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+}
+
+.brand-sub {
+    font-size: .7rem;
+    color: rgba(255,255,255,.65);
+    line-height: 1;
+}
+
+.navbar-nav .nav-link {
+    color: rgba(255,255,255,.8) !important;
+    font-weight: 500;
+    padding: .45rem .8rem !important;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+    font-size: .875rem;
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link.active {
+    color: #fff !important;
+    background: rgba(255,255,255,.15);
+}
+
+.navbar-nav .nav-link.active {
+    background: rgba(255,255,255,.2);
+}
+
+.user-avatar {
+    width: 30px;
+    height: 30px;
+    background: rgba(255,255,255,.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .85rem;
+    color: #fff;
+}
+
+.btn-logout {
+    background: rgba(239, 68, 68, .2);
+    border: 1px solid rgba(239, 68, 68, .4);
+    color: #FCA5A5 !important;
+    border-radius: var(--radius-sm);
+    font-size: .8rem;
+    transition: var(--transition);
+}
+.btn-logout:hover {
+    background: rgba(239, 68, 68, .4);
+    color: #fff !important;
+}
+
+/* ============================================================
+   PAGE HEADER
+   ============================================================ */
+.page-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: .25rem;
+    display: flex;
+    align-items: center;
+}
+
+.page-subtitle {
+    color: var(--text-muted);
+    font-size: .875rem;
+    margin-bottom: 0;
+}
+
+.badge-edit {
+    background: linear-gradient(135deg, #F59E0B, #D97706);
+    color: #fff;
+    padding: .25rem .6rem;
+    border-radius: 50px;
+    font-size: .75rem;
+    font-weight: 600;
+}
+
+.badge-new {
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: #fff;
+    padding: .25rem .6rem;
+    border-radius: 50px;
+    font-size: .75rem;
+    font-weight: 600;
+}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.card-main {
+    border: none;
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    overflow: hidden;
+}
+
+.card-header-custom {
+    background: linear-gradient(135deg, #F8FAFC, #F1F5F9);
+    padding: .875rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+    font-size: .875rem;
+    color: var(--text-main);
+}
+
+/* ============================================================
+   FORM TOPBAR (Presensi form)
+   ============================================================ */
+.form-topbar {
+    background: linear-gradient(135deg, #F8FAFC, #EFF6FF);
+    border-bottom: 1px solid var(--border);
+}
+
+.stat-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    background: rgba(59, 130, 246, .08);
+    border: 1px solid rgba(59, 130, 246, .2);
+    color: var(--primary);
+    padding: .3rem .7rem;
+    border-radius: 50px;
+    font-size: .8rem;
+    font-weight: 600;
+}
+
+/* ============================================================
+   TABLE PRESENSI
+   ============================================================ */
+.table-presensi {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table-presensi thead th {
+    background: linear-gradient(135deg, #1E3A5F, #2563EB);
+    color: #fff;
+    font-weight: 600;
+    font-size: .8rem;
+    text-align: center;
+    vertical-align: middle;
+    padding: .65rem .5rem;
+    border: none;
+    white-space: nowrap;
+}
+
+.table-presensi thead tr:first-child th:first-child {
+    border-radius: 0;
+}
+
+.table-presensi tbody td {
+    padding: .55rem .6rem;
+    vertical-align: middle;
+    border-color: var(--border);
+    font-size: .875rem;
+}
+
+.col-no { width: 50px; }
+.col-nama { min-width: 220px; }
+.col-kategori { min-width: 100px; }
+
+.table-presensi tbody tr:hover td {
+    background-color: rgba(59, 130, 246, .04);
+}
+
+.kategori-header {
+    font-size: .78rem;
+}
+
+.btn-col-toggle {
+    background: none;
+    border: none;
+    padding: 0 3px;
+    font-size: .75rem;
+    cursor: pointer;
+    opacity: .7;
+    transition: var(--transition);
+}
+.btn-col-toggle:hover { opacity: 1; transform: scale(1.2); }
+
+/* Checkbox styling */
+.check-presensi {
+    width: 1.25em;
+    height: 1.25em;
+    cursor: pointer;
+    border-radius: 4px !important;
+    border-color: #CBD5E1;
+    transition: var(--transition);
+}
+.check-presensi:checked {
+    background-color: var(--success);
+    border-color: var(--success);
+}
+.check-presensi:focus {
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, .2);
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn-primary-custom {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, .3);
+}
+.btn-primary-custom:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, .4);
+    color: #fff;
+    background: linear-gradient(135deg, var(--primary-dark), #1D4ED8);
+}
+.btn-primary-custom:active { transform: translateY(0); }
+
+/* ============================================================
+   FLASH MESSAGES (Alerts override)
+   ============================================================ */
+.alert--success { background:#ECFDF5; border-left:4px solid #10B981; color:#064E3B; }
+.alert--danger  { background:#FEF2F2; border-left:4px solid #EF4444; color:#7F1D1D; }
+.alert--warning { background:#FFFBEB; border-left:4px solid #F59E0B; color:#78350F; }
+.alert--info    { background:#EFF6FF; border-left:4px solid #3B82F6; color:#1E3A5F; }
+
+/* ============================================================
+   STAT CARDS (Laporan detail)
+   ============================================================ */
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+}
+.stat-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+.stat-card-label {
+    font-size: .75rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: .25rem;
+}
+.stat-card-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--primary);
+    line-height: 1;
+}
+.stat-card-value span {
+    font-size: 1rem;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+.stat-progress {
+    height: 6px;
+    border-radius: 50px;
+    margin: .5rem 0 .25rem;
+    background: var(--border);
+}
+.stat-card-pct {
+    font-size: .75rem;
+    color: var(--text-muted);
+}
+
+/* Badge Hadir/Absen */
+.badge-hadir {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: rgba(16, 185, 129, .15);
+    color: #059669;
+    border-radius: 50%;
+    font-size: .8rem;
+    font-weight: 700;
+}
+.badge-absen {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: rgba(239, 68, 68, .1);
+    color: #DC2626;
+    border-radius: 50%;
+    font-size: .75rem;
+}
+
+/* ============================================================
+   DATE BADGE (Laporan list)
+   ============================================================ */
+.date-badge {
+    width: 36px;
+    height: 36px;
+    background: rgba(59, 130, 246, .1);
+    color: var(--primary);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .95rem;
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   SISWA LIST
+   ============================================================ */
+.siswa-no {
+    width: 28px;
+    height: 28px;
+    background: var(--primary-light);
+    color: var(--primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.footer {
+    background: linear-gradient(135deg, #1E293B, #0F172A);
+    color: rgba(255,255,255,.6);
+    font-size: .8rem;
+    margin-top: auto;
+}
+.footer-brand { color: #fff; font-size: .85rem; }
+.footer-text  { color: rgba(255,255,255,.5); }
+.footer-time  { color: rgba(255,255,255,.7); font-family: 'Courier New', monospace; }
+
+/* ============================================================
+   LOGIN PAGE
+   ============================================================ */
+body.login-page {
+    background: linear-gradient(135deg, #1E3A5F 0%, #2563EB 60%, #7C3AED 100%);
+}
+
+.login-bg {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.shape {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,.05);
+}
+.shape-1 { width: 400px; height: 400px; top: -100px; right: -100px; }
+.shape-2 { width: 300px; height: 300px; bottom: -80px; left: -80px; }
+.shape-3 { width: 200px; height: 200px; top: 50%; left: 40%; }
+
+.login-wrapper { position: relative; z-index: 1; padding: 1rem; }
+
+.login-card {
+    background: rgba(255,255,255,.97);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.3);
+}
+
+.login-icon {
+    width: 72px;
+    height: 72px;
+    background: linear-gradient(135deg, var(--primary), #7C3AED);
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(37, 99, 235, .4);
+}
+
+.login-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: .25rem;
+}
+.login-subtitle {
+    color: var(--text-muted);
+    font-size: .85rem;
+    margin-bottom: 0;
+}
+.login-footer small { font-size: .75rem; }
+
+.btn-login {
+    background: linear-gradient(135deg, var(--primary), #7C3AED);
+    border: none;
+    color: #fff;
+    font-weight: 700;
+    border-radius: var(--radius-sm);
+    letter-spacing: .03em;
+    transition: var(--transition);
+    box-shadow: 0 4px 15px rgba(37, 99, 235, .35);
+}
+.btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, .45);
+    color: #fff;
+}
+.btn-login:disabled {
+    opacity: .8;
+    transform: none;
+}
+
+/* ============================================================
+   BREADCRUMB
+   ============================================================ */
+.breadcrumb {
+    background: none;
+    padding: 0;
+    font-size: .8rem;
+}
+.breadcrumb-item a {
+    color: var(--primary);
+    text-decoration: none;
+}
+.breadcrumb-item a:hover { text-decoration: underline; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+    .page-title { font-size: 1.2rem; }
+    .login-card { padding: 1.75rem; }
+    .stat-card-value { font-size: 1.4rem; }
+}
+
+@media (max-width: 576px) {
+    .form-topbar { padding: 1rem !important; }
+    .table-presensi thead th { font-size: .7rem; padding: .5rem .35rem; }
+}
+
+/* ============================================================
+   UTILITY
+   ============================================================ */
+.bg-primary-subtle { background: rgba(59, 130, 246, .1) !important; }
+.text-primary { color: var(--primary) !important; }
+.bg-success-subtle { background: rgba(16, 185, 129, .1) !important; }
+.text-success { color: var(--success) !important; }
+.bg-warning-subtle { background: rgba(245, 158, 11, .1) !important; }
+.text-warning { color: var(--warning) !important; }
