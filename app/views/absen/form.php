@@ -223,10 +223,18 @@ $totalStep = count($pertanyaan);
                                 <span class="quran-icon">📑</span>
                                 <span>½ Juz</span>
                             </label>
+                            <label class="quran-type-btn <?= $qType === 'tidak' ? 'selected' : '' ?>"
+                                   for="quran_tidak">
+                                <input type="radio" id="quran_tidak" name="quran_type"
+                                       value="tidak" class="d-none"
+                                       <?= $qType === 'tidak' ? 'checked' : '' ?>>
+                                <span class="quran-icon">❌</span>
+                                <span>Tidak Baca</span>
+                            </label>
                         </div>
 
                         <div class="quran-jumlah-wrap" id="quranJumlahWrap"
-                             style="<?= $qType === 'setengah_juz' ? 'display:none' : '' ?>">
+                             style="<?= ($qType === 'setengah_juz' || $qType === 'tidak') ? 'display:none' : '' ?>">
                             <label class="izin-ket-label">Berapa <?= $qType === 'juz' ? 'juz' : 'halaman' ?>?</label>
                             <div class="quran-counter">
                                 <button type="button" class="quran-counter-btn" id="btnMin">
@@ -401,7 +409,7 @@ $totalStep = count($pertanyaan);
 
             const wrap  = document.getElementById('quranJumlahWrap');
             const label = wrap?.querySelector('.izin-ket-label');
-            if (this.value === 'setengah_juz') {
+            if (this.value === 'setengah_juz' || this.value === 'tidak') {
                 wrap.style.display = 'none';
                 if (current < TOTAL) {
                     setTimeout(() => showStep(current + 1), 300);
