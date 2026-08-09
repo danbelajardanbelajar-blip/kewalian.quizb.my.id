@@ -50,13 +50,21 @@ class SiswaController extends Controller
         $siswa = $this->konfig->getSiswa();
 
         // Cek duplikasi
-        if (in_array($namaBaru, $siswa)) {
-            Flash::set('warning', 'Siswa "' . htmlspecialchars($namaBaru) . '" sudah ada dalam daftar.');
-            $this->redirect('siswa');
+        foreach ($siswa as $s) {
+            if ($s['nama'] === $namaBaru) {
+                Flash::set('warning', 'Siswa "' . htmlspecialchars($namaBaru) . '" sudah ada dalam daftar.');
+                $this->redirect('siswa');
+            }
         }
 
-        $siswa[] = $namaBaru;
-        sort($siswa);
+        $maxId = array_reduce($siswa, fn($max, $s) => max($max, $s['id']), 0);
+        $siswa[] = [
+            'id' => $maxId + 1,
+            'nama' => $namaBaru
+        ];
+        
+        // Sort by name
+        usort($siswa, fn($a, $b) => strcmp($a['nama'], $b['nama']));
 
         if ($this->konfig->saveSiswa($siswa)) {
             Flash::set('success', 'Siswa "' . htmlspecialchars($namaBaru) . '" berhasil ditambahkan.');
@@ -78,15 +86,25 @@ class SiswaController extends Controller
             $this->redirect('siswa');
         }
 
-        $namaHapus = trim($_POST['nama'] ?? '');
+        $idHapus = (int)($_POST['id'] ?? 0);
 
-        if (empty($namaHapus)) {
-            Flash::set('error', 'Nama siswa tidak valid.');
+        if ($idHapus <= 0) {
+            Flash::set('error', 'ID siswa tidak valid.');
             $this->redirect('siswa');
         }
 
         $siswa = $this->konfig->getSiswa();
-        $siswa = array_filter($siswa, fn($s) => $s !== $namaHapus);
+        
+        // Cari nama untuk flash message
+        $namaHapus = '';
+        foreach ($siswa as $s) {
+            if ($s['id'] === $idHapus) {
+                $namaHapus = $s['nama'];
+                break;
+            }
+        }
+
+        $siswa = array_filter($siswa, fn($s) => $s['id'] !== $idHapus);
 
         if ($this->konfig->saveSiswa(array_values($siswa))) {
             Flash::set('success', 'Siswa "' . htmlspecialchars($namaHapus) . '" berhasil dihapus.');
@@ -114,9 +132,22 @@ class SiswaController extends Controller
             $this->json(['success' => false, 'message' => 'Data urutan kosong'], 400);
         }
 
-        $urutBaru = array_map('strval', $urutBaru);
+        // We receive an array of IDs from the frontend, but we need to save full objects
+        $siswaLama = $this->konfig->getSiswa();
+        $mapSiswa = [];
+        foreach ($siswaLama as $s) {
+            $mapSiswa[$s['id']] = $s;
+        }
 
-        if ($this->konfig->saveSiswa($urutBaru)) {
+        $siswaBaru = [];
+        foreach ($urutBaru as $idStr) {
+            $id = (int)$idStr;
+            if (isset($mapSiswa[$id])) {
+                $siswaBaru[] = $mapSiswa[$id];
+            }
+        }
+
+        if ($this->konfig->saveSiswa($siswaBaru)) {
             $this->json(['success' => true, 'message' => 'Urutan berhasil disimpan']);
         } else {
             $this->json(['success' => false, 'message' => 'Gagal menyimpan urutan'], 500);

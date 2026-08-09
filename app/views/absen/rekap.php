@@ -137,12 +137,14 @@ $labelKat  = [
                     </tr>
                 </thead>
                 <tbody>
-                    <?php $no = 1; ?>
-                    <?php foreach ($siswa as $namaSiswa): ?>
-                        <?php if (!isset($siswaData[$namaSiswa])) continue; ?>
-                        <?php $s = $siswaData[$namaSiswa]; ?>
+                    <?php foreach ($siswa as $sObj): ?>
+                        <?php 
+                        $namaSiswa = $sObj['nama'];
+                        if (!isset($siswaData[$namaSiswa])) continue; 
+                        $s = $siswaData[$namaSiswa]; 
+                        ?>
                         <tr>
-                            <td class="text-center text-muted"><?= $no++ ?></td>
+                            <td class="text-center text-muted" title="ID Siswa"><?= $sObj['id'] ?></td>
                             <td class="fw-medium"><?= htmlspecialchars($namaSiswa) ?></td>
 
                             <?php foreach (['sekolah','almiftah','diniyah','subuh'] as $kat): ?>

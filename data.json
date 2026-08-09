@@ -14,39 +14,141 @@
         "password": "$2y$10$9r12FUoqOwL3z9DlIhI27evZTQ8h19fCqmHxxv1boRK8lcX2oXOu6"
     },
     "data_siswa": [
-        "ABELIA ZAHWA NATASYAFIRAH",
-        "AHMAD FADHIL ELFAJRI",
-        "AHMAD HASAN ARIFIN",
-        "AHMAD HUSAIN ARIFIN",
-        "AHMAD ULIL ALBAB ARRIDLO",
-        "AULIYA VITA RAHMANI",
-        "CITRA ATHIROTUL HUBBIYAH",
-        "DEVA RAMADANI",
-        "DEWI MARTHA TSABITAH",
-        "FITRI SALMA QURROTAA'YUN",
-        "GEA REGINA PUTRI",
-        "KHARISMA ALIFATUZZAHRAH AL-AZKA",
-        "KIRANA ARSELIA",
-        "M. ANFAL ALDI FIRMANSYAH",
-        "M. NIDZOM MUHAKKAM",
-        "MILHATUR RAHMAH WULANDARI",
-        "MOHAMMAD WILDAN",
-        "MUHAMMAD AIDIL FITRO",
-        "MUHAMMAD SUAIDY AL ABRAR",
-        "MUHAMMAD TAUFIQUR ROHMAN NASRULLAH",
-        "NAISYLA AIRIN AZZAHRA",
-        "NIKEN AJENG LESTARI",
-        "NOLALINKA INDY PUTRI",
-        "NUR FARIHATUL LAILI",
-        "NUR GHILMAN BAIHAQI",
-        "NUR MAFAIDHATUN NABILA",
-        "NUR SIELVA NABYLA PUTRI",
-        "RACHEL IMAMATUL KAMILAH",
-        "RADIFA RUZANA PUTRI",
-        "SU'DAA ARINAL UDLHIYYAH",
-        "SURYA PANCA OCTAVIAN PUTRA",
-        "UMI LATIFATUS SA'DIYAH",
-        "WAHIDA RASYADA ARINI",
-        "ZIDATUN NAYLA IZZA BILLAH"
+        {
+            "id": 1,
+            "nama": "ABELIA ZAHWA NATASYAFIRAH"
+        },
+        {
+            "id": 2,
+            "nama": "AHMAD FADHIL ELFAJRI"
+        },
+        {
+            "id": 3,
+            "nama": "AHMAD HASAN ARIFIN"
+        },
+        {
+            "id": 4,
+            "nama": "AHMAD HUSAIN ARIFIN"
+        },
+        {
+            "id": 5,
+            "nama": "AHMAD ULIL ALBAB ARRIDLO"
+        },
+        {
+            "id": 6,
+            "nama": "AULIYA VITA RAHMANI"
+        },
+        {
+            "id": 7,
+            "nama": "CITRA ATHIROTUL HUBBIYAH"
+        },
+        {
+            "id": 8,
+            "nama": "DEVA RAMADANI"
+        },
+        {
+            "id": 9,
+            "nama": "DEWI MARTHA TSABITAH"
+        },
+        {
+            "id": 10,
+            "nama": "FITRI SALMA QURROTAA'YUN"
+        },
+        {
+            "id": 11,
+            "nama": "GEA REGINA PUTRI"
+        },
+        {
+            "id": 12,
+            "nama": "KHARISMA ALIFATUZZAHRAH AL-AZKA"
+        },
+        {
+            "id": 13,
+            "nama": "KIRANA ARSELIA"
+        },
+        {
+            "id": 14,
+            "nama": "M. ANFAL ALDI FIRMANSYAH"
+        },
+        {
+            "id": 15,
+            "nama": "M. NIDZOM MUHAKKAM"
+        },
+        {
+            "id": 16,
+            "nama": "MILHATUR RAHMAH WULANDARI"
+        },
+        {
+            "id": 17,
+            "nama": "MOHAMMAD WILDAN"
+        },
+        {
+            "id": 18,
+            "nama": "MUHAMMAD AIDIL FITRO"
+        },
+        {
+            "id": 19,
+            "nama": "MUHAMMAD SUAIDY AL ABRAR"
+        },
+        {
+            "id": 20,
+            "nama": "MUHAMMAD TAUFIQUR ROHMAN NASRULLAH"
+        },
+        {
+            "id": 21,
+            "nama": "NAISYLA AIRIN AZZAHRA"
+        },
+        {
+            "id": 22,
+            "nama": "NIKEN AJENG LESTARI"
+        },
+        {
+            "id": 23,
+            "nama": "NOLALINKA INDY PUTRI"
+        },
+        {
+            "id": 24,
+            "nama": "NUR FARIHATUL LAILI"
+        },
+        {
+            "id": 25,
+            "nama": "NUR GHILMAN BAIHAQI"
+        },
+        {
+            "id": 26,
+            "nama": "NUR MAFAIDHATUN NABILA"
+        },
+        {
+            "id": 27,
+            "nama": "NUR SIELVA NABYLA PUTRI"
+        },
+        {
+            "id": 28,
+            "nama": "RACHEL IMAMATUL KAMILAH"
+        },
+        {
+            "id": 29,
+            "nama": "RADIFA RUZANA PUTRI"
+        },
+        {
+            "id": 30,
+            "nama": "SU'DAA ARINAL UDLHIYYAH"
+        },
+        {
+            "id": 31,
+            "nama": "SURYA PANCA OCTAVIAN PUTRA"
+        },
+        {
+            "id": 32,
+            "nama": "UMI LATIFATUS SA'DIYAH"
+        },
+        {
+            "id": 33,
+            "nama": "WAHIDA RASYADA ARINI"
+        },
+        {
+            "id": 34,
+            "nama": "ZIDATUN NAYLA IZZA BILLAH"
+        }
     ]
 }

@@ -125,17 +125,16 @@ $today = date('Y-m-d');
                     </thead>
                     <tbody>
                         <?php if (!empty($siswa)): ?>
-                            <?php $no = 1; ?>
-                            <?php foreach ($siswa as $index => $nama): ?>
+                            <?php foreach ($siswa as $index => $s): ?>
                                 <?php
                                 $inputName      = "data[{$index}]";
-                                $existingData   = $existingSiswaData[$nama] ?? [];
+                                $existingData   = $existingSiswaData[$s['nama']] ?? [];
                                 ?>
                                 <tr class="siswa-row">
-                                    <td class="text-center fw-bold text-muted"><?= $no++ ?></td>
+                                    <td class="text-center fw-bold text-muted" title="ID Siswa"><?= $s['id'] ?></td>
                                     <td class="fw-medium">
-                                        <?= htmlspecialchars($nama) ?>
-                                        <input type="hidden" name="<?= $inputName ?>[nama]" value="<?= htmlspecialchars($nama) ?>">
+                                        <?= htmlspecialchars($s['nama']) ?>
+                                        <input type="hidden" name="<?= $inputName ?>[nama]" value="<?= htmlspecialchars($s['nama']) ?>">
                                     </td>
 
                                     <?php foreach ($kategori as $key => $label): ?>

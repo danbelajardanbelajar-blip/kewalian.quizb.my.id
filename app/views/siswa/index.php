@@ -71,16 +71,16 @@
                     </div>
                 <?php else: ?>
                     <ul class="list-group list-group-flush" id="listSiswa">
-                        <?php foreach ($siswa as $i => $nama): ?>
+                        <?php foreach ($siswa as $i => $s): ?>
                             <li class="list-group-item d-flex justify-content-between align-items-center siswa-item">
                                 <div class="d-flex align-items-center gap-3">
-                                    <div class="siswa-no"><?= $i + 1 ?></div>
-                                    <span class="fw-medium siswa-nama"><?= htmlspecialchars($nama) ?></span>
+                                    <div class="siswa-no" title="ID Siswa"><?= $s['id'] ?></div>
+                                    <span class="fw-medium siswa-nama"><?= htmlspecialchars($s['nama']) ?></span>
                                 </div>
                                 <form action="<?= BASE_URL ?>/siswa/hapus" method="POST"
                                       class="d-inline form-hapus-siswa"
-                                      data-nama="<?= htmlspecialchars($nama, ENT_QUOTES) ?>">
-                                    <input type="hidden" name="nama" value="<?= htmlspecialchars($nama) ?>">
+                                      data-nama="<?= htmlspecialchars($s['nama'], ENT_QUOTES) ?>">
+                                    <input type="hidden" name="id" value="<?= $s['id'] ?>">
                                     <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus Siswa">
                                         <i class="bi bi-trash3"></i>
                                     </button>

@@ -50,15 +50,19 @@
 
     <!-- Daftar Siswa -->
     <div class="siswa-grid" id="gridSiswa">
-        <?php foreach ($siswa as $i => $nama): ?>
-            <?php $done = $sudahIsi[$nama] ?? false; ?>
-            <?php $url  = BASE_URL . '/absen/isi/' . rawurlencode($nama) . '?tanggal=' . $tanggal; ?>
+        <?php foreach ($siswa as $i => $s): ?>
+            <?php $done = $sudahIsi[$s['nama']] ?? false; ?>
+            <?php $url  = BASE_URL . '/absen/isi/' . rawurlencode($s['nama']) . '?tanggal=' . $tanggal; ?>
 
             <a href="<?= $url ?>"
                class="siswa-card <?= $done ? 'siswa-card--done' : '' ?>"
-               data-nama="<?= htmlspecialchars(strtolower($nama)) ?>">
-                <div class="siswa-card-no"><?= $i + 1 ?></div>
-                <div class="siswa-card-nama"><?= htmlspecialchars($nama) ?></div>
+               title="<?= htmlspecialchars($s['nama']) ?>"
+               data-nama="<?= htmlspecialchars(strtolower($s['nama'])) ?>">
+                
+                <div class="siswa-card-no" title="ID Siswa"><?= $s['id'] ?></div>
+                
+                <div class="siswa-card-nama">
+                    <?= htmlspecialchars($s['nama']) ?></div>
                 <?php if ($done): ?>
                     <div class="siswa-card-status">
                         <i class="bi bi-check-circle-fill"></i> Sudah Isi

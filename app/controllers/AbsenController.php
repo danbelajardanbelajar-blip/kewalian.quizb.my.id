@@ -30,8 +30,8 @@ class AbsenController extends Controller
 
         // Tandai siapa yang sudah isi
         $sudahIsi = [];
-        foreach ($siswa as $nama) {
-            $sudahIsi[$nama] = $this->absenModel->sudahIsi($tanggal, $nama);
+        foreach ($siswa as $s) {
+            $sudahIsi[$s['nama']] = $this->absenModel->sudahIsi($tanggal, $s['nama']);
         }
 
         $this->view('absen/index', [
@@ -58,7 +58,8 @@ class AbsenController extends Controller
         $siswa   = $this->konfig->getSiswa();
 
         // Validasi: nama harus ada di daftar
-        if (!in_array($nama, $siswa)) {
+        $daftarNama = array_column($siswa, 'nama');
+        if (!in_array($nama, $daftarNama)) {
             Flash::set('error', 'Nama siswa tidak ditemukan.');
             $this->redirect('absen');
         }
@@ -101,7 +102,8 @@ class AbsenController extends Controller
 
         // Validasi nama ada di daftar siswa
         $daftarSiswa = $this->konfig->getSiswa();
-        if (!in_array($nama, $daftarSiswa)) {
+        $daftarNama = array_column($daftarSiswa, 'nama');
+        if (!in_array($nama, $daftarNama)) {
             Flash::set('error', 'Nama siswa tidak ditemukan.');
             $this->redirect('absen');
         }
@@ -150,7 +152,8 @@ class AbsenController extends Controller
         $kelas   = $this->konfig->getKelas();
 
         $dataTanggal = $this->absenModel->getByTanggal($tanggal);
-        $statistik   = $this->absenModel->getStatistik($tanggal, $siswa);
+        $daftarNama = array_column($siswa, 'nama');
+        $statistik   = $this->absenModel->getStatistik($tanggal, $daftarNama);
         $allDates    = $this->absenModel->getAllDates();
 
         $this->view('absen/rekap', [

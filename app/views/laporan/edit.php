@@ -100,14 +100,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php $no = 1; ?>
-                        <?php foreach ($siswa as $index => $nama): ?>
-                            <?php $existing = $existingSiswaData[$nama] ?? []; ?>
+                        <?php foreach ($siswa as $index => $s): ?>
+                            <?php $existing = $existingSiswaData[$s['nama']] ?? []; ?>
                             <tr>
-                                <td class="text-center fw-bold text-muted"><?= $no++ ?></td>
+                                <td class="text-center fw-bold text-muted" title="ID Siswa"><?= $s['id'] ?></td>
                                 <td class="fw-medium">
-                                    <?= htmlspecialchars($nama) ?>
-                                    <input type="hidden" name="data[<?= $index ?>][nama]" value="<?= htmlspecialchars($nama) ?>">
+                                    <?= htmlspecialchars($s['nama']) ?>
+                                    <input type="hidden" name="data[<?= $index ?>][nama]" value="<?= htmlspecialchars($s['nama']) ?>">
                                 </td>
                                 <?php foreach ($kategori as $key => $label): ?>
                                     <td class="text-center">
