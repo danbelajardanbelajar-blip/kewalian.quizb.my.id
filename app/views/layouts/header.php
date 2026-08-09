@@ -64,7 +64,13 @@ $pageTitle = $title ?? 'Dashboard Wali Kelas';
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/laporan') !== false ? 'active' : '' ?>"
+                    <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/absen/rekap') !== false ? 'active' : '' ?>"
+                       href="<?= BASE_URL ?>/absen/rekap">
+                        <i class="bi bi-person-check me-1"></i> Absen Mandiri
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= (strpos($_SERVER['REQUEST_URI'], '/laporan') !== false && strpos($_SERVER['REQUEST_URI'], '/rekap') === false) ? 'active' : '' ?>"
                        href="<?= BASE_URL ?>/laporan">
                         <i class="bi bi-journal-text me-1"></i> Riwayat
                     </a>

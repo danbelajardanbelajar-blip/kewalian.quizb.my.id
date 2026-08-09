@@ -1,0 +1,700 @@
+/* ============================================================
+   absen.css — Absen Mandiri Siswa
+   Mobile-first, wizard-style questionnaire
+   ============================================================ */
+
+/* ── Base absen page ──────────────────────────────────────── */
+body.absen-page {
+    background: linear-gradient(160deg, #EFF6FF 0%, #F5F3FF 50%, #EFF6FF 100%);
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+}
+
+/* ── Hero Header ──────────────────────────────────────────── */
+.absen-hero {
+    background: linear-gradient(135deg, #1E3A5F 0%, #2563EB 60%, #7C3AED 100%);
+    padding: 2rem 1rem 3.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.absen-hero::before {
+    content: '';
+    position: absolute;
+    width: 300px; height: 300px;
+    background: rgba(255,255,255,.06);
+    border-radius: 50%;
+    top: -80px; right: -80px;
+}
+
+.absen-hero::after {
+    content: '';
+    position: absolute;
+    width: 200px; height: 200px;
+    background: rgba(255,255,255,.04);
+    border-radius: 50%;
+    bottom: -60px; left: -40px;
+}
+
+.absen-logo {
+    width: 64px; height: 64px;
+    background: rgba(255,255,255,.2);
+    border-radius: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    color: #fff;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,.2);
+}
+
+.absen-hero-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: .25rem;
+}
+
+.absen-hero-sub {
+    color: rgba(255,255,255,.75);
+    font-size: .9rem;
+    margin: 0;
+}
+
+/* ── Container ────────────────────────────────────────────── */
+.absen-container {
+    max-width: 600px;
+    margin: -1.5rem auto 2rem;
+    padding: 0 1rem 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+/* ── Info box ─────────────────────────────────────────────── */
+.absen-info-box {
+    background: rgba(59, 130, 246, .08);
+    border: 1px solid rgba(59, 130, 246, .2);
+    border-radius: 12px;
+    padding: .75rem 1rem;
+    color: #1E3A5F;
+    font-size: .875rem;
+    font-weight: 500;
+}
+
+/* ── Search ───────────────────────────────────────────────── */
+.absen-search-wrap {
+    position: relative;
+}
+.absen-search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94A3B8;
+    font-size: 1rem;
+    pointer-events: none;
+}
+.absen-search {
+    width: 100%;
+    padding: .85rem 1rem .85rem 2.75rem;
+    border: 2px solid #E2E8F0;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,.05);
+    transition: border-color .2s, box-shadow .2s;
+    outline: none;
+}
+.absen-search:focus {
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 4px rgba(59,130,246,.1);
+}
+
+/* ── Siswa Grid ───────────────────────────────────────────── */
+.siswa-grid {
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+}
+
+.siswa-card {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    background: #fff;
+    border: 2px solid #E2E8F0;
+    border-radius: 14px;
+    padding: 1rem 1.1rem;
+    text-decoration: none;
+    color: #1E293B;
+    transition: all .2s;
+    box-shadow: 0 1px 4px rgba(0,0,0,.04);
+}
+
+.siswa-card:hover {
+    border-color: #3B82F6;
+    box-shadow: 0 4px 16px rgba(59,130,246,.15);
+    transform: translateY(-1px);
+    color: #1E293B;
+}
+
+.siswa-card--done {
+    background: #F0FDF4;
+    border-color: #BBF7D0;
+}
+.siswa-card--done:hover {
+    border-color: #10B981;
+    box-shadow: 0 4px 16px rgba(16,185,129,.15);
+}
+
+.siswa-card-no {
+    width: 32px; height: 32px;
+    background: #EFF6FF;
+    color: #3B82F6;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .8rem; font-weight: 700;
+    flex-shrink: 0;
+}
+.siswa-card--done .siswa-card-no {
+    background: #DCFCE7;
+    color: #16A34A;
+}
+
+.siswa-card-nama {
+    flex: 1;
+    font-weight: 600;
+    font-size: .9rem;
+    line-height: 1.3;
+}
+
+.siswa-card-status {
+    font-size: .72rem;
+    font-weight: 600;
+    color: #16A34A;
+}
+.siswa-card-status--pending {
+    color: #94A3B8;
+}
+
+.siswa-card-arrow {
+    color: #CBD5E1;
+    font-size: .9rem;
+}
+
+.absen-empty {
+    text-align: center;
+    padding: 2rem;
+    color: #94A3B8;
+}
+
+.absen-footer-note {
+    text-align: center;
+    font-size: .75rem;
+    color: #94A3B8;
+    padding: 1rem 0;
+}
+
+/* ── Wizard Top Bar ───────────────────────────────────────── */
+.wizard-topbar {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .75rem 1rem;
+    background: #fff;
+    border-bottom: 1px solid #E2E8F0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+
+.wizard-back-btn {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    background: #F1F5F9;
+    border-radius: 10px;
+    color: #475569;
+    text-decoration: none;
+    flex-shrink: 0;
+    transition: all .2s;
+}
+.wizard-back-btn:hover {
+    background: #E2E8F0;
+    color: #1E293B;
+}
+
+.wizard-progress-wrap {
+    height: 8px;
+    background: #E2E8F0;
+    border-radius: 50px;
+    overflow: hidden;
+}
+
+.wizard-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #3B82F6, #7C3AED);
+    border-radius: 50px;
+    transition: width .4s cubic-bezier(.4,0,.2,1);
+}
+
+.wizard-step-label {
+    font-size: .8rem;
+    font-weight: 700;
+    color: #64748B;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* ── Name Badge ───────────────────────────────────────────── */
+.wizard-name-badge {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    background: linear-gradient(135deg, #1E3A5F, #2563EB);
+    padding: 1rem 1.25rem;
+}
+
+.wizard-avatar {
+    width: 42px; height: 42px;
+    background: rgba(255,255,255,.2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.wizard-name-text {
+    font-weight: 700;
+    color: #fff;
+    font-size: .95rem;
+    line-height: 1.2;
+}
+.wizard-date-text {
+    font-size: .75rem;
+    color: rgba(255,255,255,.65);
+}
+
+/* ── Wizard Steps ─────────────────────────────────────────── */
+.wizard-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.wizard-step {
+    display: none;
+    padding: 1.25rem 1rem;
+    animation: stepFadeIn .3s ease;
+}
+
+.wizard-step--active {
+    display: block;
+}
+
+@keyframes stepFadeIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Question Card ────────────────────────────────────────── */
+.question-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 1.75rem 1.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,.06);
+    border: 1px solid #E2E8F0;
+    margin-bottom: 1.25rem;
+}
+
+.question-emoji {
+    font-size: 2.5rem;
+    margin-bottom: .75rem;
+    display: block;
+}
+
+.question-number {
+    font-size: .75rem;
+    font-weight: 600;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: .4rem;
+}
+
+.question-text {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1E293B;
+    line-height: 1.4;
+    margin-bottom: 1.25rem;
+}
+
+/* ── Option Buttons ───────────────────────────────────────── */
+.option-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: .6rem;
+}
+.option-grid--3 { grid-template-columns: repeat(3, 1fr); }
+.option-grid--2 { grid-template-columns: repeat(2, 1fr); }
+
+.option-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .4rem;
+    padding: 1rem .5rem;
+    border-radius: 14px;
+    border: 2px solid #E2E8F0;
+    background: #F8FAFC;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: .85rem;
+    color: #475569;
+    transition: all .2s;
+    text-align: center;
+    user-select: none;
+}
+
+.option-btn--big {
+    padding: 1.5rem 1rem;
+    font-size: 1rem;
+}
+
+.option-icon {
+    font-size: 1.4rem;
+}
+
+.option-btn:hover {
+    border-color: #94A3B8;
+    background: #F1F5F9;
+    transform: translateY(-2px);
+}
+
+/* Color variants */
+.option-btn--success.selected, .option-btn--success:hover.selected {
+    border-color: #10B981;
+    background: #ECFDF5;
+    color: #065F46;
+    box-shadow: 0 4px 12px rgba(16,185,129,.2);
+}
+.option-btn--danger.selected {
+    border-color: #EF4444;
+    background: #FEF2F2;
+    color: #7F1D1D;
+    box-shadow: 0 4px 12px rgba(239,68,68,.2);
+}
+.option-btn--warning.selected {
+    border-color: #F59E0B;
+    background: #FFFBEB;
+    color: #78350F;
+    box-shadow: 0 4px 12px rgba(245,158,11,.2);
+}
+.option-btn--info.selected {
+    border-color: #06B6D4;
+    background: #ECFEFF;
+    color: #164E63;
+    box-shadow: 0 4px 12px rgba(6,182,212,.2);
+}
+
+/* ── Izin Keterangan ──────────────────────────────────────── */
+.izin-ket-wrap {
+    margin-top: 1rem;
+    animation: stepFadeIn .2s ease;
+}
+.izin-ket-label {
+    font-size: .82rem;
+    font-weight: 600;
+    color: #475569;
+    display: block;
+    margin-bottom: .4rem;
+}
+.izin-ket-input {
+    width: 100%;
+    border: 2px solid #E2E8F0;
+    border-radius: 10px;
+    padding: .6rem .85rem;
+    font-size: .9rem;
+    font-family: 'Inter', sans-serif;
+    resize: none;
+    outline: none;
+    transition: border-color .2s;
+}
+.izin-ket-input:focus {
+    border-color: #06B6D4;
+    box-shadow: 0 0 0 3px rgba(6,182,212,.1);
+}
+
+/* ── Al-Qur'an Options ────────────────────────────────────── */
+.quran-options {
+    display: flex;
+    gap: .6rem;
+    margin-bottom: 1rem;
+}
+
+.quran-type-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .3rem;
+    padding: .85rem .5rem;
+    border-radius: 12px;
+    border: 2px solid #E2E8F0;
+    background: #F8FAFC;
+    cursor: pointer;
+    font-size: .82rem;
+    font-weight: 600;
+    color: #475569;
+    transition: all .2s;
+    text-align: center;
+    user-select: none;
+}
+.quran-type-btn.selected {
+    border-color: #7C3AED;
+    background: #F5F3FF;
+    color: #4C1D95;
+    box-shadow: 0 4px 12px rgba(124,58,237,.2);
+}
+.quran-icon { font-size: 1.5rem; }
+
+.quran-jumlah-wrap {
+    margin-top: .75rem;
+}
+
+.quran-counter {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin-top: .5rem;
+}
+.quran-counter-btn {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    border: 2px solid #E2E8F0;
+    background: #F1F5F9;
+    color: #475569;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: all .15s;
+    flex-shrink: 0;
+}
+.quran-counter-btn:hover {
+    border-color: #7C3AED;
+    background: #F5F3FF;
+    color: #7C3AED;
+}
+.quran-counter-input {
+    flex: 1;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 800;
+    border: 2px solid #E2E8F0;
+    border-radius: 12px;
+    padding: .5rem;
+    outline: none;
+    max-width: 120px;
+}
+.quran-counter-input:focus {
+    border-color: #7C3AED;
+    box-shadow: 0 0 0 3px rgba(124,58,237,.1);
+}
+
+/* ── Wizard Navigation ────────────────────────────────────── */
+.wizard-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: .75rem;
+    padding: 0 .25rem;
+}
+
+.btn-wizard-prev {
+    padding: .75rem 1.5rem;
+    border-radius: 12px;
+    border: 2px solid #E2E8F0;
+    background: #fff;
+    color: #475569;
+    font-weight: 600;
+    font-size: .9rem;
+    cursor: pointer;
+    transition: all .2s;
+}
+.btn-wizard-prev:hover {
+    border-color: #94A3B8;
+    background: #F8FAFC;
+}
+
+.btn-wizard-next {
+    padding: .75rem 2rem;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, #3B82F6, #2563EB);
+    color: #fff;
+    font-weight: 700;
+    font-size: .95rem;
+    cursor: pointer;
+    transition: all .2s;
+    box-shadow: 0 4px 12px rgba(37,99,235,.3);
+}
+.btn-wizard-next:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(37,99,235,.4);
+}
+
+.btn-wizard-submit {
+    padding: .85rem 2.5rem;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all .2s;
+    box-shadow: 0 4px 12px rgba(16,185,129,.35);
+}
+.btn-wizard-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16,185,129,.45);
+}
+.btn-wizard-submit:disabled {
+    opacity: .7;
+    transform: none;
+    cursor: not-allowed;
+}
+
+/* ── Selesai Page ─────────────────────────────────────────── */
+.selesai-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem;
+    text-align: center;
+}
+
+.selesai-icon-wrap {
+    margin-bottom: 1.5rem;
+}
+
+.selesai-icon {
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10B981, #059669);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    color: #fff;
+    box-shadow: 0 8px 32px rgba(16,185,129,.4);
+    animation: popIn .5s cubic-bezier(.34,1.56,.64,1);
+}
+
+.selesai-icon--edit {
+    background: linear-gradient(135deg, #F59E0B, #D97706);
+    box-shadow: 0 8px 32px rgba(245,158,11,.4);
+}
+
+@keyframes popIn {
+    0%   { transform: scale(0) rotate(-30deg); opacity: 0; }
+    100% { transform: scale(1) rotate(0deg);   opacity: 1; }
+}
+
+.selesai-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #1E293B;
+    margin-bottom: .5rem;
+}
+
+.selesai-nama {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #3B82F6;
+    margin-bottom: .25rem;
+}
+
+.selesai-tanggal {
+    color: #64748B;
+    font-size: .9rem;
+    margin-bottom: 1.25rem;
+}
+
+.selesai-msg {
+    background: #F0FDF4;
+    border: 1px solid #BBF7D0;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    color: #14532D;
+    font-weight: 500;
+    font-size: .9rem;
+    max-width: 420px;
+    margin: 0 auto 1.25rem;
+}
+
+.selesai-quote {
+    font-style: italic;
+    color: #64748B;
+    font-size: .875rem;
+    max-width: 360px;
+    margin: 0 auto 2rem;
+    line-height: 1.6;
+}
+
+.selesai-actions {
+    display: flex;
+    gap: .75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.btn-selesai-kembali {
+    padding: .75rem 1.5rem;
+    border-radius: 12px;
+    border: 2px solid #E2E8F0;
+    background: #fff;
+    color: #475569;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all .2s;
+}
+.btn-selesai-kembali:hover {
+    border-color: #3B82F6;
+    color: #3B82F6;
+    text-decoration: none;
+}
+
+.btn-selesai-edit {
+    padding: .75rem 1.5rem;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, #F59E0B, #D97706);
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all .2s;
+    box-shadow: 0 3px 10px rgba(245,158,11,.3);
+}
+.btn-selesai-edit:hover {
+    color: #fff;
+    transform: translateY(-1px);
+    text-decoration: none;
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 480px) {
+    .option-grid--3 { grid-template-columns: repeat(3, 1fr); }
+    .option-btn { padding: .75rem .35rem; font-size: .78rem; }
+    .option-icon { font-size: 1.2rem; }
+    .question-text { font-size: 1.05rem; }
+    .btn-wizard-next { padding: .75rem 1.5rem; }
+    .btn-wizard-submit { padding: .85rem 2rem; }
+}
