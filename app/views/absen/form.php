@@ -14,11 +14,14 @@
 <body class="absen-page">
 
 <?php
+// Nama proper untuk sapaan
+$namaProper = ucwords(strtolower($nama));
+
 // Definisi 7 pertanyaan
 $pertanyaan = [
     [
         'id'     => 'sekolah',
-        'label'  => 'Apakah ananda ' . htmlspecialchars($nama) . ' hadir sekolah pagi ini?',
+        'label'  => 'Apakah ananda ' . htmlspecialchars($namaProper) . ' hadir sekolah pagi ini?',
         'icon'   => 'bi-building',
         'emoji'  => '🏫',
         'type'   => 'kehadiran',
@@ -31,7 +34,7 @@ $pertanyaan = [
     ],
     [
         'id'     => 'almiftah',
-        'label'  => 'Apakah ananda ' . htmlspecialchars($nama) . ' hadir Al-Miftah siang ini?',
+        'label'  => 'Apakah ananda ' . htmlspecialchars($namaProper) . ' hadir Al-Miftah siang ini?',
         'icon'   => 'bi-book-half',
         'emoji'  => '📖',
         'type'   => 'kehadiran',
@@ -44,7 +47,7 @@ $pertanyaan = [
     ],
     [
         'id'     => 'diniyah',
-        'label'  => 'Apakah ananda ' . htmlspecialchars($nama) . ' hadir Diniyah malam ini?',
+        'label'  => 'Apakah ananda ' . htmlspecialchars($namaProper) . ' hadir Diniyah malam ini?',
         'icon'   => 'bi-moon-stars',
         'emoji'  => '🌙',
         'type'   => 'kehadiran',
@@ -57,7 +60,7 @@ $pertanyaan = [
     ],
     [
         'id'     => 'subuh',
-        'label'  => 'Apakah ananda ' . htmlspecialchars($nama) . ' hadir Ngaji Pagi (Bakda Shubuh)?',
+        'label'  => 'Apakah ananda ' . htmlspecialchars($namaProper) . ' hadir Ngaji Pagi (Bakda Shubuh)?',
         'icon'   => 'bi-sunrise',
         'emoji'  => '🌅',
         'type'   => 'kehadiran',
@@ -70,14 +73,14 @@ $pertanyaan = [
     ],
     [
         'id'     => 'quran',
-        'label'  => 'Hari ini ananda ' . htmlspecialchars($nama) . ' sudah baca Al-Qur\'an berapa?',
+        'label'  => 'Hari ini ananda ' . htmlspecialchars($namaProper) . ' sudah baca Al-Qur\'an berapa?',
         'icon'   => 'bi-journal-bookmark',
         'emoji'  => '📿',
         'type'   => 'quran',
     ],
     [
         'id'     => 'dluha',
-        'label'  => 'Apakah pagi ini ananda ' . htmlspecialchars($nama) . ' ikut Shalat Dluha di madrasah?',
+        'label'  => 'Apakah pagi ini ananda ' . htmlspecialchars($namaProper) . ' ikut Shalat Dluha di madrasah?',
         'icon'   => 'bi-brightness-high',
         'emoji'  => '🕌',
         'type'   => 'dluha',
@@ -89,7 +92,7 @@ $pertanyaan = [
     ],
     [
         'id'     => 'belajar',
-        'label'  => 'Apakah ananda ' . htmlspecialchars($nama) . ' tadi malam belajar di kamar?',
+        'label'  => 'Apakah ananda ' . htmlspecialchars($namaProper) . ' tadi malam belajar di kamar?',
         'icon'   => 'bi-lamp',
         'emoji'  => '📚',
         'type'   => 'belajar',
@@ -117,10 +120,10 @@ $totalStep = count($pertanyaan);
 <!-- Name badge -->
 <div class="wizard-name-badge">
     <div class="wizard-avatar">
-        <?= mb_substr($nama, 0, 1) ?>
+        <?= mb_substr($namaProper, 0, 1) ?>
     </div>
     <div>
-        <div class="wizard-name-text"><?= htmlspecialchars($nama) ?></div>
+        <div class="wizard-name-text"><?= htmlspecialchars($namaProper) ?></div>
         <div class="wizard-date-text"><?= date('d F Y', strtotime($tanggal)) ?></div>
     </div>
     <?php if ($isEdit): ?>
