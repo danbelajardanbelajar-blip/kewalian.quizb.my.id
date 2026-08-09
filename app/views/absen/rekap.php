@@ -142,6 +142,7 @@ $labelKat  = [
                         <th class="text-center">🕌 Dluha</th>
                         <th class="text-center">📚 Belajar</th>
                         <th class="text-center">Waktu Isi</th>
+                        <th class="text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -183,6 +184,15 @@ $labelKat  = [
                             <td class="text-center"><?= $labelStatus[$s['belajar']['status'] ?? 'tidak'] ?></td>
                             <td class="text-center text-muted" style="font-size:.75rem">
                                 <?= !empty($s['waktu_isi']) ? date('H:i', strtotime($s['waktu_isi'])) : '-' ?>
+                            </td>
+                            <td class="text-center">
+                                <form action="<?= BASE_URL ?>/absen/hapus_siswa" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus data absen <?= htmlspecialchars($namaSiswa) ?> pada tanggal ini?');">
+                                    <input type="hidden" name="tanggal" value="<?= htmlspecialchars($tanggal) ?>">
+                                    <input type="hidden" name="id_siswa" value="<?= $sObj['id'] ?>">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm p-1" title="Hapus Data">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     <?php endforeach; ?>

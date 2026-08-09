@@ -130,4 +130,24 @@ class AbsenModel extends Model
     {
         return $this->db->delete($this->folder . '/' . $tanggal . '.json');
     }
+
+    /**
+     * Hapus data absen satu siswa berdasarkan tanggal
+     */
+    public function deleteSiswa(string $tanggal, int $id): bool
+    {
+        $existing = $this->getByTanggal($tanggal);
+        if (!empty($existing) && isset($existing['siswa'][$id])) {
+            unset($existing['siswa'][$id]);
+            $existing['updated_at'] = date('Y-m-d H:i:s');
+            
+            // Jika setelah dihapus siswanya kosong, hapus sekalian filenya
+            if (empty($existing['siswa'])) {
+                return $this->deleteTanggal($tanggal);
+            }
+            
+            return $this->db->write($this->folder . '/' . $tanggal . '.json', $existing);
+        }
+        return false;
+    }
 }
