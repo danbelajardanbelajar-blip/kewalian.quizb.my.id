@@ -59,7 +59,14 @@ class App
     private function parseUrl(): array
     {
         if (isset($_GET['url'])) {
-            return explode('/', filter_var(rtrim($_GET['url'], '/'), FILTER_SANITIZE_URL));
+            // Gunakan urldecode agar %20 dan + sama-sama jadi spasi,
+            // lalu hapus hanya karakter path traversal yang berbahaya.
+            // JANGAN pakai FILTER_SANITIZE_URL — itu menghapus spasi
+            // sehingga nama siswa dengan spasi akan rusak.
+            $url = rtrim($_GET['url'], '/');
+            // Cegah path traversal
+            $url = str_replace(['..', '\\'], '', $url);
+            return explode('/', $url);
         }
         return [];
     }

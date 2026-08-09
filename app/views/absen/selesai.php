@@ -57,7 +57,7 @@
         <a href="<?= BASE_URL ?>/absen?tanggal=<?= $tanggal ?>" class="btn-selesai-kembali">
             <i class="bi bi-arrow-left me-2"></i> Kembali ke Daftar
         </a>
-        <a href="<?= BASE_URL ?>/absen/isi/<?= urlencode($nama) ?>?tanggal=<?= $tanggal ?>"
+        <a href="<?= BASE_URL ?>/absen/isi/<?= rawurlencode($nama) ?>?tanggal=<?= $tanggal ?>"
            class="btn-selesai-edit">
             <i class="bi bi-pencil me-2"></i> Edit Jawabanku
         </a>

@@ -112,10 +112,10 @@ class AbsenController extends Controller
         $isEdit = $this->absenModel->sudahIsi($tanggal, $nama);
 
         if ($this->absenModel->simpanSiswa($tanggal, $nama, $data)) {
-            $this->redirect('absen/selesai?nama=' . urlencode($nama) . '&tanggal=' . $tanggal . '&edit=' . ($isEdit ? '1' : '0'));
+            $this->redirect('absen/selesai?nama=' . rawurlencode($nama) . '&tanggal=' . $tanggal . '&edit=' . ($isEdit ? '1' : '0'));
         } else {
             Flash::set('error', 'Gagal menyimpan. Silakan coba lagi.');
-            $this->redirect('absen/isi/' . urlencode($nama) . '?tanggal=' . $tanggal);
+            $this->redirect('absen/isi/' . rawurlencode($nama) . '?tanggal=' . $tanggal);
         }
     }
 

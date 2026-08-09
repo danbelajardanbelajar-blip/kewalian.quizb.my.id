@@ -52,7 +52,7 @@
     <div class="siswa-grid" id="gridSiswa">
         <?php foreach ($siswa as $i => $nama): ?>
             <?php $done = $sudahIsi[$nama] ?? false; ?>
-            <?php $url  = BASE_URL . '/absen/isi/' . urlencode($nama) . '?tanggal=' . $tanggal; ?>
+            <?php $url  = BASE_URL . '/absen/isi/' . rawurlencode($nama) . '?tanggal=' . $tanggal; ?>
 
             <a href="<?= $url ?>"
                class="siswa-card <?= $done ? 'siswa-card--done' : '' ?>"
