@@ -81,6 +81,14 @@ body.absen-page {
     color: #1E3A5F;
     font-size: .875rem;
     font-weight: 500;
+    line-height: 1.5;
+    display: flex;
+    align-items: flex-start;
+}
+
+.absen-info-box i {
+    font-size: 1rem;
+    margin-top: 0.1rem;
 }
 
 /* ── Search ───────────────────────────────────────────────── */
