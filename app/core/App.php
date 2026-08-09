@@ -5,21 +5,25 @@
  */
 class App
 {
-    protected string $controller  = 'DashboardController';
-    protected string $method      = 'index';
-    protected array  $params      = [];
+    // Nama controller (string) dan method (string) disimpan terpisah dari object-nya
+    protected string $controllerName = 'DashboardController';
+    protected string $method         = 'index';
+    protected array  $params         = [];
+
+    // Object controller yang aktif (tidak di-type-hint agar fleksibel)
+    protected $controllerObj = null;
 
     public function __construct()
     {
         $url = $this->parseUrl();
 
-        // Tentukan Controller
+        // Tentukan Controller dari URL segment pertama
         if (!empty($url[0])) {
-            $controllerName = ucfirst(strtolower($url[0])) . 'Controller';
-            $controllerFile = APP_PATH . '/controllers/' . $controllerName . '.php';
+            $name = ucfirst(strtolower($url[0])) . 'Controller';
+            $file = APP_PATH . '/controllers/' . $name . '.php';
 
-            if (file_exists($controllerFile)) {
-                $this->controller = $controllerName;
+            if (file_exists($file)) {
+                $this->controllerName = $name;
             } else {
                 $this->notFound();
                 return;
@@ -27,12 +31,13 @@ class App
             unset($url[0]);
         }
 
-        require_once APP_PATH . '/controllers/' . $this->controller . '.php';
-        $this->controller = new $this->controller;
+        // Load dan instantiate controller
+        require_once APP_PATH . '/controllers/' . $this->controllerName . '.php';
+        $this->controllerObj = new $this->controllerName();
 
-        // Tentukan Method
+        // Tentukan Method dari URL segment kedua
         if (!empty($url[1])) {
-            if (method_exists($this->controller, $url[1])) {
+            if (method_exists($this->controllerObj, $url[1])) {
                 $this->method = $url[1];
             } else {
                 $this->notFound();
@@ -41,11 +46,11 @@ class App
             unset($url[1]);
         }
 
-        // Kumpulkan Parameter
+        // Kumpulkan Parameter (sisa URL segments)
         $this->params = $url ? array_values($url) : [];
 
         // Panggil method dengan params
-        call_user_func_array([$this->controller, $this->method], $this->params);
+        call_user_func_array([$this->controllerObj, $this->method], $this->params);
     }
 
     /**
