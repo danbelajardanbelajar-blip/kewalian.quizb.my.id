@@ -363,12 +363,14 @@ $totalStep = count($pertanyaan);
         });
     });
 
-    // ── Pilihan radio → visual selected ────────────────────
+    // ── Pilihan radio → visual selected & Auto-next ──────
     document.querySelectorAll('.option-radio').forEach(radio => {
         radio.addEventListener('change', function () {
             const group = this.closest('.option-grid, .quran-options');
             if (group) group.querySelectorAll('.option-btn, .quran-type-btn').forEach(lbl => lbl.classList.remove('selected'));
             this.closest('label')?.classList.add('selected');
+
+            let autoNext = true;
 
             // Tampilkan/sembunyikan keterangan izin
             const field = this.dataset.field;
@@ -376,8 +378,16 @@ $totalStep = count($pertanyaan);
                 const ketWrap = document.getElementById('ket_' + field);
                 if (ketWrap) {
                     ketWrap.style.display = this.value === 'izin' ? '' : 'none';
-                    if (this.value === 'izin') ketWrap.querySelector('textarea')?.focus();
+                    if (this.value === 'izin') {
+                        ketWrap.querySelector('textarea')?.focus();
+                        autoNext = false; // Jangan auto-next karena harus ngetik izin
+                    }
                 }
+            }
+
+            // Auto-next dengan delay agar animasi klik terlihat
+            if (autoNext && current < TOTAL) {
+                setTimeout(() => showStep(current + 1), 300);
             }
         });
     });
@@ -392,6 +402,9 @@ $totalStep = count($pertanyaan);
             const label = wrap?.querySelector('.izin-ket-label');
             if (this.value === 'setengah_juz') {
                 wrap.style.display = 'none';
+                if (current < TOTAL) {
+                    setTimeout(() => showStep(current + 1), 300);
+                }
             } else {
                 wrap.style.display = '';
                 if (label) label.textContent = 'Berapa ' + (this.value === 'juz' ? 'juz' : 'halaman') + '?';
