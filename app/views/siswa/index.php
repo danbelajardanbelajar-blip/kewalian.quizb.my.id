@@ -78,8 +78,8 @@
                                     <span class="fw-medium siswa-nama"><?= htmlspecialchars($nama) ?></span>
                                 </div>
                                 <form action="<?= BASE_URL ?>/siswa/hapus" method="POST"
-                                      class="d-inline"
-                                      onsubmit="return confirm('Hapus siswa <?= htmlspecialchars(addslashes($nama)) ?>?\nSiswa yang sudah dihapus tidak akan muncul di form presensi.\nData laporan yang sudah ada tidak terpengaruh.')">
+                                      class="d-inline form-hapus-siswa"
+                                      data-nama="<?= htmlspecialchars($nama, ENT_QUOTES) ?>">
                                     <input type="hidden" name="nama" value="<?= htmlspecialchars($nama) ?>">
                                     <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus Siswa">
                                         <i class="bi bi-trash3"></i>
@@ -101,6 +101,15 @@ document.getElementById('searchSiswa')?.addEventListener('input', function () {
     document.querySelectorAll('.siswa-item').forEach(item => {
         const nama = item.querySelector('.siswa-nama').textContent.toLowerCase();
         item.style.display = nama.includes(q) ? '' : 'none';
+    });
+});
+
+// Konfirmasi hapus siswa — pakai data-nama agar aman dari apostrof
+document.querySelectorAll('.form-hapus-siswa').forEach(form => {
+    form.addEventListener('submit', function (e) {
+        const nama = this.dataset.nama;
+        const pesan = 'Hapus siswa ' + nama + '?\nSiswa yang dihapus tidak akan muncul di form presensi.\nData laporan yang sudah ada tidak terpengaruh.';
+        if (!confirm(pesan)) e.preventDefault();
     });
 });
 </script>

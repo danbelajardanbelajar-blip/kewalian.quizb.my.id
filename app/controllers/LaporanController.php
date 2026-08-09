@@ -61,7 +61,7 @@ class LaporanController extends Controller
             $namaRaw = $row['nama'] ?? '';
             if (empty($namaRaw)) continue;
 
-            $entry = ['nama' => htmlspecialchars(strip_tags($namaRaw))];
+            $entry = ['nama' => strip_tags(trim($namaRaw))];
 
             foreach ($kategori as $key => $label) {
                 $entry[$key] = isset($row[$key]) && $row[$key] == '1' ? true : false;

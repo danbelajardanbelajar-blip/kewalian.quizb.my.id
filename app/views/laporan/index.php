@@ -112,8 +112,8 @@
                                     </a>
                                     <form action="<?= BASE_URL ?>/laporan/hapus/<?= $row['tanggal'] ?>"
                                           method="POST"
-                                          class="d-inline"
-                                          onsubmit="return confirm('Hapus laporan tanggal <?= date('d/m/Y', strtotime($row['tanggal'])) ?>? Tindakan ini tidak dapat dibatalkan.')">
+                                          class="d-inline form-hapus-laporan"
+                                          data-tgl="<?= date('d/m/Y', strtotime($row['tanggal'])) ?>">
                                         <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus">
                                             <i class="bi bi-trash3"></i>
                                         </button>
@@ -134,6 +134,16 @@
         document.querySelectorAll('#tableLaporan tbody .laporan-row').forEach(row => {
             const txt = row.querySelector('.tanggal-text').textContent.toLowerCase();
             row.style.display = txt.includes(q) ? '' : 'none';
+        });
+    });
+
+    // Konfirmasi hapus laporan — pakai data-attribute agar aman
+    document.querySelectorAll('.form-hapus-laporan').forEach(form => {
+        form.addEventListener('submit', function (e) {
+            const tgl = this.dataset.tgl;
+            if (!confirm('Hapus laporan tanggal ' + tgl + '?\nTindakan ini tidak dapat dibatalkan.')) {
+                e.preventDefault();
+            }
         });
     });
     </script>
