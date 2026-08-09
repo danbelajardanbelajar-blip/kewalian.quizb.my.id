@@ -229,7 +229,7 @@ $totalStep = count($pertanyaan);
                                        value="tidak" class="d-none"
                                        <?= $qType === 'tidak' ? 'checked' : '' ?>>
                                 <span class="quran-icon">❌</span>
-                                <span>Tidak Baca</span>
+                                <span>Belum Baca</span>
                             </label>
                         </div>
 
