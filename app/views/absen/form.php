@@ -161,8 +161,6 @@ $totalStep = count($pertanyaan);
                                 <?php
                                 $existStatus = $existVal['status'] ?? '';
                                 $checked = ($existStatus === $opt['value']) ? 'checked' : '';
-                                // Default hadir jika belum isi
-                                if (empty($existVal) && $opt['value'] === 'hadir') $checked = 'checked';
                                 ?>
                                 <label class="option-btn option-btn--<?= $opt['color'] ?> <?= $checked ? 'selected' : '' ?>"
                                        for="<?= $q['id'] ?>_<?= $opt['value'] ?>">
@@ -195,7 +193,7 @@ $totalStep = count($pertanyaan);
                     <?php elseif ($q['type'] === 'quran'): ?>
                         <!-- Pertanyaan Al-Qur'an -->
                         <?php
-                        $qType   = $existVal['type']   ?? 'halaman';
+                        $qType   = $existVal['type']   ?? '';
                         $qJumlah = $existVal['jumlah'] ?? 1;
                         ?>
                         <div class="quran-options">
@@ -234,7 +232,7 @@ $totalStep = count($pertanyaan);
                         </div>
 
                         <div class="quran-jumlah-wrap" id="quranJumlahWrap"
-                             style="<?= ($qType === 'setengah_juz' || $qType === 'tidak') ? 'display:none' : '' ?>">
+                             style="<?= ($qType === 'setengah_juz' || $qType === 'tidak' || $qType === '') ? 'display:none' : '' ?>">
                             <label class="izin-ket-label">Berapa <?= $qType === 'juz' ? 'juz' : 'halaman' ?>?</label>
                             <div class="quran-counter">
                                 <button type="button" class="quran-counter-btn" id="btnMin">
@@ -259,7 +257,6 @@ $totalStep = count($pertanyaan);
                                 <?php
                                 $existStatus = $existVal['status'] ?? '';
                                 $checked = ($existStatus === $opt['value']) ? 'checked' : '';
-                                if (empty($existVal) && $opt['value'] === 'ikut') $checked = 'checked';
                                 ?>
                                 <label class="option-btn option-btn--<?= $opt['color'] ?> <?= $checked ? 'selected' : '' ?>"
                                        for="dluha_<?= $opt['value'] ?>">
@@ -282,7 +279,6 @@ $totalStep = count($pertanyaan);
                                 <?php
                                 $existStatus = $existVal['status'] ?? '';
                                 $checked = ($existStatus === $opt['value']) ? 'checked' : '';
-                                if (empty($existVal) && $opt['value'] === 'iya') $checked = 'checked';
                                 ?>
                                 <label class="option-btn option-btn--<?= $opt['color'] ?> option-btn--big <?= $checked ? 'selected' : '' ?>"
                                        for="belajar_<?= $opt['value'] ?>">
