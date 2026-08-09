@@ -67,11 +67,23 @@ class LaporanController extends Controller
                 'nama' => strip_tags(trim($namaRaw))
             ];
 
-            foreach ($kategori as $key => $label) {
-                $entry[$key] = isset($row[$key]) && $row[$key] == '1' ? true : false;
+            // Parse detailed answers same as Absen format
+            foreach (['sekolah', 'almiftah', 'diniyah', 'subuh'] as $k) {
+                $status = $row[$k]['status'] ?? 'absen';
+                $ket    = ($status === 'izin') ? strip_tags($row[$k]['ket'] ?? '') : '';
+                $entry[$k] = ['status' => $status, 'ket' => $ket];
             }
 
-            $siswa[] = $entry;
+            $quranType = $row['quran']['type'] ?? 'tidak';
+            $entry['quran'] = [
+                'type'   => $quranType,
+                'jumlah' => in_array($quranType, ['halaman', 'juz']) ? max(1, (int)($row['quran']['jumlah'] ?? 1)) : 0
+            ];
+
+            $entry['dluha']   = ['status' => $row['dluha']['status'] ?? 'tidak_ikut'];
+            $entry['belajar'] = ['status' => $row['belajar']['status'] ?? 'tidak'];
+
+            $siswa[$id] = $entry; // Use ID as key
         }
 
         if (empty($siswa)) {
@@ -144,24 +156,8 @@ class LaporanController extends Controller
             $this->redirect('laporan');
         }
 
-        $kategori = $this->konfig->getKategori();
-        $siswa    = $this->konfig->getSiswa();
-
-        // Map data existing siswa untuk pre-fill form
-        $existingSiswaData = [];
-        foreach ($data['siswa'] ?? [] as $s) {
-            $key = $s['id'] ?? $s['nama']; // fallback for old data without ID
-            $existingSiswaData[$key] = $s;
-        }
-
-        $this->view('laporan/edit', [
-            'title'             => 'Edit Laporan — ' . date('d F Y', strtotime($tanggal)),
-            'tanggal'           => $tanggal,
-            'kelas'             => $data['kelas'] ?? $this->konfig->getKelas(),
-            'kategori'          => $kategori,
-            'siswa'             => $siswa,
-            'existingSiswaData' => $existingSiswaData,
-        ]);
+        // Dashboard sekarang sudah menangani mode edit
+        $this->redirect('dashboard?tanggal=' . $tanggal);
     }
 
     /**
@@ -192,7 +188,12 @@ class LaporanController extends Controller
         $this->requireAuth();
 
         $rekap    = $this->laporanModel->getRekapPerSiswa();
-        $kategori = $this->konfig->getKategori();
+        $kategori = [
+            'sekolah'  => 'Sekolah',
+            'almiftah' => 'Al-Miftah',
+            'diniyah'  => 'Diniyah',
+            'subuh'    => 'Ngaji Pagi'
+        ];
         $kelas    = $this->konfig->getKelas();
 
         $this->view('laporan/rekap', [
@@ -230,20 +231,64 @@ class LaporanController extends Controller
         // BOM untuk Excel
         fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
+        $kategori = [
+            'sekolah'  => 'Sekolah',
+            'almiftah' => 'Al-Miftah',
+            'diniyah'  => 'Diniyah',
+            'subuh'    => 'Ngaji Pagi'
+        ];
+
         // Header row
         $headers = ['No', 'Nama Siswa'];
-        foreach ($data['kategori'] ?? [] as $label) {
+        foreach ($kategori as $label) {
             $headers[] = $label;
         }
+        $headers[] = 'Al-Qur\'an';
+        $headers[] = 'Shalat Dluha';
+        $headers[] = 'Belajar Kamar';
+        
         fputcsv($output, $headers);
 
         // Data rows
         $no = 1;
         foreach ($data['siswa'] ?? [] as $siswa) {
             $row = [$no++, $siswa['nama']];
-            foreach ($data['kategori'] ?? [] as $key => $label) {
-                $row[] = !empty($siswa[$key]) ? 'Hadir' : 'Tidak';
+            
+            // Kehadiran Dasar
+            foreach ($kategori as $key => $label) {
+                if (isset($siswa[$key])) {
+                    if (is_array($siswa[$key])) {
+                        $st = ucfirst($siswa[$key]['status'] ?? 'absen');
+                        if ($st === 'Izin' && !empty($siswa[$key]['ket'])) {
+                            $st .= ' (' . $siswa[$key]['ket'] . ')';
+                        }
+                        $row[] = $st;
+                    } else {
+                        $row[] = !empty($siswa[$key]) ? 'Hadir' : 'Tidak';
+                    }
+                } else {
+                    $row[] = '-';
+                }
             }
+
+            // Al Quran
+            $q = $siswa['quran'] ?? [];
+            if (!empty($q)) {
+                if (($q['type'] ?? '') === 'setengah_juz') $row[] = 'Setengah Juz';
+                elseif (($q['type'] ?? '') === 'juz') $row[] = $q['jumlah'] . ' Juz';
+                elseif (($q['type'] ?? '') === 'halaman') $row[] = $q['jumlah'] . ' Halaman';
+                else $row[] = 'Belum';
+            } else {
+                $row[] = '-';
+            }
+
+            // Dluha & Belajar
+            $dl = $siswa['dluha']['status'] ?? '';
+            $row[] = $dl === 'ikut' ? 'Ikut' : ($dl === 'udzur_haid' ? 'Udzur' : 'Tidak');
+            
+            $bl = $siswa['belajar']['status'] ?? '';
+            $row[] = $bl === 'iya' ? 'Iya' : 'Tidak';
+
             fputcsv($output, $row);
         }
 

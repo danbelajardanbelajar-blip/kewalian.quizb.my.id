@@ -1,20 +1,34 @@
 <?php
 /**
- * laporan/show.php — Detail Laporan
+ * laporan/show.php — Detail Laporan Wali Kelas
  */
 $tglFormatted  = date('l, d F Y', strtotime($tanggal));
-$kategori      = $laporan['kategori'] ?? [];
 $siswaData     = $laporan['siswa'] ?? [];
 $kelas         = $laporan['kelas'] ?? '';
 $updatedAt     = $laporan['updated_at'] ?? '';
 $createdBy     = $laporan['created_by'] ?? '-';
 
-// Hitung statistik
-$stats = [];
-foreach ($kategori as $key => $label) {
-    $hadir = array_filter($siswaData, fn($s) => !empty($s[$key]));
-    $stats[$key] = ['label' => $label, 'hadir' => count($hadir), 'total' => count($siswaData)];
+$labelStatus = [
+    'hadir'       => '<span class="badge bg-success">Hadir</span>',
+    'absen'       => '<span class="badge bg-danger">Absen</span>',
+    'sakit'       => '<span class="badge bg-warning text-dark">Sakit</span>',
+    'izin'        => '<span class="badge bg-info text-dark">Izin</span>',
+    'ikut'        => '<span class="badge bg-success">Ikut</span>',
+    'udzur_haid'  => '<span class="badge bg-warning text-dark">Udzur</span>',
+    'tidak_ikut'  => '<span class="badge bg-danger">Tidak</span>',
+    'iya'         => '<span class="badge bg-success">Belajar</span>',
+    'tidak'       => '<span class="badge bg-danger">Tidak</span>',
+];
+
+// Hitung statistik (sederhana)
+$totalHadir = 0;
+$totalSiswa = count($siswaData);
+foreach ($siswaData as $s) {
+    if (($s['sekolah']['status'] ?? '') === 'hadir') {
+        $totalHadir++;
+    }
 }
+$pct = $totalSiswa > 0 ? round(($totalHadir / $totalSiswa) * 100) : 0;
 ?>
 
 <div class="page-header mb-4">
@@ -39,7 +53,7 @@ foreach ($kategori as $key => $label) {
                class="btn btn-outline-success btn-sm">
                 <i class="bi bi-file-earmark-excel me-1"></i> Export CSV
             </a>
-            <a href="<?= BASE_URL ?>/laporan/edit/<?= $tanggal ?>"
+            <a href="<?= BASE_URL ?>/?tanggal=<?= $tanggal ?>"
                class="btn btn-outline-warning btn-sm">
                 <i class="bi bi-pencil me-1"></i> Edit Laporan
             </a>
@@ -50,30 +64,25 @@ foreach ($kategori as $key => $label) {
     </div>
 </div>
 
-<!-- Statistik Ringkas -->
 <div class="row g-3 mb-4">
-    <?php foreach ($stats as $key => $stat): ?>
-        <?php $pct = $stat['total'] > 0 ? round(($stat['hadir'] / $stat['total']) * 100) : 0; ?>
-        <div class="col-6 col-md-4 col-xl-3">
-            <div class="stat-card">
-                <div class="stat-card-label"><?= htmlspecialchars($stat['label']) ?></div>
-                <div class="stat-card-value"><?= $stat['hadir'] ?><span>/ <?= $stat['total'] ?></span></div>
-                <div class="progress stat-progress" title="<?= $pct ?>% hadir">
-                    <div class="progress-bar <?= $pct >= 80 ? 'bg-success' : ($pct >= 60 ? 'bg-warning' : 'bg-danger') ?>"
-                         style="width: <?= $pct ?>%"></div>
-                </div>
-                <div class="stat-card-pct"><?= $pct ?>% hadir</div>
+    <div class="col-12 col-md-4">
+        <div class="stat-card text-center">
+            <div class="stat-card-label">Kehadiran Sekolah</div>
+            <div class="stat-card-value text-success"><?= $totalHadir ?> / <?= $totalSiswa ?></div>
+            <div class="progress stat-progress mt-2" title="<?= $pct ?>% hadir">
+                <div class="progress-bar <?= $pct >= 80 ? 'bg-success' : ($pct >= 60 ? 'bg-warning' : 'bg-danger') ?>"
+                     style="width: <?= $pct ?>%"></div>
             </div>
+            <div class="stat-card-pct"><?= $pct ?>% hadir</div>
         </div>
-    <?php endforeach; ?>
+    </div>
 </div>
 
-<!-- Tabel Detail -->
 <div class="card card-main shadow-sm">
     <div class="card-header-custom d-flex justify-content-between align-items-center flex-wrap gap-2">
         <span>
-            <i class="bi bi-people-fill me-2"></i>
-            <strong><?= count($siswaData) ?></strong> Siswa
+            <i class="bi bi-table me-2"></i>
+            Detail Seluruh Siswa
         </span>
         <div class="text-muted small">
             <i class="bi bi-clock me-1"></i>
@@ -84,43 +93,54 @@ foreach ($kategori as $key => $label) {
         </div>
     </div>
     <div class="table-responsive">
-        <table class="table table-bordered align-middle mb-0">
+        <table class="table table-bordered table-hover align-middle mb-0 small">
             <thead>
                 <tr>
-                    <th class="text-center" width="5%">No</th>
-                    <th>Nama Siswa</th>
-                    <?php foreach ($kategori as $label): ?>
-                        <th class="text-center"><?= htmlspecialchars($label) ?></th>
-                    <?php endforeach; ?>
-                    <th class="text-center">Total Hadir</th>
+                    <th class="text-center" width="4%">No</th>
+                    <th style="min-width:180px">Nama Siswa</th>
+                    <th class="text-center">🏫 Sekolah</th>
+                    <th class="text-center">📖 Al-Miftah</th>
+                    <th class="text-center">🌙 Diniyah</th>
+                    <th class="text-center">🌅 Ngaji Pagi</th>
+                    <th class="text-center" style="min-width:120px">📿 Al-Qur'an</th>
+                    <th class="text-center">🕌 Dluha</th>
+                    <th class="text-center">📚 Belajar</th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($siswaData as $i => $siswa): ?>
-                    <?php
-                    $totalHadir = 0;
-                    foreach ($kategori as $key => $label) {
-                        if (!empty($siswa[$key])) $totalHadir++;
-                    }
-                    $totalKat = count($kategori);
-                    ?>
+                <?php $no = 1; foreach ($siswaData as $id => $s): ?>
                     <tr>
-                        <td class="text-center text-muted"><?= $i + 1 ?></td>
-                        <td class="fw-medium"><?= htmlspecialchars($siswa['nama']) ?></td>
-                        <?php foreach ($kategori as $key => $label): ?>
+                        <td class="text-center text-muted"><?= $no++ ?></td>
+                        <td class="fw-medium"><?= htmlspecialchars($s['nama']) ?></td>
+
+                        <?php foreach (['sekolah','almiftah','diniyah','subuh'] as $kat): ?>
                             <td class="text-center">
-                                <?php if (!empty($siswa[$key])): ?>
-                                    <span class="badge-hadir"><i class="bi bi-check-lg"></i></span>
-                                <?php else: ?>
-                                    <span class="badge-absen"><i class="bi bi-x-lg"></i></span>
+                                <?= $labelStatus[$s[$kat]['status'] ?? 'absen'] ?? '-' ?>
+                                <?php if (!empty($s[$kat]['ket'])): ?>
+                                    <div class="text-muted" style="font-size:.7rem;max-width:100px">
+                                        <?= htmlspecialchars($s[$kat]['ket']) ?>
+                                    </div>
                                 <?php endif; ?>
                             </td>
                         <?php endforeach; ?>
+
                         <td class="text-center">
-                            <span class="fw-bold <?= $totalHadir == $totalKat ? 'text-success' : ($totalHadir >= $totalKat / 2 ? 'text-warning' : 'text-danger') ?>">
-                                <?= $totalHadir ?>/<?= $totalKat ?>
-                            </span>
+                            <?php $q = $s['quran'] ?? []; ?>
+                            <?php if (!empty($q)): ?>
+                                <?php if ($q['type'] === 'setengah_juz'): ?>
+                                    <span class="badge bg-info text-dark">½ Juz</span>
+                                <?php elseif ($q['type'] === 'juz'): ?>
+                                    <span class="badge bg-success"><?= $q['jumlah'] ?> Juz</span>
+                                <?php elseif ($q['type'] === 'halaman'): ?>
+                                    <span class="badge bg-primary"><?= $q['jumlah'] ?> Hal</span>
+                                <?php else: ?>
+                                    <span class="badge bg-danger">Belum</span>
+                                <?php endif; ?>
+                            <?php else: ?>-<?php endif; ?>
                         </td>
+
+                        <td class="text-center"><?= $labelStatus[$s['dluha']['status'] ?? 'tidak_ikut'] ?? '-' ?></td>
+                        <td class="text-center"><?= $labelStatus[$s['belajar']['status'] ?? 'tidak'] ?? '-' ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>

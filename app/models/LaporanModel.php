@@ -93,37 +93,51 @@ class LaporanModel extends Model
         $files = $this->db->listFiles($this->folder);
         $rekap = [];
 
+        $kategoriList = ['sekolah', 'almiftah', 'diniyah', 'subuh'];
+        $kategoriLabel = [
+            'sekolah'  => 'Sekolah',
+            'almiftah' => 'Al-Miftah',
+            'diniyah'  => 'Diniyah',
+            'subuh'    => 'Ngaji Pagi'
+        ];
+
         foreach ($files as $file) {
             $data = $this->db->read($this->folder . '/' . $file);
             foreach ($data['siswa'] ?? [] as $siswa) {
                 $id = $siswa['id'] ?? null;
                 $nama = $siswa['nama'] ?? '';
                 
-                // Fallback for older data that doesn't have ID yet
-                if (empty($id)) {
-                    continue; // Skip if no ID, or we can use nama but that defeats the purpose. Let's assume migration script handles it.
-                }
+                if (empty($id)) continue;
 
                 if (!isset($rekap[$id])) {
                     $rekap[$id] = ['id' => $id, 'nama' => $nama, 'total_hadir' => 0, 'total_hari' => 0, 'kategori' => []];
+                    foreach ($kategoriList as $k) {
+                        $rekap[$id]['kategori'][$k] = ['label' => $kategoriLabel[$k], 'hadir' => 0];
+                    }
                 } else if ($nama) {
                     $rekap[$id]['nama'] = $nama;
                 }
 
                 $rekap[$id]['total_hari']++;
-                foreach ($data['kategori'] ?? [] as $key => $label) {
-                    if (!isset($rekap[$id]['kategori'][$key])) {
-                        $rekap[$id]['kategori'][$key] = ['label' => $label, 'hadir' => 0];
+                
+                foreach ($kategoriList as $k) {
+                    $isHadir = false;
+                    if (isset($siswa[$k])) {
+                        if (is_array($siswa[$k])) {
+                            $isHadir = ($siswa[$k]['status'] ?? '') === 'hadir';
+                        } else {
+                            $isHadir = (bool)$siswa[$k]; // old format
+                        }
                     }
-                    if (!empty($siswa[$key])) {
-                        $rekap[$id]['kategori'][$key]['hadir']++;
+
+                    if ($isHadir) {
+                        $rekap[$id]['kategori'][$k]['hadir']++;
                         $rekap[$id]['total_hadir']++;
                     }
                 }
             }
         }
 
-        // Ksort by ID, or we can let the controller sort by Name later if needed
         ksort($rekap);
         return $rekap;
     }
