@@ -205,6 +205,12 @@ class AbsenController extends Controller
         // Belajar di kamar
         $data['belajar'] = ['status' => $post['belajar'] ?? 'tidak'];
 
+        // Tambahan 4 pertanyaan baru (Memaafkan, Doakan Muslimin, Doakan Ortu, Shadaqah)
+        $data['memaafkan'] = ['status' => $post['memaafkan'] ?? 'tidak'];
+        $data['mendoakan_muslimin'] = ['status' => $post['mendoakan_muslimin'] ?? 'tidak'];
+        $data['mendoakan_ortu'] = ['status' => $post['mendoakan_ortu'] ?? 'tidak'];
+        $data['shadaqah'] = ['status' => $post['shadaqah'] ?? 'tidak'];
+
         return $data;
     }
 

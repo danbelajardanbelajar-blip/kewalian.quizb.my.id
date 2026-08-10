@@ -35,8 +35,8 @@ class DashboardController extends Controller
         
         // Siapkan data grafik
         $grafikData = [
-            'labels' => ['Sekolah', 'Al-Miftah', 'Diniyah', 'Ngaji Pagi', 'Al-Qur\'an', 'Dluha', 'Belajar'],
-            'persentase' => [0, 0, 0, 0, 0, 0, 0],
+            'labels' => ['Sekolah', 'Al-Miftah', 'Diniyah', 'Ngaji Pagi', 'Al-Qur\'an', 'Dluha', 'Belajar', 'Memaafkan', 'Doa Muslim', 'Doa Ortu', 'Sedekah'],
+            'persentase' => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             'warna' => [
                 'rgba(54, 162, 235, 0.7)',  // Sekolah
                 'rgba(255, 99, 132, 0.7)',  // Al-Miftah
@@ -44,7 +44,11 @@ class DashboardController extends Controller
                 'rgba(75, 192, 192, 0.7)',  // Subuh
                 'rgba(153, 102, 255, 0.7)', // Quran
                 'rgba(255, 159, 64, 0.7)',  // Dluha
-                'rgba(199, 199, 199, 0.7)'  // Belajar
+                'rgba(199, 199, 199, 0.7)', // Belajar
+                'rgba(232, 62, 140, 0.7)',  // Memaafkan
+                'rgba(32, 201, 151, 0.7)',  // Doa Muslim
+                'rgba(253, 126, 20, 0.7)',  // Doa Ortu
+                'rgba(111, 66, 193, 0.7)'   // Sedekah
             ]
         ];
 
@@ -56,37 +60,46 @@ class DashboardController extends Controller
                 $grafikData['persentase'][$idx] = round(($hadir / $totalSiswa) * 100);
             }
 
-            // Hitung untuk Al-Qur'an, Dluha, Belajar (Kita hitung manual dari data Absen)
+            // Hitung untuk sisa point secara manual
             $absenData = $this->absen->getByTanggal($tanggal);
             $siswaData = $absenData['siswa'] ?? [];
             
             $quranBaca = 0;
             $dluhaIkut = 0;
             $belajarIya = 0;
+            $maafIya = 0;
+            $doaMuslimIya = 0;
+            $doaOrtuIya = 0;
+            $sedekahIya = 0;
 
             foreach ($siswaData as $s) {
-                // Quran: dihitung sudah baca jika type != 'tidak' dan tidak kosong
+                // Quran
                 $q = $s['quran'] ?? [];
                 if (!empty($q) && ($q['type'] ?? '') !== 'tidak') {
                     $quranBaca++;
                 }
 
-                // Dluha: dihitung jika ikut atau udzur
+                // Dluha
                 $dl = $s['dluha']['status'] ?? '';
                 if ($dl === 'ikut' || $dl === 'udzur_haid') {
                     $dluhaIkut++;
                 }
 
-                // Belajar: dihitung jika iya
-                $bl = $s['belajar']['status'] ?? '';
-                if ($bl === 'iya') {
-                    $belajarIya++;
-                }
+                // Belajar & Pertanyaan Tambahan
+                if (($s['belajar']['status'] ?? '') === 'iya') $belajarIya++;
+                if (($s['memaafkan']['status'] ?? '') === 'iya') $maafIya++;
+                if (($s['mendoakan_muslimin']['status'] ?? '') === 'iya') $doaMuslimIya++;
+                if (($s['mendoakan_ortu']['status'] ?? '') === 'iya') $doaOrtuIya++;
+                if (($s['shadaqah']['status'] ?? '') === 'iya') $sedekahIya++;
             }
 
             $grafikData['persentase'][4] = round(($quranBaca / $totalSiswa) * 100);
             $grafikData['persentase'][5] = round(($dluhaIkut / $totalSiswa) * 100);
             $grafikData['persentase'][6] = round(($belajarIya / $totalSiswa) * 100);
+            $grafikData['persentase'][7] = round(($maafIya / $totalSiswa) * 100);
+            $grafikData['persentase'][8] = round(($doaMuslimIya / $totalSiswa) * 100);
+            $grafikData['persentase'][9] = round(($doaOrtuIya / $totalSiswa) * 100);
+            $grafikData['persentase'][10] = round(($sedekahIya / $totalSiswa) * 100);
         }
 
         $this->view('dashboard/index', [

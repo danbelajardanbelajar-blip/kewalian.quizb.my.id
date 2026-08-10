@@ -105,6 +105,10 @@ $pct = $totalSiswa > 0 ? round(($totalHadir / $totalSiswa) * 100) : 0;
                     <th class="text-center" style="min-width:120px">📿 Al-Qur'an</th>
                     <th class="text-center">🕌 Dluha</th>
                     <th class="text-center">📚 Belajar</th>
+                    <th class="text-center">💖 Memaafkan</th>
+                    <th class="text-center">🤲 Doa Muslim</th>
+                    <th class="text-center">👨‍👩‍👦 Doa Ortu</th>
+                    <th class="text-center">🤝 Sedekah</th>
                 </tr>
             </thead>
             <tbody>
@@ -141,6 +145,10 @@ $pct = $totalSiswa > 0 ? round(($totalHadir / $totalSiswa) * 100) : 0;
 
                         <td class="text-center"><?= $labelStatus[$s['dluha']['status'] ?? 'tidak_ikut'] ?? '-' ?></td>
                         <td class="text-center"><?= $labelStatus[$s['belajar']['status'] ?? 'tidak'] ?? '-' ?></td>
+                        <td class="text-center"><?= $labelStatus[$s['memaafkan']['status'] ?? 'tidak'] ?? '-' ?></td>
+                        <td class="text-center"><?= $labelStatus[$s['mendoakan_muslimin']['status'] ?? 'tidak'] ?? '-' ?></td>
+                        <td class="text-center"><?= $labelStatus[$s['mendoakan_ortu']['status'] ?? 'tidak'] ?? '-' ?></td>
+                        <td class="text-center"><?= $labelStatus[$s['shadaqah']['status'] ?? 'tidak'] ?? '-' ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>

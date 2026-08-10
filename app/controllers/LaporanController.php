@@ -246,6 +246,10 @@ class LaporanController extends Controller
         $headers[] = 'Al-Qur\'an';
         $headers[] = 'Shalat Dluha';
         $headers[] = 'Belajar Kamar';
+        $headers[] = 'Memaafkan';
+        $headers[] = 'Doa Muslim';
+        $headers[] = 'Doa Ortu';
+        $headers[] = 'Sedekah';
         
         fputcsv($output, $headers);
 
@@ -288,6 +292,12 @@ class LaporanController extends Controller
             
             $bl = $siswa['belajar']['status'] ?? '';
             $row[] = $bl === 'iya' ? 'Iya' : 'Tidak';
+
+            // 4 Pertanyaan Tambahan
+            $row[] = ($siswa['memaafkan']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum';
+            $row[] = ($siswa['mendoakan_muslimin']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum';
+            $row[] = ($siswa['mendoakan_ortu']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum';
+            $row[] = ($siswa['shadaqah']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum';
 
             fputcsv($output, $row);
         }

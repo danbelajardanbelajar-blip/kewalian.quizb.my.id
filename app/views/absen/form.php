@@ -101,6 +101,50 @@ $pertanyaan = [
             ['value'=>'tidak', 'label'=>'Belum', 'icon'=>'bi-x-circle-fill',     'color'=>'danger'],
         ],
     ],
+    [
+        'id'     => 'memaafkan',
+        'label'  => 'Apakah tadi malam ananda ' . htmlspecialchars($namaProper) . ' sudah memaafkan semua orang?',
+        'icon'   => 'bi-heart-fill',
+        'emoji'  => '💖',
+        'type'   => 'belajar', // use 'belajar' type for simple yes/no UI
+        'options'=> [
+            ['value'=>'iya',   'label'=>'Iya',   'icon'=>'bi-check-circle-fill', 'color'=>'success'],
+            ['value'=>'tidak', 'label'=>'Belum', 'icon'=>'bi-x-circle-fill',     'color'=>'danger'],
+        ],
+    ],
+    [
+        'id'     => 'mendoakan_muslimin',
+        'label'  => 'Apakah tadi malam ananda ' . htmlspecialchars($namaProper) . ' sudah mendoakan semua kaum muslimin?',
+        'icon'   => 'bi-people-fill',
+        'emoji'  => '🤲',
+        'type'   => 'belajar',
+        'options'=> [
+            ['value'=>'iya',   'label'=>'Iya',   'icon'=>'bi-check-circle-fill', 'color'=>'success'],
+            ['value'=>'tidak', 'label'=>'Belum', 'icon'=>'bi-x-circle-fill',     'color'=>'danger'],
+        ],
+    ],
+    [
+        'id'     => 'mendoakan_ortu',
+        'label'  => 'Apakah kemarin ananda ' . htmlspecialchars($namaProper) . ' sudah mendoakan kedua orang tua?',
+        'icon'   => 'bi-person-hearts',
+        'emoji'  => '👨‍👩‍👦',
+        'type'   => 'belajar',
+        'options'=> [
+            ['value'=>'iya',   'label'=>'Iya',   'icon'=>'bi-check-circle-fill', 'color'=>'success'],
+            ['value'=>'tidak', 'label'=>'Belum', 'icon'=>'bi-x-circle-fill',     'color'=>'danger'],
+        ],
+    ],
+    [
+        'id'     => 'shadaqah',
+        'label'  => 'Apakah kemarin ananda ' . htmlspecialchars($namaProper) . ' sudah bersedekah atau membantu orang lain?',
+        'icon'   => 'bi-gift-fill',
+        'emoji'  => '🤝',
+        'type'   => 'belajar',
+        'options'=> [
+            ['value'=>'iya',   'label'=>'Iya',   'icon'=>'bi-check-circle-fill', 'color'=>'success'],
+            ['value'=>'tidak', 'label'=>'Belum', 'icon'=>'bi-x-circle-fill',     'color'=>'danger'],
+        ],
+    ],
 ];
 
 $totalStep = count($pertanyaan);
