@@ -141,6 +141,10 @@ $labelKat  = [
                         <th class="text-center" style="min-width:120px">📿 Al-Qur'an</th>
                         <th class="text-center">🕌 Dluha</th>
                         <th class="text-center">📚 Belajar</th>
+                        <th class="text-center">💖 Memaafkan</th>
+                        <th class="text-center">🤲 Doa Muslim</th>
+                        <th class="text-center">👨‍👩‍👦 Doa Ortu</th>
+                        <th class="text-center">🤝 Sedekah</th>
                         <th class="text-center">Waktu Isi</th>
                         <th class="text-center">Aksi</th>
                     </tr>
@@ -174,14 +178,20 @@ $labelKat  = [
                                         <span class="badge bg-info text-dark">½ Juz</span>
                                     <?php elseif ($q['type'] === 'juz'): ?>
                                         <span class="badge bg-success"><?= $q['jumlah'] ?> Juz</span>
-                                    <?php else: ?>
+                                    <?php elseif ($q['type'] === 'halaman'): ?>
                                         <span class="badge bg-primary"><?= $q['jumlah'] ?> Hal</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-danger">Belum</span>
                                     <?php endif; ?>
                                 <?php else: ?>-<?php endif; ?>
                             </td>
 
                             <td class="text-center"><?= $labelStatus[$s['dluha']['status'] ?? 'tidak_ikut'] ?></td>
                             <td class="text-center"><?= $labelStatus[$s['belajar']['status'] ?? 'tidak'] ?></td>
+                            <td class="text-center"><?= $labelStatus[$s['memaafkan']['status'] ?? 'tidak'] ?? '-' ?></td>
+                            <td class="text-center"><?= $labelStatus[$s['mendoakan_muslimin']['status'] ?? 'tidak'] ?? '-' ?></td>
+                            <td class="text-center"><?= $labelStatus[$s['mendoakan_ortu']['status'] ?? 'tidak'] ?? '-' ?></td>
+                            <td class="text-center"><?= $labelStatus[$s['shadaqah']['status'] ?? 'tidak'] ?? '-' ?></td>
                             <td class="text-center text-muted" style="font-size:.75rem">
                                 <?= !empty($s['waktu_isi']) ? date('H:i', strtotime($s['waktu_isi'])) : '-' ?>
                             </td>
