@@ -195,7 +195,48 @@ $labelKat  = [
                             <td class="text-center text-muted" style="font-size:.75rem">
                                 <?= !empty($s['waktu_isi']) ? date('H:i', strtotime($s['waktu_isi'])) : '-' ?>
                             </td>
-                            <td class="text-center">
+                            <td class="text-center text-nowrap">
+                                <?php
+                                $noHp = $sObj['no_hp'] ?? '';
+                                if (!empty($noHp)) {
+                                    $pesanWa = "*LAPORAN KEGIATAN HARIAN SANTRI*\n";
+                                    $pesanWa .= "Nama: *" . $namaSiswa . "*\n";
+                                    $pesanWa .= "Tanggal: *" . date('d F Y', strtotime($tanggal)) . "*\n\n";
+                                    
+                                    $pesanWa .= "Berikut adalah ringkasan laporan kegiatan ananda:\n";
+                                    $pesanWa .= "🏫 Sekolah: *" . ucfirst($s['sekolah']['status'] ?? 'absen') . "*\n";
+                                    $pesanWa .= "📖 Al-Miftah: *" . ucfirst($s['almiftah']['status'] ?? 'absen') . "*\n";
+                                    $pesanWa .= "🌙 Diniyah: *" . ucfirst($s['diniyah']['status'] ?? 'absen') . "*\n";
+                                    $pesanWa .= "🌅 Ngaji Pagi: *" . ucfirst($s['subuh']['status'] ?? 'absen') . "*\n";
+                                    
+                                    $q = $s['quran'] ?? [];
+                                    $qStr = "Belum";
+                                    if (!empty($q)) {
+                                        if (($q['type'] ?? '') === 'setengah_juz') $qStr = 'Setengah Juz';
+                                        elseif (($q['type'] ?? '') === 'juz') $qStr = $q['jumlah'] . ' Juz';
+                                        elseif (($q['type'] ?? '') === 'halaman') $qStr = $q['jumlah'] . ' Halaman';
+                                    }
+                                    $pesanWa .= "📿 Al-Qur'an: *" . $qStr . "*\n";
+                                    
+                                    $dl = $s['dluha']['status'] ?? '';
+                                    $pesanWa .= "🕌 Shalat Dluha: *" . ($dl === 'ikut' ? 'Ikut' : ($dl === 'udzur_haid' ? 'Udzur' : 'Tidak')) . "*\n";
+                                    
+                                    $bl = $s['belajar']['status'] ?? '';
+                                    $pesanWa .= "📚 Belajar di Kamar: *" . ($bl === 'iya' ? 'Iya' : 'Tidak') . "*\n\n";
+                                    
+                                    $pesanWa .= "Pertanyaan Tambahan:\n";
+                                    $pesanWa .= "- Memaafkan: *" . (($s['memaafkan']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum') . "*\n";
+                                    $pesanWa .= "- Doa untuk Muslimin: *" . (($s['mendoakan_muslimin']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum') . "*\n";
+                                    $pesanWa .= "- Doa untuk Orang Tua: *" . (($s['mendoakan_ortu']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum') . "*\n";
+                                    $pesanWa .= "- Sedekah: *" . (($s['shadaqah']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum') . "*\n\n";
+                                    
+                                    $pesanWa .= "Demikian laporan harian ananda. Terima kasih atas perhatian dan dukungannya.\n";
+                                    $pesanWa .= "Wassalamu'alaikum wr. wb.";
+                                    
+                                    $linkWa = "https://wa.me/" . urlencode($noHp) . "?text=" . urlencode($pesanWa);
+                                    echo '<a href="' . $linkWa . '" target="_blank" class="btn btn-outline-success btn-sm p-1 me-1" title="Kirim WA ke Wali"><i class="bi bi-whatsapp"></i></a>';
+                                }
+                                ?>
                                 <form action="<?= BASE_URL ?>/absen/hapus_siswa" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus data absen <?= htmlspecialchars($namaSiswa) ?> pada tanggal ini?');">
                                     <input type="hidden" name="tanggal" value="<?= htmlspecialchars($tanggal) ?>">
                                     <input type="hidden" name="id_siswa" value="<?= $sObj['id'] ?>">
