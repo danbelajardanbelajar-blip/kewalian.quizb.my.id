@@ -93,12 +93,23 @@ class LaporanModel extends Model
         $files = $this->db->listFiles($this->folder);
         $rekap = [];
 
-        $kategoriList = ['sekolah', 'almiftah', 'diniyah', 'subuh'];
+        $kategoriList = [
+            'sekolah', 'almiftah', 'diniyah', 'subuh',
+            'quran', 'dluha', 'belajar',
+            'memaafkan', 'mendoakan_muslimin', 'mendoakan_ortu', 'shadaqah'
+        ];
         $kategoriLabel = [
             'sekolah'  => 'Sekolah',
             'almiftah' => 'Al-Miftah',
             'diniyah'  => 'Diniyah',
-            'subuh'    => 'Ngaji Pagi'
+            'subuh'    => 'Ngaji Pagi',
+            'quran'    => 'Al-Qur\'an',
+            'dluha'    => 'Dluha',
+            'belajar'  => 'Belajar',
+            'memaafkan'=> 'Memaafkan',
+            'mendoakan_muslimin'=> 'Doa Muslim',
+            'mendoakan_ortu' => 'Doa Ortu',
+            'shadaqah' => 'Sedekah'
         ];
 
         foreach ($files as $file) {
@@ -122,11 +133,29 @@ class LaporanModel extends Model
                 
                 foreach ($kategoriList as $k) {
                     $isHadir = false;
-                    if (isset($siswa[$k])) {
-                        if (is_array($siswa[$k])) {
-                            $isHadir = ($siswa[$k]['status'] ?? '') === 'hadir';
-                        } else {
-                            $isHadir = (bool)$siswa[$k]; // old format
+                    
+                    if (in_array($k, ['sekolah', 'almiftah', 'diniyah', 'subuh'])) {
+                        if (isset($siswa[$k])) {
+                            if (is_array($siswa[$k])) {
+                                $isHadir = ($siswa[$k]['status'] ?? '') === 'hadir';
+                            } else {
+                                $isHadir = (bool)$siswa[$k]; // old format
+                            }
+                        }
+                    } elseif ($k === 'quran') {
+                        $q = $siswa['quran'] ?? [];
+                        if (!empty($q) && ($q['type'] ?? '') !== 'tidak') {
+                            $isHadir = true;
+                        }
+                    } elseif ($k === 'dluha') {
+                        $dl = $siswa['dluha']['status'] ?? '';
+                        if ($dl === 'ikut' || $dl === 'udzur_haid') {
+                            $isHadir = true;
+                        }
+                    } else {
+                        // Belajar, Memaafkan, Doa Muslim, Doa Ortu, Sedekah
+                        if (($siswa[$k]['status'] ?? '') === 'iya') {
+                            $isHadir = true;
                         }
                     }
 

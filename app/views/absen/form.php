@@ -344,10 +344,10 @@ $totalStep = count($pertanyaan);
                                 $checked = ($existStatus === $opt['value']) ? 'checked' : '';
                                 ?>
                                 <label class="option-btn option-btn--<?= $opt['color'] ?> option-btn--big <?= $checked ? 'selected' : '' ?>"
-                                       for="belajar_<?= $opt['value'] ?>">
+                                       for="<?= $q['id'] ?>_<?= $opt['value'] ?>">
                                     <input type="radio"
-                                           id="belajar_<?= $opt['value'] ?>"
-                                           name="belajar"
+                                           id="<?= $q['id'] ?>_<?= $opt['value'] ?>"
+                                           name="<?= $q['id'] ?>"
                                            value="<?= $opt['value'] ?>"
                                            <?= $checked ?>
                                            class="d-none option-radio">

@@ -192,7 +192,14 @@ class LaporanController extends Controller
             'sekolah'  => 'Sekolah',
             'almiftah' => 'Al-Miftah',
             'diniyah'  => 'Diniyah',
-            'subuh'    => 'Ngaji Pagi'
+            'subuh'    => 'Ngaji Pagi',
+            'quran'    => 'Al-Qur\'an',
+            'dluha'    => 'Dluha',
+            'belajar'  => 'Belajar',
+            'memaafkan'=> 'Memaafkan',
+            'mendoakan_muslimin'=> 'Doa Muslim',
+            'mendoakan_ortu' => 'Doa Ortu',
+            'shadaqah' => 'Sedekah'
         ];
         $kelas    = $this->konfig->getKelas();
 
