@@ -1,449 +1,191 @@
 <?php
 /**
- * Dashboard/index.php — Form Input Presensi Harian (Wali Kelas)
- * Mode Wizard Per Pertanyaan (menyesuaikan Absen Mandiri)
+ * Dashboard/index.php — Halaman Analitik Kehadiran Siswa
  */
 $today = date('Y-m-d');
-
-$pertanyaan = [
-    [
-        'id'     => 'sekolah',
-        'label'  => 'Kehadiran Sekolah',
-        'icon'   => 'bi-building',
-        'emoji'  => '🏫',
-        'type'   => 'kehadiran',
-        'options'=> [
-            ['value'=>'hadir',  'label'=>'Hadir',  'icon'=>'bi-check-circle-fill', 'color'=>'success'],
-            ['value'=>'absen',  'label'=>'Absen',  'icon'=>'bi-x-circle-fill',     'color'=>'danger'],
-            ['value'=>'sakit',  'label'=>'Sakit',  'icon'=>'bi-thermometer',       'color'=>'warning'],
-            ['value'=>'izin',   'label'=>'Izin',   'icon'=>'bi-card-text',         'color'=>'info'],
-        ],
-    ],
-    [
-        'id'     => 'almiftah',
-        'label'  => 'Kehadiran Al-Miftah Siang',
-        'icon'   => 'bi-book-half',
-        'emoji'  => '📖',
-        'type'   => 'kehadiran',
-        'options'=> [
-            ['value'=>'hadir',  'label'=>'Hadir',  'icon'=>'bi-check-circle-fill', 'color'=>'success'],
-            ['value'=>'absen',  'label'=>'Absen',  'icon'=>'bi-x-circle-fill',     'color'=>'danger'],
-            ['value'=>'sakit',  'label'=>'Sakit',  'icon'=>'bi-thermometer',       'color'=>'warning'],
-            ['value'=>'izin',   'label'=>'Izin',   'icon'=>'bi-card-text',         'color'=>'info'],
-        ],
-    ],
-    [
-        'id'     => 'diniyah',
-        'label'  => 'Kehadiran Diniyah Malam',
-        'icon'   => 'bi-moon-stars',
-        'emoji'  => '🌙',
-        'type'   => 'kehadiran',
-        'options'=> [
-            ['value'=>'hadir',  'label'=>'Hadir',  'icon'=>'bi-check-circle-fill', 'color'=>'success'],
-            ['value'=>'absen',  'label'=>'Absen',  'icon'=>'bi-x-circle-fill',     'color'=>'danger'],
-            ['value'=>'sakit',  'label'=>'Sakit',  'icon'=>'bi-thermometer',       'color'=>'warning'],
-            ['value'=>'izin',   'label'=>'Izin',   'icon'=>'bi-card-text',         'color'=>'info'],
-        ],
-    ],
-    [
-        'id'     => 'subuh',
-        'label'  => 'Kehadiran Ngaji Pagi',
-        'icon'   => 'bi-sunrise',
-        'emoji'  => '🌅',
-        'type'   => 'kehadiran',
-        'options'=> [
-            ['value'=>'hadir',  'label'=>'Hadir',  'icon'=>'bi-check-circle-fill', 'color'=>'success'],
-            ['value'=>'absen',  'label'=>'Absen',  'icon'=>'bi-x-circle-fill',     'color'=>'danger'],
-            ['value'=>'sakit',  'label'=>'Sakit',  'icon'=>'bi-thermometer',       'color'=>'warning'],
-            ['value'=>'izin',   'label'=>'Izin',   'icon'=>'bi-card-text',         'color'=>'info'],
-        ],
-    ],
-    [
-        'id'     => 'quran',
-        'label'  => 'Bacaan Al-Qur\'an',
-        'icon'   => 'bi-journal-bookmark',
-        'emoji'  => '📿',
-        'type'   => 'quran',
-    ],
-    [
-        'id'     => 'dluha',
-        'label'  => 'Shalat Dluha',
-        'icon'   => 'bi-brightness-high',
-        'emoji'  => '🕌',
-        'type'   => 'dluha',
-        'options'=> [
-            ['value'=>'ikut',        'label'=>'Ikut',       'icon'=>'bi-check-circle-fill',   'color'=>'success'],
-            ['value'=>'udzur_haid',  'label'=>'Udzur Haid', 'icon'=>'bi-shield-check',         'color'=>'warning'],
-            ['value'=>'tidak_ikut',  'label'=>'Tidak Ikut', 'icon'=>'bi-x-circle-fill',        'color'=>'danger'],
-        ],
-    ],
-    [
-        'id'     => 'belajar',
-        'label'  => 'Belajar di Kamar',
-        'icon'   => 'bi-lamp',
-        'emoji'  => '📚',
-        'type'   => 'belajar',
-        'options'=> [
-            ['value'=>'iya',   'label'=>'Iya', 'icon'=>'bi-check-circle-fill', 'color'=>'success'],
-            ['value'=>'tidak', 'label'=>'Tidak',          'icon'=>'bi-x-circle-fill',     'color'=>'danger'],
-        ],
-    ],
-];
-
-$totalStep = count($pertanyaan);
 ?>
 
-<!-- Include CSS Absen Khusus Form -->
-<link rel="stylesheet" href="<?= BASE_URL ?>/public/css/absen.css">
-<style>
-/* Penyesuaian UI Wali Kelas (Dashboard) dengan CSS Absen */
-.dashboard-wizard-container {
-    max-width: 800px;
-    margin: 0 auto;
-    background: #fff;
-    border-radius: 1rem;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-    overflow: hidden;
-}
-.student-list-item {
-    border-bottom: 1px solid #eee;
-    padding: 1rem;
-}
-.student-list-item:last-child {
-    border-bottom: none;
-}
-.student-name {
-    font-weight: 600;
-    font-size: 1.1rem;
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-/* Paksa ukuran grid options mengecil dikit di list */
-.dashboard-wizard-container .option-btn {
-    padding: 0.5rem;
-    font-size: 0.85rem;
-}
-.dashboard-wizard-container .quran-options .quran-type-btn {
-    padding: 0.5rem;
-    font-size: 0.85rem;
-}
-</style>
+<!-- Tambahkan Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <div class="page-header mb-4">
     <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
         <div>
             <h1 class="page-title">
-                <i class="bi bi-clipboard2-check me-2 text-primary"></i>
-                Input Laporan Wali Kelas
+                <i class="bi bi-pie-chart me-2 text-primary"></i>
+                Dashboard Wali Kelas
             </h1>
             <p class="page-subtitle">
-                Kelas <strong><?= htmlspecialchars($kelas) ?></strong> —
-                <?php if ($isEdit): ?>
-                    <span class="badge badge-edit"><i class="bi bi-pencil me-1"></i>Mode Edit</span>
-                <?php else: ?>
-                    <span class="badge badge-new"><i class="bi bi-plus-circle me-1"></i>Input Baru</span>
-                <?php endif; ?>
+                Pantau statistik partisipasi kegiatan siswa kelas <strong><?= htmlspecialchars($kelas) ?></strong>
             </p>
         </div>
         <div class="d-flex gap-2">
-            <a href="<?= BASE_URL ?>/laporan" class="btn btn-outline-secondary btn-sm">
-                <i class="bi bi-journal-text me-1"></i> Riwayat Laporan
+            <a href="<?= BASE_URL ?>/laporan/rekap" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-table me-1"></i> Lihat Rekap Detail
             </a>
         </div>
     </div>
 </div>
 
-<form action="<?= BASE_URL ?>/laporan/simpan" method="POST" id="formPresensi">
-    <!-- Topbar Tanggal -->
-    <div class="card card-main shadow-sm mb-4">
-        <div class="card-body">
-            <div class="row align-items-center g-3">
-                <div class="col-12 col-md-auto">
-                    <label for="tanggal" class="form-label fw-semibold mb-1">
-                        <i class="bi bi-calendar3 me-1"></i> Tanggal Input
-                    </label>
-                    <input type="date" class="form-control" id="tanggal" name="tanggal" value="<?= htmlspecialchars($tanggal) ?>" max="<?= $today ?>" required>
-                </div>
+<!-- Pemilih Tanggal -->
+<div class="card card-main shadow-sm mb-4">
+    <div class="card-body py-3">
+        <div class="row align-items-center g-3">
+            <div class="col-12 col-md-auto">
+                <label for="tanggal" class="form-label fw-semibold mb-0">
+                    <i class="bi bi-calendar3 me-1"></i> Pilih Tanggal:
+                </label>
+            </div>
+            <div class="col-12 col-md-auto">
+                <input type="date" class="form-control" id="tanggal" name="tanggal" value="<?= htmlspecialchars($tanggal) ?>" max="<?= $today ?>">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Baris Info Cepat (Cards) -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card text-center">
+            <div class="stat-card-label">Total Siswa</div>
+            <div class="stat-card-value text-primary"><?= $stats['total'] ?></div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card text-center">
+            <div class="stat-card-label">Sudah Mengisi Absen</div>
+            <div class="stat-card-value text-success"><?= $stats['sudah_isi'] ?></div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card text-center">
+            <div class="stat-card-label">Belum Mengisi Absen</div>
+            <div class="stat-card-value text-danger"><?= count($stats['belum_isi']) ?></div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card text-center">
+            <div class="stat-card-label">Partisipasi Pengisian</div>
+            <?php $partisipasi = $stats['total'] > 0 ? round(($stats['sudah_isi'] / $stats['total']) * 100) : 0; ?>
+            <div class="stat-card-value text-info"><?= $partisipasi ?>%</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Kolom Grafik Utama -->
+    <div class="col-12 col-lg-8">
+        <div class="card card-main shadow-sm h-100">
+            <div class="card-header bg-white border-bottom py-3">
+                <h5 class="mb-0 fw-bold">
+                    <i class="bi bi-bar-chart-fill text-primary me-2"></i>
+                    Grafik Persentase Kehadiran/Partisipasi
+                </h5>
+            </div>
+            <div class="card-body">
+                <?php if ($stats['sudah_isi'] > 0): ?>
+                    <canvas id="kehadiranChart" style="max-height: 400px;"></canvas>
+                <?php else: ?>
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-bar-chart display-1 text-light"></i>
+                        <h4 class="mt-3">Belum Ada Data</h4>
+                        <p>Belum ada siswa yang mengisi absen pada tanggal ini.</p>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
 
-    <!-- Wizard Progress -->
-    <div class="dashboard-wizard-container mb-5">
-        <div class="wizard-topbar rounded-top" style="position:relative; z-index:10">
-            <div class="wizard-progress-wrap flex-grow-1 ms-3">
-                <div class="wizard-progress-bar" id="progressBar" style="width: <?= round(100/$totalStep) ?>%"></div>
+    <!-- Kolom Samping (Daftar Siswa Belum Isi) -->
+    <div class="col-12 col-lg-4">
+        <div class="card card-main shadow-sm h-100">
+            <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold text-danger">
+                    <i class="bi bi-person-x-fill me-2"></i>
+                    Belum Mengisi
+                </h5>
+                <span class="badge bg-danger rounded-pill"><?= count($stats['belum_isi']) ?></span>
             </div>
-            <div class="wizard-step-label me-3" id="stepLabel">1 / <?= $totalStep ?></div>
-        </div>
-
-        <div class="wizard-container bg-white position-relative" style="min-height: 400px;">
-            <?php foreach ($pertanyaan as $stepIdx => $q): ?>
-                <?php
-                $isFirst = $stepIdx === 0;
-                $isLast  = $stepIdx === $totalStep - 1;
-                ?>
-                <div class="wizard-step <?= $isFirst ? 'wizard-step--active' : '' ?>" data-step="<?= $stepIdx + 1 ?>" id="step<?= $stepIdx + 1 ?>">
-                    
-                    <div class="p-3 text-center border-bottom bg-light">
-                        <div class="question-emoji" style="font-size:2rem; margin-bottom:0"><?= $q['emoji'] ?></div>
-                        <h2 class="question-text" style="font-size:1.3rem; margin-top:0.5rem; margin-bottom:0"><?= htmlspecialchars($q['label']) ?></h2>
-                    </div>
-
-                    <div class="student-list">
-                        <?php foreach ($siswa as $s): ?>
-                            <?php 
-                                $idSiswa  = $s['id'];
-                                $existVal = $existingSiswaData[$s['nama']][$q['id']] ?? []; // Nanti disesuaikan di controller
-                                $inputBase = "data[{$idSiswa}][{$q['id']}]";
-                            ?>
-                            <div class="student-list-item">
-                                <div class="student-name">
-                                    <div class="wizard-avatar" style="width:30px;height:30px;font-size:14px"><?= mb_substr(ucwords($s['nama']), 0, 1) ?></div>
-                                    <?= htmlspecialchars(ucwords(strtolower($s['nama']))) ?>
-                                    <input type="hidden" name="data[<?= $idSiswa ?>][nama]" value="<?= htmlspecialchars($s['nama']) ?>">
+            <div class="card-body p-0">
+                <?php if (!empty($stats['belum_isi'])): ?>
+                    <ul class="list-group list-group-flush" style="max-height: 400px; overflow-y: auto;">
+                        <?php foreach ($stats['belum_isi'] as $nama): ?>
+                            <li class="list-group-item px-4 py-3 d-flex align-items-center">
+                                <div class="bg-light text-secondary rounded-circle d-flex align-items-center justify-content-center fw-bold me-3" style="width: 35px; height: 35px;">
+                                    <?= strtoupper(substr($nama, 0, 1)) ?>
                                 </div>
-                                
-                                <?php if ($q['type'] === 'kehadiran'): ?>
-                                    <div class="option-grid" data-group="<?= $q['id'] ?>_<?= $idSiswa ?>">
-                                        <?php foreach ($q['options'] as $opt): ?>
-                                            <?php
-                                            $existStatus = $existVal['status'] ?? '';
-                                            $checked = ($existStatus === $opt['value']) ? 'checked' : '';
-                                            ?>
-                                            <label class="option-btn option-btn--<?= $opt['color'] ?> <?= $checked ? 'selected' : '' ?>"
-                                                   for="<?= $q['id'] ?>_<?= $idSiswa ?>_<?= $opt['value'] ?>">
-                                                <input type="radio"
-                                                       id="<?= $q['id'] ?>_<?= $idSiswa ?>_<?= $opt['value'] ?>"
-                                                       name="<?= $inputBase ?>[status]"
-                                                       value="<?= $opt['value'] ?>"
-                                                       <?= $checked ?>
-                                                       class="d-none option-radio"
-                                                       data-field="<?= $q['id'] ?>_<?= $idSiswa ?>">
-                                                <i class="bi <?= $opt['icon'] ?> option-icon"></i>
-                                                <span><?= $opt['label'] ?></span>
-                                            </label>
-                                        <?php endforeach; ?>
-                                    </div>
-                                    
-                                    <div class="izin-ket-wrap mt-2" id="ket_<?= $q['id'] ?>_<?= $idSiswa ?>"
-                                         style="<?= ($existVal['status'] ?? '') === 'izin' ? '' : 'display:none' ?>">
-                                        <input type="text" name="<?= $inputBase ?>[ket]" class="form-control form-control-sm" placeholder="Keterangan izin..." value="<?= htmlspecialchars($existVal['ket'] ?? '') ?>">
-                                    </div>
-
-                                <?php elseif ($q['type'] === 'quran'): ?>
-                                    <?php
-                                    $qType   = $existVal['type']   ?? '';
-                                    $qJumlah = $existVal['jumlah'] ?? 1;
-                                    ?>
-                                    <div class="quran-options">
-                                        <label class="quran-type-btn <?= $qType === 'halaman' ? 'selected' : '' ?>"
-                                               for="quran_halaman_<?= $idSiswa ?>">
-                                            <input type="radio" id="quran_halaman_<?= $idSiswa ?>" name="<?= $inputBase ?>[type]"
-                                                   value="halaman" class="d-none quran-radio"
-                                                   <?= $qType === 'halaman' ? 'checked' : '' ?> data-id="<?= $idSiswa ?>">
-                                            <span class="quran-icon">📄</span>
-                                            <span>Hal</span>
-                                        </label>
-                                        <label class="quran-type-btn <?= $qType === 'juz' ? 'selected' : '' ?>"
-                                               for="quran_juz_<?= $idSiswa ?>">
-                                            <input type="radio" id="quran_juz_<?= $idSiswa ?>" name="<?= $inputBase ?>[type]"
-                                                   value="juz" class="d-none quran-radio"
-                                                   <?= $qType === 'juz' ? 'checked' : '' ?> data-id="<?= $idSiswa ?>">
-                                            <span class="quran-icon">📖</span>
-                                            <span>Juz</span>
-                                        </label>
-                                        <label class="quran-type-btn <?= $qType === 'setengah_juz' ? 'selected' : '' ?>"
-                                               for="quran_setengah_<?= $idSiswa ?>">
-                                            <input type="radio" id="quran_setengah_<?= $idSiswa ?>" name="<?= $inputBase ?>[type]"
-                                                   value="setengah_juz" class="d-none quran-radio"
-                                                   <?= $qType === 'setengah_juz' ? 'checked' : '' ?> data-id="<?= $idSiswa ?>">
-                                            <span class="quran-icon">📑</span>
-                                            <span>½ Juz</span>
-                                        </label>
-                                        <label class="quran-type-btn <?= $qType === 'tidak' ? 'selected' : '' ?>"
-                                               for="quran_tidak_<?= $idSiswa ?>">
-                                            <input type="radio" id="quran_tidak_<?= $idSiswa ?>" name="<?= $inputBase ?>[type]"
-                                                   value="tidak" class="d-none quran-radio"
-                                                   <?= $qType === 'tidak' ? 'checked' : '' ?> data-id="<?= $idSiswa ?>">
-                                            <span class="quran-icon">❌</span>
-                                            <span>Belum</span>
-                                        </label>
-                                    </div>
-
-                                    <div class="quran-jumlah-wrap mt-2" id="quranJumlahWrap_<?= $idSiswa ?>"
-                                         style="<?= ($qType === 'setengah_juz' || $qType === 'tidak' || $qType === '') ? 'display:none' : '' ?>">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <label class="mb-0 text-muted small quran-label" id="quranLabel_<?= $idSiswa ?>">Berapa <?= $qType === 'juz' ? 'juz' : 'halaman' ?>?</label>
-                                            <input type="number" name="<?= $inputBase ?>[jumlah]" class="form-control form-control-sm" style="width:80px" value="<?= $qJumlah ?>" min="1" max="999">
-                                        </div>
-                                    </div>
-
-                                <?php elseif ($q['type'] === 'dluha'): ?>
-                                    <div class="option-grid option-grid--3" data-group="dluha_<?= $idSiswa ?>">
-                                        <?php foreach ($q['options'] as $opt): ?>
-                                            <?php
-                                            $existStatus = $existVal['status'] ?? '';
-                                            $checked = ($existStatus === $opt['value']) ? 'checked' : '';
-                                            ?>
-                                            <label class="option-btn option-btn--<?= $opt['color'] ?> <?= $checked ? 'selected' : '' ?>"
-                                                   for="dluha_<?= $idSiswa ?>_<?= $opt['value'] ?>">
-                                                <input type="radio"
-                                                       id="dluha_<?= $idSiswa ?>_<?= $opt['value'] ?>"
-                                                       name="<?= $inputBase ?>[status]"
-                                                       value="<?= $opt['value'] ?>"
-                                                       <?= $checked ?>
-                                                       class="d-none option-radio">
-                                                <i class="bi <?= $opt['icon'] ?> option-icon"></i>
-                                                <span><?= $opt['label'] ?></span>
-                                            </label>
-                                        <?php endforeach; ?>
-                                    </div>
-                                    
-                                <?php elseif ($q['type'] === 'belajar'): ?>
-                                    <div class="option-grid option-grid--2" data-group="belajar_<?= $idSiswa ?>">
-                                        <?php foreach ($q['options'] as $opt): ?>
-                                            <?php
-                                            $existStatus = $existVal['status'] ?? '';
-                                            $checked = ($existStatus === $opt['value']) ? 'checked' : '';
-                                            ?>
-                                            <label class="option-btn option-btn--<?= $opt['color'] ?> <?= $checked ? 'selected' : '' ?>"
-                                                   for="belajar_<?= $idSiswa ?>_<?= $opt['value'] ?>">
-                                                <input type="radio"
-                                                       id="belajar_<?= $idSiswa ?>_<?= $opt['value'] ?>"
-                                                       name="<?= $inputBase ?>[status]"
-                                                       value="<?= $opt['value'] ?>"
-                                                       <?= $checked ?>
-                                                       class="d-none option-radio">
-                                                <i class="bi <?= $opt['icon'] ?> option-icon"></i>
-                                                <span><?= $opt['label'] ?></span>
-                                            </label>
-                                        <?php endforeach; ?>
-                                    </div>
-                                <?php endif; ?>
-
-                            </div>
+                                <span class="fw-medium text-dark"><?= htmlspecialchars(ucwords(strtolower($nama))) ?></span>
+                            </li>
                         <?php endforeach; ?>
+                    </ul>
+                <?php else: ?>
+                    <div class="text-center py-5 px-3">
+                        <div class="mb-3">
+                            <i class="bi bi-emoji-smile text-success" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="text-success fw-bold">Luar Biasa!</h5>
+                        <p class="text-muted small mb-0">Semua siswa telah mengisi presensi mandiri hari ini.</p>
                     </div>
-
-                    <div class="wizard-nav p-3 border-top bg-light">
-                        <?php if (!$isFirst): ?>
-                            <button type="button" class="btn-wizard-prev" data-step="<?= $stepIdx + 1 ?>">
-                                <i class="bi bi-arrow-left me-1"></i> Kembali
-                            </button>
-                        <?php else: ?>
-                            <div></div>
-                        <?php endif; ?>
-
-                        <?php if (!$isLast): ?>
-                            <button type="button" class="btn-wizard-next" data-step="<?= $stepIdx + 1 ?>">
-                                Lanjut <i class="bi bi-arrow-right ms-1"></i>
-                            </button>
-                        <?php else: ?>
-                            <button type="submit" class="btn-wizard-submit" id="btnSimpan">
-                                <i class="bi bi-check-lg me-1"></i> Selesai &amp; Simpan
-                            </button>
-                        <?php endif; ?>
-                    </div>
-
-                </div>
-            <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
-</form>
+</div>
 
 <script>
-(function () {
-    'use strict';
-
-    const TOTAL = <?= $totalStep ?>;
-    let current = 1;
-
-    // Ganti tanggal -> auto reload form
+document.addEventListener('DOMContentLoaded', function() {
+    // Reload halaman ketika tanggal diubah
     document.getElementById('tanggal').addEventListener('change', function () {
         window.location.href = '<?= BASE_URL ?>?tanggal=' + this.value;
     });
 
-    function updateProgress(step) {
-        const pct = Math.round((step / TOTAL) * 100);
-        document.getElementById('progressBar').style.width = pct + '%';
-        document.getElementById('stepLabel').textContent = step + ' / ' + TOTAL;
-    }
+    <?php if ($stats['sudah_isi'] > 0): ?>
+    // Data untuk grafik
+    const labels = <?= json_encode($grafikData['labels']) ?>;
+    const dataPersentase = <?= json_encode($grafikData['persentase']) ?>;
+    const bgColors = <?= json_encode($grafikData['warna']) ?>;
 
-    function showStep(step) {
-        document.querySelectorAll('.wizard-step').forEach(el => {
-            el.classList.remove('wizard-step--active');
-        });
-        const el = document.getElementById('step' + step);
-        if (el) {
-            el.classList.add('wizard-step--active');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-        updateProgress(step);
-        current = step;
-    }
-
-    document.querySelectorAll('.btn-wizard-next').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const step = parseInt(btn.dataset.step);
-            if (step < TOTAL) showStep(step + 1);
-        });
-    });
-
-    document.querySelectorAll('.btn-wizard-prev').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const step = parseInt(btn.dataset.step);
-            if (step > 1) showStep(step - 1);
-        });
-    });
-
-    // Handle radio buttons UI
-    document.querySelectorAll('.option-radio').forEach(radio => {
-        radio.addEventListener('change', function () {
-            const group = this.closest('.option-grid');
-            if (group) group.querySelectorAll('.option-btn').forEach(lbl => lbl.classList.remove('selected'));
-            this.closest('label')?.classList.add('selected');
-
-            // Handle izin ket
-            const field = this.dataset.field;
-            if (field) {
-                const ketWrap = document.getElementById('ket_' + field);
-                if (ketWrap) {
-                    ketWrap.style.display = this.value === 'izin' ? '' : 'none';
-                    if (this.value === 'izin') {
-                        ketWrap.querySelector('input').focus();
+    const ctx = document.getElementById('kehadiranChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Persentase Hadir / Mengikuti (%)',
+                data: dataPersentase,
+                backgroundColor: bgColors,
+                borderWidth: 0,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return ' ' + context.parsed.y + '% siswa berpartisipasi';
+                        }
                     }
                 }
             }
-        });
+        }
     });
-
-    // Handle Quran options
-    document.querySelectorAll('.quran-radio').forEach(radio => {
-        radio.addEventListener('change', function () {
-            const group = this.closest('.quran-options');
-            if (group) group.querySelectorAll('.quran-type-btn').forEach(l => l.classList.remove('selected'));
-            this.closest('label')?.classList.add('selected');
-
-            const id = this.dataset.id;
-            const wrap = document.getElementById('quranJumlahWrap_' + id);
-            const label = document.getElementById('quranLabel_' + id);
-            
-            if (this.value === 'setengah_juz' || this.value === 'tidak') {
-                wrap.style.display = 'none';
-            } else {
-                wrap.style.display = 'block';
-                if (label) label.textContent = 'Berapa ' + (this.value === 'juz' ? 'juz' : 'halaman') + '?';
-            }
-        });
-    });
-
-    document.getElementById('formPresensi').addEventListener('submit', function () {
-        const btn = document.getElementById('btnSimpan');
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Menyimpan...';
-        btn.disabled = true;
-    });
-})();
+    <?php endif; ?>
+});
 </script>
