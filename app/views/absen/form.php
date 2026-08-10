@@ -21,7 +21,7 @@ $namaProper = ucwords(strtolower($nama));
 $pertanyaan = [
     [
         'id'     => 'sekolah',
-        'label'  => 'Apakah ananda ' . htmlspecialchars($namaProper) . ' hadir sekolah pagi ini?',
+        'label'  => 'Apakah kemarin ananda ' . htmlspecialchars($namaProper) . ' hadir sekolah?',
         'icon'   => 'bi-building',
         'emoji'  => '🏫',
         'type'   => 'kehadiran',
@@ -34,7 +34,7 @@ $pertanyaan = [
     ],
     [
         'id'     => 'almiftah',
-        'label'  => 'Apakah ananda ' . htmlspecialchars($namaProper) . ' hadir Al-Miftah siang ini?',
+        'label'  => 'Apakah kemarin siang ananda ' . htmlspecialchars($namaProper) . ' hadir Al-Miftah?',
         'icon'   => 'bi-book-half',
         'emoji'  => '📖',
         'type'   => 'kehadiran',
@@ -47,7 +47,7 @@ $pertanyaan = [
     ],
     [
         'id'     => 'diniyah',
-        'label'  => 'Apakah ananda ' . htmlspecialchars($namaProper) . ' hadir Diniyah malam ini?',
+        'label'  => 'Apakah tadi malam ananda ' . htmlspecialchars($namaProper) . ' hadir Diniyah?',
         'icon'   => 'bi-moon-stars',
         'emoji'  => '🌙',
         'type'   => 'kehadiran',
@@ -60,7 +60,7 @@ $pertanyaan = [
     ],
     [
         'id'     => 'subuh',
-        'label'  => 'Apakah ananda ' . htmlspecialchars($namaProper) . ' hadir Ngaji Pagi (Bakda Shubuh)?',
+        'label'  => 'Apakah bakda shubuh ini ananda ' . htmlspecialchars($namaProper) . ' hadir Ngaji Pagi?',
         'icon'   => 'bi-sunrise',
         'emoji'  => '🌅',
         'type'   => 'kehadiran',
@@ -73,14 +73,14 @@ $pertanyaan = [
     ],
     [
         'id'     => 'quran',
-        'label'  => 'Hari ini ananda ' . htmlspecialchars($namaProper) . ' sudah baca Al-Qur\'an berapa?',
+        'label'  => 'Apakah sejak kemarin hingga shubuh ini ananda ' . htmlspecialchars($namaProper) . ' membaca Al-Qur\'an?',
         'icon'   => 'bi-journal-bookmark',
         'emoji'  => '📿',
         'type'   => 'quran',
     ],
     [
         'id'     => 'dluha',
-        'label'  => 'Apakah pagi ini ananda ' . htmlspecialchars($namaProper) . ' ikut Shalat Dluha di madrasah?',
+        'label'  => 'Apakah kemarin pagi ananda ' . htmlspecialchars($namaProper) . ' ikut Shalat Dluha di madrasah?',
         'icon'   => 'bi-brightness-high',
         'emoji'  => '🕌',
         'type'   => 'dluha',
@@ -92,13 +92,13 @@ $pertanyaan = [
     ],
     [
         'id'     => 'belajar',
-        'label'  => 'Apakah ananda ' . htmlspecialchars($namaProper) . ' tadi malam belajar di kamar?',
+        'label'  => 'Apakah tadi malam ananda ' . htmlspecialchars($namaProper) . ' belajar di kamar?',
         'icon'   => 'bi-lamp',
         'emoji'  => '📚',
         'type'   => 'belajar',
         'options'=> [
-            ['value'=>'iya',   'label'=>'Iya, Belajar!', 'icon'=>'bi-check-circle-fill', 'color'=>'success'],
-            ['value'=>'tidak', 'label'=>'Tidak',          'icon'=>'bi-x-circle-fill',     'color'=>'danger'],
+            ['value'=>'iya',   'label'=>'Iya',   'icon'=>'bi-check-circle-fill', 'color'=>'success'],
+            ['value'=>'tidak', 'label'=>'Belum', 'icon'=>'bi-x-circle-fill',     'color'=>'danger'],
         ],
     ],
 ];
@@ -198,58 +198,74 @@ $totalStep = count($pertanyaan);
                         <?php
                         $qType   = $existVal['type']   ?? '';
                         $qJumlah = $existVal['jumlah'] ?? 1;
+                        $qSudah  = ($qType === 'tidak' || $qType === '') ? 'belum' : 'iya';
                         ?>
-                        <div class="quran-options">
-                            <label class="quran-type-btn <?= $qType === 'halaman' ? 'selected' : '' ?>"
-                                   for="quran_halaman">
-                                <input type="radio" id="quran_halaman" name="quran_type"
-                                       value="halaman" class="d-none"
-                                       <?= $qType === 'halaman' ? 'checked' : '' ?>>
-                                <span class="quran-icon">📄</span>
-                                <span>Halaman</span>
+                        <div class="option-grid option-grid--2 mb-3">
+                            <label class="option-btn option-btn--success option-btn--big quran-main-btn <?= $qSudah === 'iya' && $qType !== '' ? 'selected' : '' ?>"
+                                   for="quran_iya">
+                                <input type="radio" id="quran_iya" name="quran_sudah"
+                                       value="iya" class="d-none quran-main-radio" <?= $qSudah === 'iya' && $qType !== '' ? 'checked' : '' ?>>
+                                <i class="bi bi-check-circle-fill option-icon"></i>
+                                <span>Iya, Sudah</span>
                             </label>
-                            <label class="quran-type-btn <?= $qType === 'juz' ? 'selected' : '' ?>"
-                                   for="quran_juz">
-                                <input type="radio" id="quran_juz" name="quran_type"
-                                       value="juz" class="d-none"
-                                       <?= $qType === 'juz' ? 'checked' : '' ?>>
-                                <span class="quran-icon">📖</span>
-                                <span>Juz</span>
-                            </label>
-                            <label class="quran-type-btn <?= $qType === 'setengah_juz' ? 'selected' : '' ?>"
-                                   for="quran_setengah">
-                                <input type="radio" id="quran_setengah" name="quran_type"
-                                       value="setengah_juz" class="d-none"
-                                       <?= $qType === 'setengah_juz' ? 'checked' : '' ?>>
-                                <span class="quran-icon">📑</span>
-                                <span>½ Juz</span>
-                            </label>
-                            <label class="quran-type-btn <?= $qType === 'tidak' ? 'selected' : '' ?>"
-                                   for="quran_tidak">
-                                <input type="radio" id="quran_tidak" name="quran_type"
-                                       value="tidak" class="d-none"
-                                       <?= $qType === 'tidak' ? 'checked' : '' ?>>
-                                <span class="quran-icon">❌</span>
+                            <label class="option-btn option-btn--danger option-btn--big quran-main-btn <?= $qSudah === 'belum' && $qType !== '' ? 'selected' : '' ?>"
+                                   for="quran_belum">
+                                <input type="radio" id="quran_belum" name="quran_sudah"
+                                       value="belum" class="d-none quran-main-radio" <?= $qSudah === 'belum' && $qType !== '' ? 'checked' : '' ?>>
+                                <i class="bi bi-x-circle-fill option-icon"></i>
                                 <span>Belum Baca</span>
                             </label>
                         </div>
 
-                        <div class="quran-jumlah-wrap" id="quranJumlahWrap"
-                             style="<?= ($qType === 'setengah_juz' || $qType === 'tidak' || $qType === '') ? 'display:none' : '' ?>">
-                            <label class="izin-ket-label">Berapa <?= $qType === 'juz' ? 'juz' : 'halaman' ?>?</label>
-                            <div class="quran-counter">
-                                <button type="button" class="quran-counter-btn" id="btnMin">
-                                    <i class="bi bi-dash-lg"></i>
-                                </button>
-                                <input type="number"
-                                       id="quranJumlah"
-                                       name="quran_jumlah"
-                                       class="quran-counter-input"
-                                       value="<?= $qJumlah ?>"
-                                       min="1" max="999">
-                                <button type="button" class="quran-counter-btn" id="btnPlus">
-                                    <i class="bi bi-plus-lg"></i>
-                                </button>
+                        <!-- Pilihan Juz/Halaman, disembunyikan jika Belum -->
+                        <div id="quranDetailWrap" style="<?= $qSudah === 'iya' && $qType !== '' ? '' : 'display:none' ?>">
+                            <label class="izin-ket-label mb-2 d-block text-center">Berapa banyak yang dibaca?</label>
+                            <div class="quran-options">
+                                <label class="quran-type-btn <?= $qType === 'halaman' ? 'selected' : '' ?>"
+                                       for="quran_halaman">
+                                    <input type="radio" id="quran_halaman" name="quran_type"
+                                           value="halaman" class="d-none quran-sub-radio"
+                                           <?= $qType === 'halaman' ? 'checked' : '' ?>>
+                                    <span class="quran-icon">📄</span>
+                                    <span>Halaman</span>
+                                </label>
+                                <label class="quran-type-btn <?= $qType === 'juz' ? 'selected' : '' ?>"
+                                       for="quran_juz">
+                                    <input type="radio" id="quran_juz" name="quran_type"
+                                           value="juz" class="d-none quran-sub-radio"
+                                           <?= $qType === 'juz' ? 'checked' : '' ?>>
+                                    <span class="quran-icon">📖</span>
+                                    <span>Juz</span>
+                                </label>
+                                <label class="quran-type-btn <?= $qType === 'setengah_juz' ? 'selected' : '' ?>"
+                                       for="quran_setengah">
+                                    <input type="radio" id="quran_setengah" name="quran_type"
+                                           value="setengah_juz" class="d-none quran-sub-radio"
+                                           <?= $qType === 'setengah_juz' ? 'checked' : '' ?>>
+                                    <span class="quran-icon">📑</span>
+                                    <span>½ Juz</span>
+                                </label>
+                                <!-- Radio "tidak" tersembunyi agar form bisa dikirim -->
+                                <input type="radio" id="quran_tidak" name="quran_type" value="tidak" class="d-none quran-sub-radio" <?= $qType === 'tidak' ? 'checked' : '' ?>>
+                            </div>
+                            
+                            <div class="quran-jumlah-wrap mt-3" id="quranJumlahWrap"
+                                 style="<?= ($qType === 'setengah_juz' || $qType === 'tidak' || $qType === '') ? 'display:none' : '' ?>">
+                                <label class="izin-ket-label" id="quranJumlahLabel">Jumlah <?= $qType === 'juz' ? 'juz' : 'halaman' ?>:</label>
+                                <div class="quran-counter">
+                                    <button type="button" class="quran-counter-btn" id="btnMin">
+                                        <i class="bi bi-dash-lg"></i>
+                                    </button>
+                                    <input type="number"
+                                           id="quranJumlah"
+                                           name="quran_jumlah"
+                                           class="quran-counter-input"
+                                           value="<?= $qJumlah ?>"
+                                           min="1" max="999">
+                                    <button type="button" class="quran-counter-btn" id="btnPlus">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -400,14 +416,35 @@ $totalStep = count($pertanyaan);
         });
     });
 
-    // ── Quran type → tampilkan/sembunyikan counter ─────────
-    document.querySelectorAll('[name="quran_type"]').forEach(radio => {
+    // ── Quran Main (Iya/Belum) ──────────────────────────────
+    document.querySelectorAll('.quran-main-radio').forEach(radio => {
+        radio.addEventListener('change', function () {
+            document.querySelectorAll('.quran-main-btn').forEach(l => l.classList.remove('selected'));
+            this.closest('label')?.classList.add('selected');
+
+            const wrap = document.getElementById('quranDetailWrap');
+            if (this.value === 'belum') {
+                wrap.style.display = 'none';
+                document.getElementById('quran_tidak').checked = true;
+                if (current < TOTAL) {
+                    setTimeout(() => showStep(current + 1), 300);
+                }
+            } else {
+                wrap.style.display = '';
+                // Hapus checked dari 'tidak'
+                document.getElementById('quran_tidak').checked = false;
+            }
+        });
+    });
+
+    // ── Quran type (Juz/Halaman) ─────────
+    document.querySelectorAll('.quran-sub-radio').forEach(radio => {
         radio.addEventListener('change', function () {
             document.querySelectorAll('.quran-type-btn').forEach(l => l.classList.remove('selected'));
             this.closest('label')?.classList.add('selected');
 
             const wrap  = document.getElementById('quranJumlahWrap');
-            const label = wrap?.querySelector('.izin-ket-label');
+            const label = document.getElementById('quranJumlahLabel');
             if (this.value === 'setengah_juz' || this.value === 'tidak') {
                 wrap.style.display = 'none';
                 if (current < TOTAL) {
@@ -415,7 +452,7 @@ $totalStep = count($pertanyaan);
                 }
             } else {
                 wrap.style.display = '';
-                if (label) label.textContent = 'Berapa ' + (this.value === 'juz' ? 'juz' : 'halaman') + '?';
+                if (label) label.textContent = 'Jumlah ' + (this.value === 'juz' ? 'juz' : 'halaman') + ':';
             }
         });
     });
