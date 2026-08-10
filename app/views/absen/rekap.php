@@ -10,8 +10,8 @@ $labelStatus = [
     'ikut'        => '<span class="badge bg-success">Ikut</span>',
     'udzur_haid'  => '<span class="badge bg-warning text-dark">Udzur</span>',
     'tidak_ikut'  => '<span class="badge bg-danger">Tidak</span>',
-    'iya'         => '<span class="badge bg-success">Belajar</span>',
-    'tidak'       => '<span class="badge bg-danger">Tidak</span>',
+    'iya'         => '<span class="badge bg-success">Iya</span>',
+    'tidak'       => '<span class="badge bg-danger">Belum</span>',
 ];
 
 $siswaData = $dataTanggal['siswa'] ?? [];
