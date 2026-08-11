@@ -97,6 +97,13 @@ $pageTitle = $title ?? 'Dashboard Wali Kelas';
                         <i class="bi bi-ui-checks me-1"></i> Pertanyaan
                     </a>
                 </li>
+                <?php if (Session::get('is_admin')): ?>
+                <li class="nav-item">
+                    <a class="nav-link text-warning fw-bold" href="<?= BASE_URL ?>/admin">
+                        <i class="bi bi-shield-lock-fill me-1"></i> Admin Panel
+                    </a>
+                </li>
+                <?php endif; ?>
             </ul>
 
             <!-- User Info + Logout -->
