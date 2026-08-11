@@ -351,7 +351,7 @@ class AdminController extends Controller
         $this->requireAdmin();
 
         $page           = max(1, (int)($_GET['page'] ?? 1));
-        $perPage        = 25;
+        $perPage        = 10;
         $kunjunganList  = $this->adminModel->getKunjungan($page, $perPage);
         $perHalaman     = $this->adminModel->getKunjunganPerHalaman();
         $chartData7     = $this->adminModel->getKunjunganPerDay(7);
