@@ -58,6 +58,7 @@ class SiswaController extends Controller
         }
 
         $alamat = trim($_POST['alamat'] ?? '');
+        $noHp = preg_replace('/[^0-9]/', '', $_POST['no_hp'] ?? '');
         
         $fotoName = null;
         if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
@@ -84,6 +85,7 @@ class SiswaController extends Controller
         $siswa[] = [
             'id' => $maxId + 1,
             'nama' => $namaBaru,
+            'no_hp' => $noHp,
             'alamat' => $alamat,
             'foto' => $fotoName
         ];

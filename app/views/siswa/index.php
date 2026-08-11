@@ -42,6 +42,11 @@
                         </div>
                     </div>
                     <div class="mb-3">
+                        <label for="noHpBaru" class="form-label fw-semibold">Nomor WhatsApp (Opsional)</label>
+                        <input type="text" class="form-control" id="noHpBaru" name="no_hp" placeholder="Contoh: 6281234567890" autocomplete="off">
+                        <div class="form-text text-muted">Awali dengan 62 tanpa spasi/simbol.</div>
+                    </div>
+                    <div class="mb-3">
                         <label for="alamatBaru" class="form-label fw-semibold">Alamat (Opsional)</label>
                         <textarea class="form-control" id="alamatBaru" name="alamat" rows="2" placeholder="Contoh: Jl. Sudirman No. 123..."></textarea>
                     </div>
