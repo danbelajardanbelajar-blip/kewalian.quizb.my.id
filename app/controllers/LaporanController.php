@@ -206,7 +206,7 @@ class LaporanController extends Controller
             'memaafkan'=> 'Memaafkan',
             'mendoakan_muslimin'=> 'Doa Muslim',
             'mendoakan_ortu' => 'Doa Ortu',
-            'shadaqah' => 'Sedekah'
+            'shadaqah' => 'Membantu'
         ];
         $kelas    = $this->konfig->getKelas();
 
@@ -264,7 +264,7 @@ class LaporanController extends Controller
         $headers[] = 'Memaafkan';
         $headers[] = 'Doa Muslim';
         $headers[] = 'Doa Ortu';
-        $headers[] = 'Sedekah';
+        $headers[] = 'Membantu';
         
         fputcsv($output, $headers);
 

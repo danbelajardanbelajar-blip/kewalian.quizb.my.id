@@ -145,7 +145,7 @@ $labelKat  = [
                         <th class="text-center">💖 Memaafkan</th>
                         <th class="text-center">🤲 Doa Muslim</th>
                         <th class="text-center">👨‍👩‍👦 Doa Ortu</th>
-                        <th class="text-center">🤝 Sedekah</th>
+                        <th class="text-center">🤝 Membantu</th>
                         <th class="text-center">Waktu Isi</th>
                         <th class="text-center">Aksi</th>
                     </tr>
@@ -240,9 +240,9 @@ $labelKat  = [
                                     
                                     $pesanWa .= "Amalan & Kebaikan Hari Ini:\n";
                                     $pesanWa .= "- Memaafkan Sesama: *" . (($s['memaafkan']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum') . "*\n";
-                                    $pesanWa .= "- Doa untuk Muslimin: *" . (($s['mendoakan_muslimin']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum') . "*\n";
-                                    $pesanWa .= "- Doa untuk Orang Tua: *" . (($s['mendoakan_ortu']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum') . "*\n";
-                                    $pesanWa .= "- Bersedekah: *" . (($s['shadaqah']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum') . "*\n\n";
+                                    $pesanWa .= "- Mendoakan Muslimin: *" . (($s['mendoakan_muslimin']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum') . "*\n";
+                                    $pesanWa .= "- Mendoakan Orang Tua: *" . (($s['mendoakan_ortu']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum') . "*\n";
+                                    $pesanWa .= "- Membantu Teman: *" . (($s['shadaqah']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum') . "*\n\n";
                                     
                                     $pesanWa .= "Terima kasih banyak atas kepercayaan, bimbingan, dan dukungan penuh dari Ayah/Bunda.\n\n";
                                     $pesanWa .= "Semoga ananda *" . $namaSiswa . "* senantiasa dijaga oleh Allah, dimudahkan dalam menuntut ilmu, dan kelak menjadi anak yang salih/salihah, berakhlak mulia, serta menjadi kebanggaan dan penyejuk hati keluarga. Aamiin Ya Rabbal 'Alamin 🤲\n\n";

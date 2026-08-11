@@ -110,7 +110,7 @@ class LaporanModel extends Model
             'memaafkan'=> 'Memaafkan',
             'mendoakan_muslimin'=> 'Doa Muslim',
             'mendoakan_ortu' => 'Doa Ortu',
-            'shadaqah' => 'Sedekah'
+            'shadaqah' => 'Membantu'
         ];
 
         foreach ($files as $file) {
@@ -158,7 +158,7 @@ class LaporanModel extends Model
                             $isHadir = true;
                         }
                     } else {
-                        // Belajar, Memaafkan, Doa Muslim, Doa Ortu, Sedekah
+                        // Belajar, Memaafkan, Doa Muslim, Doa Ortu, Membantu
                         if (($siswa[$k]['status'] ?? '') === 'iya') {
                             $isHadir = true;
                         }

@@ -35,7 +35,7 @@ class DashboardController extends Controller
         
         // Siapkan data grafik
         $grafikData = [
-            'labels' => ['Sekolah', 'Al-Miftah', 'Diniyah', 'Ngaji Pagi', 'Al-Qur\'an', 'Dluha', 'Belajar', 'Baca Buku', 'Memaafkan', 'Doa Muslim', 'Doa Ortu', 'Sedekah'],
+            'labels' => ['Sekolah', 'Al-Miftah', 'Diniyah', 'Ngaji Pagi', 'Al-Qur\'an', 'Dluha', 'Belajar', 'Baca Buku', 'Memaafkan', 'Doa Muslim', 'Doa Ortu', 'Membantu'],
             'persentase' => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             'warna' => [
                 'rgba(54, 162, 235, 0.7)',  // Sekolah
@@ -49,7 +49,7 @@ class DashboardController extends Controller
                 'rgba(232, 62, 140, 0.7)',  // Memaafkan
                 'rgba(32, 201, 151, 0.7)',  // Doa Muslim
                 'rgba(253, 126, 20, 0.7)',  // Doa Ortu
-                'rgba(111, 66, 193, 0.7)'   // Sedekah
+                'rgba(111, 66, 193, 0.7)'   // Membantu
             ]
         ];
 

@@ -108,7 +108,7 @@ $pct = $totalSiswa > 0 ? round(($totalHadir / $totalSiswa) * 100) : 0;
                     <th class="text-center">💖 Memaafkan</th>
                     <th class="text-center">🤲 Doa Muslim</th>
                     <th class="text-center">👨‍👩‍👦 Doa Ortu</th>
-                    <th class="text-center">🤝 Sedekah</th>
+                    <th class="text-center">🤝 Membantu</th>
                 </tr>
             </thead>
             <tbody>
