@@ -8,7 +8,7 @@ require_once APP_PATH . '/core/Model.php';
  */
 class LaporanModel extends Model
 {
-    private string $folder = 'laporan';
+    private string $folder = 'absen';
 
     /**
      * Ambil laporan berdasarkan tanggal (YYYY-MM-DD)
