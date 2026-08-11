@@ -35,8 +35,8 @@ class DashboardController extends Controller
         
         // Siapkan data grafik
         $grafikData = [
-            'labels' => ['Sekolah', 'Al-Miftah', 'Diniyah', 'Ngaji Pagi', 'Al-Qur\'an', 'Dluha', 'Belajar', 'Memaafkan', 'Doa Muslim', 'Doa Ortu', 'Sedekah'],
-            'persentase' => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            'labels' => ['Sekolah', 'Al-Miftah', 'Diniyah', 'Ngaji Pagi', 'Al-Qur\'an', 'Dluha', 'Belajar', 'Baca Buku', 'Memaafkan', 'Doa Muslim', 'Doa Ortu', 'Sedekah'],
+            'persentase' => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             'warna' => [
                 'rgba(54, 162, 235, 0.7)',  // Sekolah
                 'rgba(255, 99, 132, 0.7)',  // Al-Miftah
@@ -45,6 +45,7 @@ class DashboardController extends Controller
                 'rgba(153, 102, 255, 0.7)', // Quran
                 'rgba(255, 159, 64, 0.7)',  // Dluha
                 'rgba(199, 199, 199, 0.7)', // Belajar
+                'rgba(0, 123, 255, 0.7)',   // Baca Buku
                 'rgba(232, 62, 140, 0.7)',  // Memaafkan
                 'rgba(32, 201, 151, 0.7)',  // Doa Muslim
                 'rgba(253, 126, 20, 0.7)',  // Doa Ortu
@@ -67,6 +68,7 @@ class DashboardController extends Controller
             $quranBaca = 0;
             $dluhaIkut = 0;
             $belajarIya = 0;
+            $bukuIya = 0;
             $maafIya = 0;
             $doaMuslimIya = 0;
             $doaOrtuIya = 0;
@@ -87,6 +89,7 @@ class DashboardController extends Controller
 
                 // Belajar & Pertanyaan Tambahan
                 if (($s['belajar']['status'] ?? '') === 'iya') $belajarIya++;
+                if (($s['baca_buku']['status'] ?? '') === 'iya') $bukuIya++;
                 if (($s['memaafkan']['status'] ?? '') === 'iya') $maafIya++;
                 if (($s['mendoakan_muslimin']['status'] ?? '') === 'iya') $doaMuslimIya++;
                 if (($s['mendoakan_ortu']['status'] ?? '') === 'iya') $doaOrtuIya++;
@@ -96,10 +99,11 @@ class DashboardController extends Controller
             $grafikData['persentase'][4] = round(($quranBaca / $totalSiswa) * 100);
             $grafikData['persentase'][5] = round(($dluhaIkut / $totalSiswa) * 100);
             $grafikData['persentase'][6] = round(($belajarIya / $totalSiswa) * 100);
-            $grafikData['persentase'][7] = round(($maafIya / $totalSiswa) * 100);
-            $grafikData['persentase'][8] = round(($doaMuslimIya / $totalSiswa) * 100);
-            $grafikData['persentase'][9] = round(($doaOrtuIya / $totalSiswa) * 100);
-            $grafikData['persentase'][10] = round(($sedekahIya / $totalSiswa) * 100);
+            $grafikData['persentase'][7] = round(($bukuIya / $totalSiswa) * 100);
+            $grafikData['persentase'][8] = round(($maafIya / $totalSiswa) * 100);
+            $grafikData['persentase'][9] = round(($doaMuslimIya / $totalSiswa) * 100);
+            $grafikData['persentase'][10] = round(($doaOrtuIya / $totalSiswa) * 100);
+            $grafikData['persentase'][11] = round(($sedekahIya / $totalSiswa) * 100);
         }
 
         $this->view('dashboard/index', [

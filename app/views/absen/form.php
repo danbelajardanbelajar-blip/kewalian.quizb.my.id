@@ -73,10 +73,17 @@ $pertanyaan = [
     ],
     [
         'id'     => 'quran',
-        'label'  => 'Apakah sejak kemarin hingga shubuh ini ananda ' . htmlspecialchars($namaProper) . ' membaca Al-Qur\'an?',
+        'label'  => 'Apakah sejak kemarin hingga shubuh ini ananda ' . htmlspecialchars($namaProper) . ' membaca Al-Qur\'an secara mandiri?',
         'icon'   => 'bi-journal-bookmark',
         'emoji'  => '📿',
         'type'   => 'quran',
+    ],
+    [
+        'id'     => 'baca_buku',
+        'label'  => 'Apakah kemarin ananda ' . htmlspecialchars($namaProper) . ' sudah membaca buku secara mandiri?',
+        'icon'   => 'bi-book',
+        'emoji'  => '📖',
+        'type'   => 'buku',
     ],
     [
         'id'     => 'dluha',
@@ -313,6 +320,51 @@ $totalStep = count($pertanyaan);
                             </div>
                         </div>
 
+                    <?php elseif ($q['type'] === 'buku'): ?>
+                        <!-- Pertanyaan Baca Buku -->
+                        <?php
+                        $bJumlah = $existVal['jumlah'] ?? 1;
+                        $bSudah  = ($existVal['status'] ?? '') === 'iya' ? 'iya' : 'belum';
+                        if (empty($existVal)) $bSudah = ''; // state awal kosong
+                        ?>
+                        <div class="option-grid option-grid--2 mb-3">
+                            <label class="option-btn option-btn--success option-btn--big buku-main-btn <?= $bSudah === 'iya' ? 'selected' : '' ?>"
+                                   for="buku_iya">
+                                <input type="radio" id="buku_iya" name="buku_sudah"
+                                       value="iya" class="d-none buku-main-radio" <?= $bSudah === 'iya' ? 'checked' : '' ?>>
+                                <i class="bi bi-check-circle-fill option-icon"></i>
+                                <span>Iya, Sudah</span>
+                            </label>
+                            <label class="option-btn option-btn--danger option-btn--big buku-main-btn <?= $bSudah === 'belum' ? 'selected' : '' ?>"
+                                   for="buku_belum">
+                                <input type="radio" id="buku_belum" name="buku_sudah"
+                                       value="belum" class="d-none buku-main-radio" <?= $bSudah === 'belum' ? 'checked' : '' ?>>
+                                <i class="bi bi-x-circle-fill option-icon"></i>
+                                <span>Belum Baca</span>
+                            </label>
+                        </div>
+
+                        <!-- Input Halaman, disembunyikan jika Belum -->
+                        <div id="bukuDetailWrap" style="<?= $bSudah === 'iya' ? '' : 'display:none' ?>">
+                            <div class="quran-jumlah-wrap mt-3" id="bukuJumlahWrap">
+                                <label class="izin-ket-label text-center d-block mb-2">Berapa halaman yang dibaca?</label>
+                                <div class="quran-counter">
+                                    <button type="button" class="quran-counter-btn" id="btnMinBuku">
+                                        <i class="bi bi-dash-lg"></i>
+                                    </button>
+                                    <input type="number"
+                                           id="bukuJumlah"
+                                           name="buku_jumlah"
+                                           class="quran-counter-input"
+                                           value="<?= $bJumlah ?>"
+                                           min="1" max="999">
+                                    <button type="button" class="quran-counter-btn" id="btnPlusBuku">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
                     <?php elseif ($q['type'] === 'dluha'): ?>
                         <!-- Shalat Dluha -->
                         <div class="option-grid option-grid--3">
@@ -508,6 +560,33 @@ $totalStep = count($pertanyaan);
     });
     document.getElementById('btnPlus')?.addEventListener('click', () => {
         if (jumlahInput) jumlahInput.value = parseInt(jumlahInput.value) + 1;
+    });
+
+    // ── Buku Main (Iya/Belum) ──────────────────────────────
+    document.querySelectorAll('.buku-main-radio').forEach(radio => {
+        radio.addEventListener('change', function () {
+            document.querySelectorAll('.buku-main-btn').forEach(l => l.classList.remove('selected'));
+            this.closest('label')?.classList.add('selected');
+
+            const wrap = document.getElementById('bukuDetailWrap');
+            if (this.value === 'belum') {
+                wrap.style.display = 'none';
+                if (current < TOTAL) {
+                    setTimeout(() => showStep(current + 1), 300);
+                }
+            } else {
+                wrap.style.display = '';
+            }
+        });
+    });
+
+    // ── Counter Buku ─────────────────────────────────────────
+    const bukuJumlahInput = document.getElementById('bukuJumlah');
+    document.getElementById('btnMinBuku')?.addEventListener('click', () => {
+        if (bukuJumlahInput && parseInt(bukuJumlahInput.value) > 1) bukuJumlahInput.value = parseInt(bukuJumlahInput.value) - 1;
+    });
+    document.getElementById('btnPlusBuku')?.addEventListener('click', () => {
+        if (bukuJumlahInput) bukuJumlahInput.value = parseInt(bukuJumlahInput.value) + 1;
     });
 
     // ── Submit loading ──────────────────────────────────────

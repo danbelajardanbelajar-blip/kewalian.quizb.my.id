@@ -83,6 +83,12 @@ class LaporanController extends Controller
             $entry['dluha']   = ['status' => $row['dluha']['status'] ?? 'tidak_ikut'];
             $entry['belajar'] = ['status' => $row['belajar']['status'] ?? 'tidak'];
 
+            $bukuSudah = $row['baca_buku']['status'] ?? 'belum';
+            $entry['baca_buku'] = [
+                'status' => $bukuSudah,
+                'jumlah' => $bukuSudah === 'iya' ? max(1, (int)($row['baca_buku']['jumlah'] ?? 1)) : 0
+            ];
+
             $siswa[$id] = $entry; // Use ID as key
         }
 
@@ -196,6 +202,7 @@ class LaporanController extends Controller
             'quran'    => 'Al-Qur\'an',
             'dluha'    => 'Dluha',
             'belajar'  => 'Belajar',
+            'baca_buku'=> 'Baca Buku',
             'memaafkan'=> 'Memaafkan',
             'mendoakan_muslimin'=> 'Doa Muslim',
             'mendoakan_ortu' => 'Doa Ortu',
@@ -253,6 +260,7 @@ class LaporanController extends Controller
         $headers[] = 'Al-Qur\'an';
         $headers[] = 'Shalat Dluha';
         $headers[] = 'Belajar Kamar';
+        $headers[] = 'Baca Buku';
         $headers[] = 'Memaafkan';
         $headers[] = 'Doa Muslim';
         $headers[] = 'Doa Ortu';
@@ -299,6 +307,13 @@ class LaporanController extends Controller
             
             $bl = $siswa['belajar']['status'] ?? '';
             $row[] = $bl === 'iya' ? 'Iya' : 'Tidak';
+
+            $bb = $siswa['baca_buku'] ?? [];
+            if (!empty($bb) && ($bb['status'] ?? '') === 'iya') {
+                $row[] = $bb['jumlah'] . ' Halaman';
+            } else {
+                $row[] = 'Belum';
+            }
 
             // 4 Pertanyaan Tambahan
             $row[] = ($siswa['memaafkan']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum';

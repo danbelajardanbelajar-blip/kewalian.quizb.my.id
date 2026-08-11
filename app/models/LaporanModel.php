@@ -95,7 +95,7 @@ class LaporanModel extends Model
 
         $kategoriList = [
             'sekolah', 'almiftah', 'diniyah', 'subuh',
-            'quran', 'dluha', 'belajar',
+            'quran', 'dluha', 'belajar', 'baca_buku',
             'memaafkan', 'mendoakan_muslimin', 'mendoakan_ortu', 'shadaqah'
         ];
         $kategoriLabel = [
@@ -106,6 +106,7 @@ class LaporanModel extends Model
             'quran'    => 'Al-Qur\'an',
             'dluha'    => 'Dluha',
             'belajar'  => 'Belajar',
+            'baca_buku'=> 'Baca Buku',
             'memaafkan'=> 'Memaafkan',
             'mendoakan_muslimin'=> 'Doa Muslim',
             'mendoakan_ortu' => 'Doa Ortu',
@@ -150,6 +151,10 @@ class LaporanModel extends Model
                     } elseif ($k === 'dluha') {
                         $dl = $siswa['dluha']['status'] ?? '';
                         if ($dl === 'ikut' || $dl === 'udzur_haid') {
+                            $isHadir = true;
+                        }
+                    } elseif ($k === 'baca_buku') {
+                        if (($siswa[$k]['status'] ?? '') === 'iya') {
                             $isHadir = true;
                         }
                     } else {

@@ -141,6 +141,7 @@ $labelKat  = [
                         <th class="text-center" style="min-width:120px">📿 Al-Qur'an</th>
                         <th class="text-center">🕌 Dluha</th>
                         <th class="text-center">📚 Belajar</th>
+                        <th class="text-center">📖 Baca Buku</th>
                         <th class="text-center">💖 Memaafkan</th>
                         <th class="text-center">🤲 Doa Muslim</th>
                         <th class="text-center">👨‍👩‍👦 Doa Ortu</th>
@@ -188,6 +189,14 @@ $labelKat  = [
 
                             <td class="text-center"><?= $labelStatus[$s['dluha']['status'] ?? 'tidak_ikut'] ?></td>
                             <td class="text-center"><?= $labelStatus[$s['belajar']['status'] ?? 'tidak'] ?></td>
+                            <td class="text-center">
+                                <?php $bb = $s['baca_buku'] ?? []; ?>
+                                <?php if (!empty($bb) && ($bb['status'] ?? '') === 'iya'): ?>
+                                    <span class="badge bg-primary"><?= $bb['jumlah'] ?> Hal</span>
+                                <?php else: ?>
+                                    <span class="badge bg-danger">Belum</span>
+                                <?php endif; ?>
+                            </td>
                             <td class="text-center"><?= $labelStatus[$s['memaafkan']['status'] ?? 'tidak'] ?? '-' ?></td>
                             <td class="text-center"><?= $labelStatus[$s['mendoakan_muslimin']['status'] ?? 'tidak'] ?? '-' ?></td>
                             <td class="text-center"><?= $labelStatus[$s['mendoakan_ortu']['status'] ?? 'tidak'] ?? '-' ?></td>
@@ -222,7 +231,12 @@ $labelKat  = [
                                     $pesanWa .= "🕌 Shalat Dluha: *" . ($dl === 'ikut' ? 'Ikut' : ($dl === 'udzur_haid' ? 'Udzur' : 'Tidak')) . "*\n";
                                     
                                     $bl = $s['belajar']['status'] ?? '';
-                                    $pesanWa .= "📚 Belajar di Kamar: *" . ($bl === 'iya' ? 'Iya' : 'Tidak') . "*\n\n";
+                                    $pesanWa .= "📚 Belajar di Kamar: *" . ($bl === 'iya' ? 'Iya' : 'Tidak') . "*\n";
+                                    
+                                    $bb = $s['baca_buku'] ?? [];
+                                    $bbStr = "Belum";
+                                    if (!empty($bb) && ($bb['status'] ?? '') === 'iya') $bbStr = $bb['jumlah'] . ' Halaman';
+                                    $pesanWa .= "📖 Baca Buku Mandiri: *" . $bbStr . "*\n\n";
                                     
                                     $pesanWa .= "Amalan & Kebaikan Hari Ini:\n";
                                     $pesanWa .= "- Memaafkan Sesama: *" . (($s['memaafkan']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum') . "*\n";

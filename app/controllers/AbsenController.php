@@ -199,6 +199,15 @@ class AbsenController extends Controller
             'jumlah' => $quranJumlah,
         ];
 
+        // Baca Buku
+        $bukuSudah  = $post['buku_sudah'] ?? 'belum';
+        $bukuJumlah = (int) ($post['buku_jumlah'] ?? 0);
+        if ($bukuSudah === 'belum') $bukuJumlah = 0;
+        $data['baca_buku'] = [
+            'status' => $bukuSudah,
+            'jumlah' => $bukuJumlah,
+        ];
+
         // Shalat Dluha
         $data['dluha'] = ['status' => $post['dluha'] ?? 'tidak_ikut'];
 
