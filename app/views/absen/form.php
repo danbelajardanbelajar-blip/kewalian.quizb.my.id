@@ -222,7 +222,7 @@ if ($totalStep === 0) {
                     <?php endif; ?>
 
                     <?php if (!$isLast): ?>
-                        <button type="button" class="btn-wizard-next" data-step="<?= $stepIdx + 1 ?>">
+                        <button type="button" class="btn-wizard-next d-none" data-step="<?= $stepIdx + 1 ?>" id="btnNext_<?= $pId ?>">
                             Lanjut <i class="bi bi-arrow-right ms-1"></i>
                         </button>
                     <?php else: ?>
@@ -303,6 +303,11 @@ if ($totalStep === 0) {
                 if (angkaWrap) {
                     angkaWrap.style.display = reqAngka ? '' : 'none';
                 }
+                
+                const btnNext = document.getElementById('btnNext_' + field);
+                if (btnNext) {
+                    btnNext.classList.remove('d-none');
+                }
             }
         }
 
@@ -337,10 +342,16 @@ if ($totalStep === 0) {
                     if (reqAngka) autoNext = false;
                 }
             }
+            
+            const btnNext = document.getElementById('btnNext_' + field);
 
             // Auto-next dengan delay agar animasi klik terlihat
             if (autoNext && current < TOTAL) {
+                if (btnNext) btnNext.classList.add('d-none'); // sembunyikan kembali kalau misal tadi ganti opsi
                 setTimeout(() => showStep(current + 1), 300);
+            } else if (!autoNext) {
+                // Jika auto-next mati (karena butuh isi keterangan/angka), munculkan tombol lanjut
+                if (btnNext) btnNext.classList.remove('d-none');
             }
         });
     });
