@@ -89,13 +89,17 @@ require_once APP_PATH . '/views/admin/layout_admin.php';
         
         <div class="col-lg-7 mb-4">
             <div class="admin-card card shadow-sm border-0 h-100">
-                <div class="card-header bg-white border-0 pt-4">
+                <div class="card-header bg-white border-0 pt-4 d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Log Kunjungan Terbaru</h5>
+                    <small class="text-muted">
+                        Halaman <?= $page ?> dari <?= $totalPages ?>
+                        (<?= number_format($totalKunjungan) ?> total)
+                    </small>
                 </div>
                 <div class="card-body p-0 mt-3">
-                    <div class="table-responsive">
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
                         <table class="table admin-table table-hover align-middle mb-0">
-                            <thead class="table-light">
+                            <thead class="table-light sticky-top">
                                 <tr>
                                     <th class="ps-4">Waktu</th>
                                     <th>IP</th>
@@ -124,6 +128,44 @@ require_once APP_PATH . '/views/admin/layout_admin.php';
                             </tbody>
                         </table>
                     </div>
+
+                    <?php if($totalPages > 1): ?>
+                    <div class="px-4 py-3 border-top">
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0 justify-content-center flex-wrap gap-1">
+                                <!-- Prev -->
+                                <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
+                                    <a class="page-link" href="<?= BASE_URL ?>/admin/kunjungan?page=<?= $page - 1 ?>">&laquo;</a>
+                                </li>
+
+                                <?php
+                                $start = max(1, $page - 2);
+                                $end   = min($totalPages, $page + 2);
+                                if($start > 1): ?>
+                                    <li class="page-item"><a class="page-link" href="<?= BASE_URL ?>/admin/kunjungan?page=1">1</a></li>
+                                    <?php if($start > 2): ?><li class="page-item disabled"><span class="page-link">…</span></li><?php endif; ?>
+                                <?php endif; ?>
+
+                                <?php for($i = $start; $i <= $end; $i++): ?>
+                                <li class="page-item <?= $i === $page ? 'active' : '' ?>">
+                                    <a class="page-link" href="<?= BASE_URL ?>/admin/kunjungan?page=<?= $i ?>"><?= $i ?></a>
+                                </li>
+                                <?php endfor; ?>
+
+                                <?php if($end < $totalPages): ?>
+                                    <?php if($end < $totalPages - 1): ?><li class="page-item disabled"><span class="page-link">…</span></li><?php endif; ?>
+                                    <li class="page-item"><a class="page-link" href="<?= BASE_URL ?>/admin/kunjungan?page=<?= $totalPages ?>"><?= $totalPages ?></a></li>
+                                <?php endif; ?>
+
+                                <!-- Next -->
+                                <li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
+                                    <a class="page-link" href="<?= BASE_URL ?>/admin/kunjungan?page=<?= $page + 1 ?>">&raquo;</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <?php endif; ?>
+
                 </div>
             </div>
         </div>

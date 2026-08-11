@@ -350,12 +350,14 @@ class AdminController extends Controller
     {
         $this->requireAdmin();
 
-        $page           = (int)($_GET['page'] ?? 1);
-        $kunjunganList  = $this->adminModel->getKunjungan($page, 50);
+        $page           = max(1, (int)($_GET['page'] ?? 1));
+        $perPage        = 25;
+        $kunjunganList  = $this->adminModel->getKunjungan($page, $perPage);
         $perHalaman     = $this->adminModel->getKunjunganPerHalaman();
         $chartData7     = $this->adminModel->getKunjunganPerDay(7);
         $chartData30    = $this->adminModel->getKunjunganPerDay(30);
         $totalKunjungan = $this->adminModel->getKunjunganCount();
+        $totalPages     = (int)ceil($totalKunjungan / $perPage);
         $unreadFeedback = $this->getUnreadCount();
 
         $this->view('admin/kunjungan', [
@@ -369,6 +371,8 @@ class AdminController extends Controller
             'totalKunjungan'=> $totalKunjungan,
             'unreadFeedback'=> $unreadFeedback,
             'page'          => $page,
+            'totalPages'    => $totalPages,
+            'perPage'       => $perPage,
         ], false);
     }
 
