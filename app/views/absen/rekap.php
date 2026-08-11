@@ -208,45 +208,60 @@ $labelKat  = [
                                 <?php
                                 $noHp = $sObj['no_hp'] ?? '';
                                 if (!empty($noHp)) {
-                                    $pesanWa = "Assalamu'alaikum wr. wb. Ayah/Bunda,\n\n";
-                                    $pesanWa .= "Semoga Ayah dan Bunda senantiasa dalam keadaan sehat, dirahmati Allah, dan dimudahkan segala urusannya.\n\n";
-                                    $pesanWa .= "Bersama pesan ini, kami ingin menyampaikan perkembangan aktivitas harian ananda tercinta, *" . $namaSiswa . "*, pada tanggal *" . date('d F Y', strtotime($tanggal)) . "*.\n\n";
+                                    // Pengelompokan Kegiatan
+                                    $hadirKegiatan = [];
+                                    $absenKegiatan = [];
                                     
-                                    $pesanWa .= "Berikut adalah ringkasan laporannya:\n";
-                                    $pesanWa .= "🏫 Sekolah: *" . ucfirst($s['sekolah']['status'] ?? 'absen') . "*\n";
-                                    $pesanWa .= "📖 Al-Miftah: *" . ucfirst($s['almiftah']['status'] ?? 'absen') . "*\n";
-                                    $pesanWa .= "🌙 Diniyah: *" . ucfirst($s['diniyah']['status'] ?? 'absen') . "*\n";
-                                    $pesanWa .= "🌅 Ngaji Pagi: *" . ucfirst($s['subuh']['status'] ?? 'absen') . "*\n";
+                                    $statusSekolah = strtolower($s['sekolah']['status'] ?? '');
+                                    if (in_array($statusSekolah, ['hadir', 'telat', 'izin', 'sakit'])) $hadirKegiatan[] = 'Sekolah'; else $absenKegiatan[] = 'Sekolah';
                                     
-                                    $q = $s['quran'] ?? [];
-                                    $qStr = "Belum";
-                                    if (!empty($q)) {
-                                        if (($q['type'] ?? '') === 'setengah_juz') $qStr = 'Setengah Juz';
-                                        elseif (($q['type'] ?? '') === 'juz') $qStr = $q['jumlah'] . ' Juz';
-                                        elseif (($q['type'] ?? '') === 'halaman') $qStr = $q['jumlah'] . ' Halaman';
+                                    $statusAlmiftah = strtolower($s['almiftah']['status'] ?? '');
+                                    if (in_array($statusAlmiftah, ['hadir', 'telat', 'izin', 'sakit'])) $hadirKegiatan[] = 'Al-Miftah'; else $absenKegiatan[] = 'Al-Miftah';
+                                    
+                                    $statusDiniyah = strtolower($s['diniyah']['status'] ?? '');
+                                    if (in_array($statusDiniyah, ['hadir', 'telat', 'izin', 'sakit'])) $hadirKegiatan[] = 'Diniyah'; else $absenKegiatan[] = 'Diniyah';
+                                    
+                                    $statusSubuh = strtolower($s['subuh']['status'] ?? '');
+                                    if (in_array($statusSubuh, ['hadir', 'telat', 'izin', 'sakit'])) $hadirKegiatan[] = 'Ngaji Pagi'; else $absenKegiatan[] = 'Ngaji Pagi';
+                                    
+                                    $qType = $s['quran']['type'] ?? '';
+                                    if (!empty($qType) && (int)($s['quran']['jumlah'] ?? 0) > 0) $hadirKegiatan[] = "Membaca Al-Qur'an"; else $absenKegiatan[] = "Membaca Al-Qur'an";
+                                    
+                                    $statusDluha = strtolower($s['dluha']['status'] ?? '');
+                                    if (in_array($statusDluha, ['ikut', 'udzur_haid'])) $hadirKegiatan[] = 'Shalat Dluha'; else $absenKegiatan[] = 'Shalat Dluha';
+                                    
+                                    if (strtolower($s['belajar']['status'] ?? '') === 'iya') $hadirKegiatan[] = 'Belajar Mandiri'; else $absenKegiatan[] = 'Belajar Mandiri';
+                                    if (strtolower($s['baca_buku']['status'] ?? '') === 'iya') $hadirKegiatan[] = 'Membaca Buku'; else $absenKegiatan[] = 'Membaca Buku';
+
+                                    // Pengelompokan Amalan
+                                    $sudahAmalan = [];
+                                    $belumAmalan = [];
+                                    if (strtolower($s['memaafkan']['status'] ?? '') === 'iya') $sudahAmalan[] = 'memaafkan teman'; else $belumAmalan[] = 'memaafkan teman';
+                                    if (strtolower($s['mendoakan_muslimin']['status'] ?? '') === 'iya') $sudahAmalan[] = 'mendoakan sesama'; else $belumAmalan[] = 'mendoakan sesama';
+                                    if (strtolower($s['mendoakan_ortu']['status'] ?? '') === 'iya') $sudahAmalan[] = 'mendoakan orang tua'; else $belumAmalan[] = 'mendoakan orang tua';
+                                    if (strtolower($s['shadaqah']['status'] ?? '') === 'iya') $sudahAmalan[] = 'membantu teman'; else $belumAmalan[] = 'membantu teman';
+
+                                    $pesanWa = "Salam Ayah/Ibu. Ini kulo, ananda *" . trim($namaSiswa) . "*.\n";
+                                    $pesanWa .= "Semoga Ayah dan Ibu sekeluarga senantiasa sehat dan dijaga oleh Allah.\n\n";
+
+                                    if (!empty($hadirKegiatan)) {
+                                        $pesanWa .= "Alhamdulillah Ayah/Ibu. Kemarin saya hadir pada kegiatan: " . implode(", ", $hadirKegiatan) . ".\n";
                                     }
-                                    $pesanWa .= "📿 Al-Qur'an: *" . $qStr . "*\n";
-                                    
-                                    $dl = $s['dluha']['status'] ?? '';
-                                    $pesanWa .= "🕌 Shalat Dluha: *" . ($dl === 'ikut' ? 'Ikut' : ($dl === 'udzur_haid' ? 'Udzur' : 'Tidak')) . "*\n";
-                                    
-                                    $bl = $s['belajar']['status'] ?? '';
-                                    $pesanWa .= "📚 Belajar di Kamar: *" . ($bl === 'iya' ? 'Iya' : 'Tidak') . "*\n";
-                                    
-                                    $bb = $s['baca_buku'] ?? [];
-                                    $bbStr = "Belum";
-                                    if (!empty($bb) && ($bb['status'] ?? '') === 'iya') $bbStr = $bb['jumlah'] . ' Halaman';
-                                    $pesanWa .= "📖 Baca Buku Mandiri: *" . $bbStr . "*\n\n";
-                                    
-                                    $pesanWa .= "Amalan & Kebaikan Hari Ini:\n";
-                                    $pesanWa .= "- Memaafkan Sesama: *" . (($s['memaafkan']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum') . "*\n";
-                                    $pesanWa .= "- Mendoakan Muslimin: *" . (($s['mendoakan_muslimin']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum') . "*\n";
-                                    $pesanWa .= "- Mendoakan Orang Tua: *" . (($s['mendoakan_ortu']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum') . "*\n";
-                                    $pesanWa .= "- Membantu Teman: *" . (($s['shadaqah']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum') . "*\n\n";
-                                    
-                                    $pesanWa .= "Terima kasih banyak atas kepercayaan, bimbingan, dan dukungan penuh dari Ayah/Bunda.\n\n";
-                                    $pesanWa .= "Semoga ananda *" . $namaSiswa . "* senantiasa dijaga oleh Allah, dimudahkan dalam menuntut ilmu, dan kelak menjadi anak yang salih/salihah, berakhlak mulia, serta menjadi kebanggaan dan penyejuk hati keluarga. Aamiin Ya Rabbal 'Alamin 🤲\n\n";
-                                    $pesanWa .= "Wassalamu'alaikum wr. wb.";
+                                    if (!empty($sudahAmalan)) {
+                                        $pesanWa .= "Alhamdulillah, saya tadi malam juga sudah " . implode(", ", $sudahAmalan) . ".\n";
+                                    }
+
+                                    if (!empty($absenKegiatan) || !empty($belumAmalan)) {
+                                        $pesanWa .= "\n";
+                                        if (!empty($absenKegiatan)) {
+                                            $pesanWa .= "Mohon doanya Bapak/Ibu agar saya bisa hadir/melaksanakan: " . implode(", ", $absenKegiatan) . ".\n";
+                                        }
+                                        if (!empty($belumAmalan)) {
+                                            $pesanWa .= "Mohon doanya pula agar hari ini saya bisa " . implode(", ", $belumAmalan) . ".\n";
+                                        }
+                                    }
+
+                                    $pesanWa .= "\nMohon ridlanya Ayah/Ibu.\nMatur Nuwun.\nSalam.";
                                     
                                     $linkWa = "https://wa.me/" . urlencode($noHp) . "?text=" . urlencode($pesanWa);
                                     echo '<a href="' . $linkWa . '" target="_blank" class="btn btn-outline-success btn-sm p-1 me-1" title="Kirim WA ke Wali"><i class="bi bi-whatsapp"></i></a>';
