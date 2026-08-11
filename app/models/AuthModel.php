@@ -30,8 +30,9 @@ class AuthModel extends Model
 
     /**
      * Daftarkan user baru
+     * @return int|bool Mengembalikan ID user baru jika sukses, false jika gagal
      */
-    public function register(string $username, string $password, string $nama_lengkap, string $kelas): bool
+    public function register(string $username, string $password, string $nama_lengkap, string $kelas): int|bool
     {
         $hash = password_hash($password, PASSWORD_BCRYPT);
         
@@ -41,7 +42,8 @@ class AuthModel extends Model
             $this->db->bind(':password', $hash);
             $this->db->bind(':nama_lengkap', $nama_lengkap);
             $this->db->bind(':kelas', $kelas);
-            return $this->db->execute();
+            $this->db->execute();
+            return (int) $this->db->lastInsertId();
         } catch (Exception $e) {
             // Error jika username duplikat (UNIQUE)
             return false;

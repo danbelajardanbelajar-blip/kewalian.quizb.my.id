@@ -101,4 +101,88 @@ class PertanyaanModel extends Model
         $this->db->bind(':user_id', $userId);
         return $this->db->execute();
     }
+
+    /**
+     * Buat pertanyaan default untuk user baru
+     */
+    public function createDefaultPertanyaan(int $userId): bool
+    {
+        $default_pertanyaan = [
+            [
+                'judul' => 'Kehadiran Sekolah',
+                'tipe' => 'pilihan_ganda',
+                'opsi' => [
+                    ['label' => 'Hadir', 'value' => 'hadir', 'poin' => 10, 'require_ket' => false],
+                    ['label' => 'Sakit', 'value' => 'sakit', 'poin' => 5, 'require_ket' => false],
+                    ['label' => 'Izin', 'value' => 'izin', 'poin' => 5, 'require_ket' => true],
+                    ['label' => 'Alpha', 'value' => 'alpha', 'poin' => 0, 'require_ket' => false]
+                ]
+            ],
+            [
+                'judul' => 'Kehadiran Al-Miftah',
+                'tipe' => 'pilihan_ganda',
+                'opsi' => [
+                    ['label' => 'Hadir', 'value' => 'hadir', 'poin' => 10, 'require_ket' => false],
+                    ['label' => 'Sakit', 'value' => 'sakit', 'poin' => 5, 'require_ket' => false],
+                    ['label' => 'Izin', 'value' => 'izin', 'poin' => 5, 'require_ket' => true],
+                    ['label' => 'Alpha', 'value' => 'alpha', 'poin' => 0, 'require_ket' => false]
+                ]
+            ],
+            [
+                'judul' => 'Kehadiran Diniyah',
+                'tipe' => 'pilihan_ganda',
+                'opsi' => [
+                    ['label' => 'Hadir', 'value' => 'hadir', 'poin' => 10, 'require_ket' => false],
+                    ['label' => 'Sakit', 'value' => 'sakit', 'poin' => 5, 'require_ket' => false],
+                    ['label' => 'Izin', 'value' => 'izin', 'poin' => 5, 'require_ket' => true],
+                    ['label' => 'Alpha', 'value' => 'alpha', 'poin' => 0, 'require_ket' => false]
+                ]
+            ],
+            [
+                'judul' => 'Kehadiran Ngaji Pagi',
+                'tipe' => 'pilihan_ganda',
+                'opsi' => [
+                    ['label' => 'Hadir', 'value' => 'hadir', 'poin' => 10, 'require_ket' => false],
+                    ['label' => 'Sakit', 'value' => 'sakit', 'poin' => 5, 'require_ket' => false],
+                    ['label' => 'Izin', 'value' => 'izin', 'poin' => 5, 'require_ket' => true],
+                    ['label' => 'Alpha', 'value' => 'alpha', 'poin' => 0, 'require_ket' => false]
+                ]
+            ],
+            [
+                'judul' => 'Shalat Dluha',
+                'tipe' => 'pilihan_ganda',
+                'opsi' => [
+                    ['label' => 'Ikut', 'value' => 'ikut', 'poin' => 10, 'require_ket' => false],
+                    ['label' => 'Udzur Haid', 'value' => 'udzur haid', 'poin' => 10, 'require_ket' => false],
+                    ['label' => 'Tidak Ikut', 'value' => 'tidak ikut', 'poin' => 0, 'require_ket' => false]
+                ]
+            ],
+            [
+                'judul' => 'Belajar Mandiri di Kamar',
+                'tipe' => 'pilihan_ganda',
+                'opsi' => [
+                    ['label' => 'Iya', 'value' => 'iya', 'poin' => 10, 'require_ket' => false],
+                    ['label' => 'Tidak', 'value' => 'tidak', 'poin' => 0, 'require_ket' => false]
+                ]
+            ]
+        ];
+
+        try {
+            $urutan = 1;
+            foreach ($default_pertanyaan as $dp) {
+                $this->db->query("INSERT INTO pertanyaan (user_id, judul, tipe, opsi, urutan, is_active) 
+                                VALUES (:user_id, :judul, :tipe, :opsi, :urutan, 1)");
+                $this->db->bind(':user_id', $userId);
+                $this->db->bind(':judul', $dp['judul']);
+                $this->db->bind(':tipe', $dp['tipe']);
+                $this->db->bind(':opsi', json_encode($dp['opsi']));
+                $this->db->bind(':urutan', $urutan);
+                $this->db->execute();
+                $urutan++;
+            }
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
 }

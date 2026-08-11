@@ -9,10 +9,14 @@ require_once APP_PATH . '/models/AuthModel.php';
 class AuthController extends Controller
 {
     private AuthModel $authModel;
+    private PertanyaanModel $pertanyaanModel;
 
     public function __construct()
     {
         $this->authModel = new AuthModel();
+        
+        require_once APP_PATH . '/models/PertanyaanModel.php';
+        $this->pertanyaanModel = new PertanyaanModel();
     }
 
     /**
@@ -88,7 +92,11 @@ class AuthController extends Controller
             $this->redirect('auth/daftar');
         }
 
-        if ($this->authModel->register($username, $password, $nama_lengkap, $kelas)) {
+        $newUserId = $this->authModel->register($username, $password, $nama_lengkap, $kelas);
+        if ($newUserId !== false) {
+            // Buat pertanyaan default untuk wali kelas baru ini
+            $this->pertanyaanModel->createDefaultPertanyaan($newUserId);
+            
             Flash::set('success', 'Pendaftaran berhasil! Silakan login.');
             $this->redirect('auth/login');
         } else {
