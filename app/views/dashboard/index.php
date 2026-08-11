@@ -83,7 +83,13 @@ $today = date('Y-m-d');
                 </h5>
             </div>
             <div class="card-body">
-                <?php if ($stats['sudah_isi'] > 0): ?>
+                <?php if ($stats['total'] == 0): ?>
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-people display-1 text-light"></i>
+                        <h4 class="mt-3">Siswa Belum Ditambahkan</h4>
+                        <p class="mb-0">Silakan <a href="<?= BASE_URL ?>/siswa" class="text-primary text-decoration-none fw-semibold">Tambahkan Data Siswa</a> terlebih dahulu untuk mulai melihat analitik.</p>
+                    </div>
+                <?php elseif ($stats['sudah_isi'] > 0): ?>
                     <canvas id="kehadiranChart" style="max-height: 400px;"></canvas>
                 <?php else: ?>
                     <div class="text-center text-muted py-5">
@@ -107,7 +113,18 @@ $today = date('Y-m-d');
                 <span class="badge bg-danger rounded-pill"><?= count($stats['belum_isi']) ?></span>
             </div>
             <div class="card-body p-0">
-                <?php if (!empty($stats['belum_isi'])): ?>
+                <?php if ($stats['total'] == 0): ?>
+                    <div class="text-center py-5 px-3">
+                        <div class="mb-3">
+                            <i class="bi bi-person-exclamation text-warning" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="text-warning fw-bold">Data Siswa Kosong</h5>
+                        <p class="text-muted small mb-3">Belum ada siswa yang terdaftar di kelas Anda.</p>
+                        <a href="<?= BASE_URL ?>/siswa" class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm">
+                            <i class="bi bi-plus-circle me-1"></i> Tambah Data Siswa
+                        </a>
+                    </div>
+                <?php elseif (!empty($stats['belum_isi'])): ?>
                     <ul class="list-group list-group-flush" style="max-height: 400px; overflow-y: auto;">
                         <?php foreach ($stats['belum_isi'] as $nama): ?>
                             <li class="list-group-item px-4 py-3 d-flex align-items-center">
