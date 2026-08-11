@@ -66,8 +66,8 @@ require_once APP_PATH . '/views/admin/layout_admin.php';
                                         $pct = $max > 0 ? ($hal['jumlah'] / $max) * 100 : 0;
                                     ?>
                                     <tr>
-                                        <td class="ps-4 text-truncate" style="max-width: 150px;" title="<?= htmlspecialchars($hal['halaman']) ?>">
-                                            <span class="badge bg-light text-dark border"><?= htmlspecialchars($hal['halaman']) ?></span>
+                                        <td class="ps-4 text-truncate" style="max-width: 150px;" title="<?= htmlspecialchars($hal['halaman'] ?? '') ?>">
+                                            <span class="badge bg-light text-dark border"><?= htmlspecialchars($hal['halaman'] ?? '') ?></span>
                                         </td>
                                         <td class="text-end fw-bold"><?= number_format($hal['jumlah']) ?></td>
                                         <td class="pe-4">
@@ -111,10 +111,10 @@ require_once APP_PATH . '/views/admin/layout_admin.php';
                                             <div class="small fw-bold"><?= date('d M', strtotime($log['created_at'])) ?></div>
                                             <div class="small text-muted"><?= date('H:i:s', strtotime($log['created_at'])) ?></div>
                                         </td>
-                                        <td><span class="font-monospace small"><?= htmlspecialchars($log['ip']) ?></span></td>
-                                        <td><span class="badge bg-light text-primary border"><?= htmlspecialchars($log['halaman']) ?></span></td>
-                                        <td class="pe-4 text-truncate small" style="max-width: 150px;" title="<?= htmlspecialchars($log['user_agent']) ?>">
-                                            <?= htmlspecialchars($log['user_agent']) ?>
+                                        <td><span class="font-monospace small"><?= htmlspecialchars($log['ip'] ?? '') ?></span></td>
+                                        <td><span class="badge bg-light text-primary border"><?= htmlspecialchars($log['halaman'] ?? '') ?></span></td>
+                                        <td class="pe-4 text-truncate small" style="max-width: 150px;" title="<?= htmlspecialchars($log['user_agent'] ?? '') ?>">
+                                            <?= htmlspecialchars($log['user_agent'] ?? '') ?>
                                         </td>
                                     </tr>
                                     <?php endforeach; ?>

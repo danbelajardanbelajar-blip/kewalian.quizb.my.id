@@ -66,7 +66,7 @@ $filter = $_GET['filter'] ?? 'all';
                 </div>
                 
                 <?php if($unreadCount > 0): ?>
-                <form action="<?= BASEURL ?>/admin/markAllFeedbackRead" method="POST" class="d-inline ms-2">
+                <form action="<?= BASE_URL ?>/admin/bacaSemuaFeedback" method="POST" class="d-inline ms-2">
                     <button type="submit" class="btn btn-sm btn-outline-success shadow-sm">
                         <i class="bi bi-check-all"></i> Tandai Semua Dibaca
                     </button>
@@ -93,12 +93,12 @@ $filter = $_GET['filter'] ?? 'all';
                             <?php foreach($feedbacks as $fb): ?>
                             <tr class="<?= $fb['is_read'] == 0 ? 'table-warning' : '' ?>">
                                 <td class="ps-4 fw-bold">
-                                    <?= htmlspecialchars($fb['nama']) ?>
+                                    <?= htmlspecialchars($fb['nama'] ?? '') ?>
                                 </td>
-                                <td><?= htmlspecialchars($fb['email']) ?></td>
+                                <td><?= htmlspecialchars($fb['email'] ?? '') ?></td>
                                 <td>
-                                    <div class="text-truncate" style="max-width: 250px;" title="<?= htmlspecialchars($fb['pesan']) ?>">
-                                        <?= mb_strlen($fb['pesan']) > 100 ? mb_substr(htmlspecialchars($fb['pesan']), 0, 100) . '...' : htmlspecialchars($fb['pesan']) ?>
+                                    <div class="text-truncate" style="max-width: 250px;" title="<?= htmlspecialchars($fb['pesan'] ?? '') ?>">
+                                        <?= mb_strlen($fb['pesan'] ?? '') > 100 ? mb_substr(htmlspecialchars($fb['pesan'] ?? ''), 0, 100) . '...' : htmlspecialchars($fb['pesan'] ?? '') ?>
                                     </div>
                                 </td>
                                 <td>
@@ -124,14 +124,14 @@ $filter = $_GET['filter'] ?? 'all';
                                 <td class="pe-4 text-end">
                                     <div class="d-flex justify-content-end gap-1">
                                         <?php if($fb['is_read'] == 0): ?>
-                                        <form action="<?= BASEURL ?>/admin/markFeedbackRead" method="POST" class="d-inline">
+                                        <form action="<?= BASE_URL ?>/admin/bacaFeedback" method="POST" class="d-inline">
                                             <input type="hidden" name="id" value="<?= $fb['id'] ?>">
                                             <button type="submit" class="btn btn-sm btn-outline-success" title="Tandai Dibaca">
                                                 <i class="bi bi-check2"></i>
                                             </button>
                                         </form>
                                         <?php endif; ?>
-                                        <form action="<?= BASEURL ?>/admin/deleteFeedback" method="POST" class="d-inline">
+                                        <form action="<?= BASE_URL ?>/admin/hapusFeedback" method="POST" class="d-inline">
                                             <input type="hidden" name="id" value="<?= $fb['id'] ?>">
                                             <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus" onclick="return confirm('Hapus feedback ini?');">
                                                 <i class="bi bi-trash"></i>

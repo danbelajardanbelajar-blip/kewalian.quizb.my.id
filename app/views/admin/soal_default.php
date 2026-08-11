@@ -96,7 +96,7 @@ require_once APP_PATH . '/views/admin/layout_admin.php';
 <!-- Modal Tambah Soal -->
 <div class="modal fade" id="modalTambahSoal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
-        <form action="<?= BASEURL ?>/admin/addSoal" method="POST">
+        <form action="<?= BASE_URL ?>/admin/simpanSoal" method="POST">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Tambah Soal Default Baru</h5>
@@ -140,7 +140,7 @@ require_once APP_PATH . '/views/admin/layout_admin.php';
 <!-- Modal Edit Soal -->
 <div class="modal fade" id="modalEditSoal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
-        <form action="<?= BASEURL ?>/admin/updateSoal" method="POST">
+        <form action="<?= BASE_URL ?>/admin/updateSoal" method="POST">
             <input type="hidden" id="edit_id" name="id">
             <div class="modal-content">
                 <div class="modal-header">
