@@ -236,7 +236,7 @@ $labelKat  = [
                                     // Pengelompokan Amalan
                                     $sudahAmalan = [];
                                     $belumAmalan = [];
-                                    if (strtolower($s['memaafkan']['status'] ?? '') === 'iya') $sudahAmalan[] = 'memaafkan teman'; else $belumAmalan[] = 'memaafkan teman';
+                                    if (strtolower($s['memaafkan']['status'] ?? '') === 'iya') $sudahAmalan[] = 'memaafkan semua teman'; else $belumAmalan[] = 'memaafkan semua teman';
                                     if (strtolower($s['mendoakan_muslimin']['status'] ?? '') === 'iya') $sudahAmalan[] = 'mendoakan sesama'; else $belumAmalan[] = 'mendoakan sesama';
                                     if (strtolower($s['mendoakan_ortu']['status'] ?? '') === 'iya') $sudahAmalan[] = 'mendoakan orang tua'; else $belumAmalan[] = 'mendoakan orang tua';
                                     if (strtolower($s['shadaqah']['status'] ?? '') === 'iya') $sudahAmalan[] = 'membantu teman'; else $belumAmalan[] = 'membantu teman';
