@@ -20,6 +20,16 @@ try {
         $messages[] = "Column 'is_admin' already exists in users table.";
     }
 
+    // 1.5. ALTER TABLE users ADD COLUMN created_at
+    $db->query("SHOW COLUMNS FROM users LIKE 'created_at'");
+    if (empty($db->resultSet())) {
+        $db->query("ALTER TABLE users ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
+        $db->execute();
+        $messages[] = "Added 'created_at' column to users table.";
+    } else {
+        $messages[] = "Column 'created_at' already exists in users table.";
+    }
+
     // 2. ALTER TABLE users ADD COLUMN last_login_at
     $db->query("SHOW COLUMNS FROM users LIKE 'last_login_at'");
     if (empty($db->resultSet())) {

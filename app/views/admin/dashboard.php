@@ -99,7 +99,7 @@ require_once APP_PATH . '/views/admin/layout_admin.php';
                                         </td>
                                         <td>
                                             <span class="badge bg-light text-dark border"><?= htmlspecialchars($user['kelas']) ?></span>
-                                            <div class="small text-muted mt-1"><?= date('d M Y', strtotime($user['created_at'])) ?></div>
+                                            <div class="small text-muted mt-1"><?= isset($user['created_at']) ? date('d M Y', strtotime($user['created_at'])) : 'Lama' ?></div>
                                         </td>
                                     </tr>
                                     <?php endforeach; ?>

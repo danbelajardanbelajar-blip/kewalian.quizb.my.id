@@ -48,8 +48,8 @@ require_once APP_PATH . '/views/admin/layout_admin.php';
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <div class="small"><?= date('d M Y', strtotime($user['created_at'])) ?></div>
-                                        <div class="small text-muted"><?= date('H:i', strtotime($user['created_at'])) ?></div>
+                                        <div class="small"><?= isset($user['created_at']) ? date('d M Y', strtotime($user['created_at'])) : '-' ?></div>
+                                        <div class="small text-muted"><?= isset($user['created_at']) ? date('H:i', strtotime($user['created_at'])) : '' ?></div>
                                     </td>
                                     <td class="pe-4 text-end">
                                         <div class="d-flex justify-content-end gap-1">

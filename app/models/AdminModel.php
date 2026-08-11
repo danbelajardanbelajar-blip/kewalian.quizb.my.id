@@ -72,8 +72,12 @@ class AdminModel extends Model
         $this->db->query("SELECT COUNT(*) as count FROM feedback WHERE is_read = 0");
         $stats['unread_feedback'] = $this->db->single()['count'];
         
-        $this->db->query("SELECT COUNT(*) as count FROM users WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)");
-        $stats['new_users_week'] = $this->db->single()['count'];
+        try {
+            $this->db->query("SELECT COUNT(*) as count FROM users WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)");
+            $stats['new_users_week'] = $this->db->single()['count'];
+        } catch (Exception $e) {
+            $stats['new_users_week'] = 0; // Fallback jika kolom created_at belum ada
+        }
         
         return $stats;
     }
@@ -113,7 +117,7 @@ class AdminModel extends Model
     // Get recent N registered users
     public function getRecentUsers(int $limit = 5): array
     {
-        $this->db->query("SELECT id, username, nama_lengkap, kelas, is_admin, created_at FROM users ORDER BY id DESC LIMIT :limit");
+        $this->db->query("SELECT * FROM users ORDER BY id DESC LIMIT :limit");
         $this->db->bind(':limit', $limit, PDO::PARAM_INT);
         return $this->db->resultSet();
     }
