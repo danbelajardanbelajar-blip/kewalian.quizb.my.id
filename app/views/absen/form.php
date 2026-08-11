@@ -60,7 +60,7 @@ $pertanyaan = [
     ],
     [
         'id'     => 'subuh',
-        'label'  => 'Apakah bakda shubuh ini ananda ' . htmlspecialchars($namaProper) . ' hadir Ngaji Pagi?',
+        'label'  => 'Apakah kemarin pagi (bakda shubuh) ananda ' . htmlspecialchars($namaProper) . ' hadir Ngaji Pagi?',
         'icon'   => 'bi-sunrise',
         'emoji'  => '🌅',
         'type'   => 'kehadiran',
