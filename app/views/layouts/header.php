@@ -97,6 +97,12 @@ $pageTitle = $title ?? 'Dashboard Wali Kelas';
                         <i class="bi bi-ui-checks me-1"></i> Pertanyaan
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/feedback') !== false ? 'active' : '' ?>"
+                       href="<?= BASE_URL ?>/feedback">
+                        <i class="bi bi-chat-heart me-1"></i> Kirim Feedback
+                    </a>
+                </li>
                 <?php if (Session::get('is_admin')): ?>
                 <li class="nav-item">
                     <a class="nav-link text-warning fw-bold" href="<?= BASE_URL ?>/admin">

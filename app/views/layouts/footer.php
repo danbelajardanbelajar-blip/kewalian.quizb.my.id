@@ -10,6 +10,10 @@
             </div>
             <div class="footer-text">
                 &copy; <?= date('Y') ?> — Sistem Manajemen Presensi Harian Santri
+                <span class="mx-2 text-muted">|</span>
+                <a href="<?= BASE_URL ?>/feedback" class="text-decoration-none text-secondary hover-primary">
+                    <i class="bi bi-chat-heart"></i> Kirim Feedback
+                </a>
             </div>
             <div class="footer-time" id="footerClock">
                 <i class="bi bi-clock me-1"></i>
