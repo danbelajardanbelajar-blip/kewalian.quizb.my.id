@@ -84,6 +84,9 @@ class AbsenController extends Controller
             $this->redirect('absen');
         }
 
+        $kunjungan = new KunjunganModel();
+        $kunjungan->record('/absen/isi/' . $idStr . "?wali=$idWali", (int)$idWali);
+
         $id      = (int)$idStr;
         $tanggal = $_GET['tanggal'] ?? date('Y-m-d');
         

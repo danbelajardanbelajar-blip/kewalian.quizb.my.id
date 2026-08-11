@@ -22,12 +22,17 @@ class KunjunganModel extends Model
     // Get IP from request
     private function getIp(): string
     {
+        $ip = '';
         if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            return $_SERVER['HTTP_CLIENT_IP'];
+            $ip = $_SERVER['HTTP_CLIENT_IP'];
         } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            return $_SERVER['HTTP_X_FORWARDED_FOR'];
+            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
         } else {
-            return $_SERVER['REMOTE_ADDR'] ?? '';
+            $ip = $_SERVER['REMOTE_ADDR'] ?? '';
         }
+        
+        // Handle comma-separated IPs (e.g., from proxies) and limit to 45 chars for DB safety
+        $ips = explode(',', $ip);
+        return substr(trim($ips[0]), 0, 45);
     }
 }
