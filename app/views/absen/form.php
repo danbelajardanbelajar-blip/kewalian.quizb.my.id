@@ -73,7 +73,7 @@ $pertanyaan = [
     ],
     [
         'id'     => 'quran',
-        'label'  => 'Apakah sejak kemarin hingga shubuh ini ananda ' . htmlspecialchars($namaProper) . ' membaca Al-Qur\'an secara mandiri (selain ngaji bersama di kelas atau di pondk)?',
+        'label'  => 'Apakah sejak kemarin hingga shubuh ini ananda ' . htmlspecialchars($namaProper) . ' membaca Al-Qur\'an secara mandiri (selain ngaji bersama di kelas atau di pondok)?',
         'icon'   => 'bi-journal-bookmark',
         'emoji'  => '📿',
         'type'   => 'quran',
