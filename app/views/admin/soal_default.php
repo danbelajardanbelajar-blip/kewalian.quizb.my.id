@@ -57,9 +57,9 @@ require_once APP_PATH . '/views/admin/layout_admin.php';
                                 </td>
                                 <td class="pe-4 text-end">
                                     <div class="d-flex justify-content-end gap-1">
-                                        <form action="<?= BASEURL ?>/admin/toggleSoalActive" method="POST" class="d-inline">
+                                        <form action="<?= BASE_URL ?>/admin/toggleSoalActive" method="POST" class="d-inline">
                                             <input type="hidden" name="id" value="<?= $soal['id'] ?>">
-                                            <button type="submit" class="btn btn-sm <?= $soal['is_active'] == 1 ? 'btn-warning' : 'btn-outline-success' ?>" title="Toggle Aktif">
+                                            <button type="submit" class="btn btn-sm <?= $soal['is_active'] == 1 ? 'btn-outline-secondary' : 'btn-outline-success' ?>" title="Toggle Status">
                                                 <i class="bi <?= $soal['is_active'] == 1 ? 'bi-toggle-on' : 'bi-toggle-off' ?>"></i>
                                             </button>
                                         </form>
@@ -68,8 +68,7 @@ require_once APP_PATH . '/views/admin/layout_admin.php';
                                             onclick='editSoal(<?= json_encode($soal, JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'>
                                             <i class="bi bi-pencil"></i>
                                         </button>
-                                        
-                                        <form action="<?= BASEURL ?>/admin/deleteSoal" method="POST" class="d-inline">
+                                        <form action="<?= BASE_URL ?>/admin/hapusSoal" method="POST" class="d-inline">
                                             <input type="hidden" name="id" value="<?= $soal['id'] ?>">
                                             <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus Soal" onclick="return confirm('Yakin ingin menghapus soal ini secara permanen?');">
                                                 <i class="bi bi-trash"></i>
