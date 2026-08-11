@@ -20,14 +20,6 @@ class AbsenController extends Controller
         $this->absenModel = new AbsenModel();
         $this->konfig     = new KonfigurasiModel();
         $this->pertanyaanModel = new PertanyaanModel();
-
-        // Track semua kunjungan ke halaman absen (GET request saja agar tidak double dengan POST)
-        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET') {
-            require_once APP_PATH . '/models/KunjunganModel.php';
-            $kunjungan = new KunjunganModel();
-            $idWali = $_GET['wali'] ?? '';
-            $kunjungan->record($_SERVER['REQUEST_URI'] ?? '/absen', empty($idWali) ? null : (int)$idWali);
-        }
     }
 
     /**

@@ -17,6 +17,21 @@ class App
     {
         $url = $this->parseUrl();
 
+        // Track semua kunjungan secara global (hanya GET request agar form submit tidak double)
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET') {
+            require_once APP_PATH . '/models/KunjunganModel.php';
+            $kunjungan = new KunjunganModel();
+            
+            $waliId = null;
+            if (!empty($_GET['wali'])) {
+                $waliId = (int)$_GET['wali'];
+            } elseif (isset($_SESSION['user_id'])) {
+                $waliId = (int)$_SESSION['user_id'];
+            }
+            
+            $kunjungan->record($_SERVER['REQUEST_URI'] ?? '/', $waliId);
+        }
+
         // ── Khusus: /auth/google/callback → AuthController::callback
         //            /auth/google/setup   → AuthController::setup
         //            /auth/google/simpan  → AuthController::simpan
