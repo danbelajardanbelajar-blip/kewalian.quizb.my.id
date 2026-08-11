@@ -111,6 +111,7 @@
                                             data-nama="<?= htmlspecialchars($s['nama'], ENT_QUOTES) ?>"
                                             data-nohp="<?= htmlspecialchars($s['no_hp'] ?? '', ENT_QUOTES) ?>"
                                             data-alamat="<?= htmlspecialchars($s['alamat'] ?? '', ENT_QUOTES) ?>"
+                                            data-foto="<?= !empty($s['foto']) ? htmlspecialchars(BASE_URL . '/public/uploads/foto_siswa/' . $s['foto'], ENT_QUOTES) : '' ?>"
                                             title="Edit Siswa">
                                         <i class="bi bi-pencil"></i>
                                     </button>
@@ -157,6 +158,12 @@
                 </div>
                 <div class="mb-3">
                     <label for="editFoto" class="form-label fw-semibold">Ganti Foto Siswa (Opsional)</label>
+                    <!-- Preview foto saat ini -->
+                    <div id="editFotoPreview" class="mb-2" style="display:none;">
+                        <img id="editFotoImg" src="" alt="Foto Siswa"
+                             style="width:80px;height:80px;object-fit:cover;border-radius:50%;border:2px solid #dee2e6;">
+                        <div class="small text-muted mt-1">Foto saat ini</div>
+                    </div>
                     <input type="file" class="form-control" id="editFoto" name="foto" accept="image/*">
                     <div class="form-text text-muted">Biarkan kosong jika tidak ingin mengubah foto.</div>
                 </div>
@@ -195,10 +202,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const modalEdit = new bootstrap.Modal(modalEditEl);
         document.querySelectorAll('.btn-edit-siswa').forEach(btn => {
             btn.addEventListener('click', function() {
-                document.getElementById('editId').value = this.dataset.id;
-                document.getElementById('editNama').value = this.dataset.nama;
-                document.getElementById('editNoHp').value = this.dataset.nohp;
+                document.getElementById('editId').value    = this.dataset.id;
+                document.getElementById('editNama').value  = this.dataset.nama;
+                document.getElementById('editNoHp').value  = this.dataset.nohp;
                 document.getElementById('editAlamat').value = this.dataset.alamat;
+
+                // Tampilkan preview foto jika ada
+                const fotoUrl    = this.dataset.foto;
+                const preview    = document.getElementById('editFotoPreview');
+                const previewImg = document.getElementById('editFotoImg');
+                if (fotoUrl) {
+                    previewImg.src      = fotoUrl;
+                    preview.style.display = 'block';
+                } else {
+                    preview.style.display = 'none';
+                    previewImg.src        = '';
+                }
+
+                // Reset input file agar tidak salah kirim file lama
+                document.getElementById('editFoto').value = '';
+
                 modalEdit.show();
             });
         });
