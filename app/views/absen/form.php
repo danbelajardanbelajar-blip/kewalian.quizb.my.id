@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($title) ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>/public/css/style.css">
@@ -13,153 +13,322 @@
 </head>
 <body class="absen-page">
 
-<!-- Header Khusus Absen -->
-<div class="absen-hero" style="padding: 2rem 1rem 3rem;">
-    <div class="absen-hero-content">
-        <a href="<?= BASE_URL ?>/absen?tanggal=<?= $tanggal ?>&wali=<?= urlencode($usernameWali) ?>" class="btn-back">
-            <i class="bi bi-arrow-left"></i> Kembali
-        </a>
-        <div class="absen-logo mt-3">
-            <i class="bi bi-person-badge"></i>
-        </div>
-        <h1 class="absen-hero-title">Absen Harian</h1>
-        <p class="absen-hero-sub">
-            Halo kulo <strong><?= htmlspecialchars($nama) ?></strong>,<br>
-            Mari isi kegiatan harian untuk tanggal <br>
-            <strong><?= date('d F Y', strtotime($tanggal)) ?></strong>
-        </p>
+<?php
+// Nama proper untuk sapaan
+$namaProper = ucwords(strtolower($nama));
+
+$totalStep = count($pertanyaan);
+if ($totalStep === 0) {
+    echo '<div class="container mt-5"><div class="alert alert-warning text-center">Belum ada pertanyaan yang dikonfigurasi.</div></div></body></html>';
+    exit;
+}
+?>
+
+<!-- Progress bar atas -->
+<div class="wizard-topbar">
+    <a href="<?= BASE_URL ?>/absen?tanggal=<?= $tanggal ?>&wali=<?= urlencode($usernameWali) ?>" class="wizard-back-btn">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <div class="wizard-progress-wrap flex-grow-1">
+        <div class="wizard-progress-bar" id="progressBar" style="width: <?= round(100/$totalStep) ?>%"></div>
     </div>
+    <div class="wizard-step-label" id="stepLabel">1 / <?= $totalStep ?></div>
 </div>
 
-<div class="absen-container" style="margin-top: -2rem;">
-    <?= Flash::render() ?>
+<!-- Name badge -->
+<div class="wizard-name-badge">
+    <div class="wizard-avatar">
+        <?= mb_substr($namaProper, 0, 1) ?>
+    </div>
+    <div>
+        <div class="wizard-name-text"><?= htmlspecialchars($namaProper) ?></div>
+        <div class="wizard-date-text"><?= date('d F Y', strtotime($tanggal)) ?></div>
+    </div>
+    <?php if ($isEdit ?? false): ?>
+        <span class="badge bg-warning text-dark ms-auto">Edit</span>
+    <?php endif; ?>
+</div>
 
-    <form action="<?= BASE_URL ?>/absen/simpan" method="POST" id="formAbsen">
-        <input type="hidden" name="id" value="<?= $id ?>">
-        <input type="hidden" name="nama" value="<?= htmlspecialchars($nama) ?>">
-        <input type="hidden" name="tanggal" value="<?= $tanggal ?>">
-        <input type="hidden" name="usernameWali" value="<?= htmlspecialchars($usernameWali) ?>">
+<!-- Form Wizard -->
+<form action="<?= BASE_URL ?>/absen/simpan" method="POST" id="formAbsen">
+    <input type="hidden" name="id" value="<?= $id ?>">
+    <input type="hidden" name="nama" value="<?= htmlspecialchars($nama) ?>">
+    <input type="hidden" name="tanggal" value="<?= $tanggal ?>">
+    <input type="hidden" name="usernameWali" value="<?= htmlspecialchars($usernameWali) ?>">
 
-        <div class="card shadow-sm border-0 rounded-4 mb-4">
-            <div class="card-body p-4">
-                
-                <?php if (empty($pertanyaan)): ?>
-                    <div class="alert alert-warning text-center">
-                        <i class="bi bi-exclamation-circle fs-3 d-block mb-2"></i>
-                        Wali kelas belum mengatur pertanyaan untuk absen ini.
-                    </div>
-                <?php else: ?>
-                    <?php 
-                    $no = 1; 
-                    foreach ($pertanyaan as $p): 
-                        $pId = $p['id'];
-                        $ansData = $existing['jawaban'][$pId] ?? null;
-                        $ansValue = $ansData['jawaban'] ?? '';
-                        $ansKet = $ansData['keterangan'] ?? '';
-                        $opsi = json_decode($p['opsi'], true);
-                    ?>
-                        <div class="form-group mb-4 pb-3 border-bottom">
-                            <label class="form-label fw-bold fs-5 text-dark mb-3">
-                                <?= $no++ ?>. <?= htmlspecialchars($p['judul']) ?>
-                            </label>
+    <div class="wizard-container" id="wizardContainer">
 
-                            <?php if ($p['tipe'] === 'pilihan_ganda'): ?>
-                                <div class="row g-2">
-                                    <?php foreach ($opsi as $idx => $op): ?>
-                                        <div class="col-6 col-sm-4">
-                                            <input type="radio" class="btn-check radio-pg" 
-                                                   name="jawaban[<?= $pId ?>]" 
-                                                   id="p_<?= $pId ?>_<?= $idx ?>" 
-                                                   value="<?= htmlspecialchars($op['value']) ?>"
-                                                   data-reqket="<?= !empty($op['require_ket']) ? '1' : '0' ?>"
-                                                   data-pid="<?= $pId ?>"
-                                                   autocomplete="off" required
-                                                   <?= $ansValue === $op['value'] ? 'checked' : '' ?>>
-                                            <label class="btn btn-outline-primary w-100 py-2 btn-radio-custom" for="p_<?= $pId ?>_<?= $idx ?>">
-                                                <?= htmlspecialchars($op['label']) ?>
-                                            </label>
-                                        </div>
-                                    <?php endforeach; ?>
-                                </div>
-                                <div class="mt-3 ket-container" id="ket_container_<?= $pId ?>" style="display: none;">
-                                    <input type="text" name="keterangan[<?= $pId ?>]" id="ket_input_<?= $pId ?>" 
-                                           class="form-control bg-light" 
-                                           placeholder="Tuliskan keterangan..." 
-                                           value="<?= htmlspecialchars($ansKet) ?>">
-                                </div>
+        <?php foreach ($pertanyaan as $stepIdx => $p): ?>
+            <?php
+            $isFirst = $stepIdx === 0;
+            $isLast  = $stepIdx === $totalStep - 1;
 
-                            <?php elseif ($p['tipe'] === 'angka'): ?>
-                                <div class="input-group mb-2">
-                                    <input type="number" name="jawaban[<?= $pId ?>]" 
-                                           class="form-control form-control-lg text-center" 
-                                           placeholder="0" min="0" required
-                                           value="<?= htmlspecialchars($ansValue) ?>">
-                                    <?php if(!empty($opsi['satuan'])): ?>
-                                        <span class="input-group-text"><?= htmlspecialchars($opsi['satuan']) ?></span>
-                                    <?php endif; ?>
-                                </div>
-                                <?php if(!empty($opsi['require_ket'])): ?>
-                                    <input type="text" name="keterangan[<?= $pId ?>]" 
-                                           class="form-control bg-light mt-2" 
-                                           placeholder="Keterangan tambahan..." 
-                                           value="<?= htmlspecialchars($ansKet) ?>" required>
-                                <?php endif; ?>
-                            <?php endif; ?>
+            $pId = $p['id'];
+            $ansData = $existing['jawaban'][$pId] ?? null;
+            $ansValue = $ansData['jawaban'] ?? '';
+            $ansKet = $ansData['keterangan'] ?? '';
+            $opsi = json_decode($p['opsi'], true);
+
+            // Icon dan emoji dinamis sederhana berdasarkan judul
+            $emoji = '📝';
+            if (stripos($p['judul'], 'sekolah') !== false) $emoji = '🏫';
+            if (stripos($p['judul'], 'miftah') !== false) $emoji = '📖';
+            if (stripos($p['judul'], 'diniyah') !== false) $emoji = '🌙';
+            if (stripos($p['judul'], 'subuh') !== false || stripos($p['judul'], 'pagi') !== false) $emoji = '🌅';
+            if (stripos($p['judul'], 'quran') !== false) $emoji = '📿';
+            if (stripos($p['judul'], 'dluha') !== false) $emoji = '🕌';
+            if (stripos($p['judul'], 'belajar') !== false || stripos($p['judul'], 'buku') !== false) $emoji = '📚';
+            if (stripos($p['judul'], 'maaf') !== false) $emoji = '💖';
+            if (stripos($p['judul'], 'doa') !== false) $emoji = '🤲';
+            if (stripos($p['judul'], 'shadaqah') !== false || stripos($p['judul'], 'bantu') !== false) $emoji = '🤝';
+            ?>
+
+            <div class="wizard-step <?= $isFirst ? 'wizard-step--active' : '' ?>"
+                 data-step="<?= $stepIdx + 1 ?>" id="step<?= $stepIdx + 1 ?>">
+
+                <!-- Pertanyaan card -->
+                <div class="question-card">
+                    <div class="question-emoji"><?= $emoji ?></div>
+                    <div class="question-number">Pertanyaan <?= $stepIdx + 1 ?> dari <?= $totalStep ?></div>
+                    <h2 class="question-text"><?= htmlspecialchars($p['judul']) ?></h2>
+
+                    <?php if ($p['tipe'] === 'pilihan_ganda'): ?>
+                        <div class="option-grid" data-group="<?= $pId ?>">
+                            <?php foreach ($opsi as $idx => $op): ?>
+                                <?php
+                                $checked = ($ansValue === $op['value']) ? 'checked' : '';
+                                // Tentukan warna/icon berdasarkan text
+                                $lblLower = strtolower($op['label']);
+                                $color = 'primary';
+                                $icon = 'bi-circle';
+                                if (in_array($lblLower, ['hadir', 'iya', 'ikut', 'sudah'])) {
+                                    $color = 'success'; $icon = 'bi-check-circle-fill';
+                                } elseif (in_array($lblLower, ['absen', 'tidak', 'belum', 'alpha'])) {
+                                    $color = 'danger'; $icon = 'bi-x-circle-fill';
+                                } elseif (in_array($lblLower, ['sakit', 'udzur haid'])) {
+                                    $color = 'warning'; $icon = 'bi-thermometer';
+                                } elseif (in_array($lblLower, ['izin', 'telat'])) {
+                                    $color = 'info'; $icon = 'bi-card-text';
+                                }
+                                ?>
+                                <label class="option-btn option-btn--<?= $color ?> <?= $checked ? 'selected' : '' ?>"
+                                       for="p_<?= $pId ?>_<?= $idx ?>">
+                                    <input type="radio"
+                                           id="p_<?= $pId ?>_<?= $idx ?>"
+                                           name="jawaban[<?= $pId ?>]"
+                                           value="<?= htmlspecialchars($op['value']) ?>"
+                                           <?= $checked ?>
+                                           class="d-none option-radio"
+                                           data-field="<?= $pId ?>"
+                                           data-reqket="<?= !empty($op['require_ket']) ? '1' : '0' ?>">
+                                    <i class="bi <?= $icon ?> option-icon"></i>
+                                    <span><?= htmlspecialchars($op['label']) ?></span>
+                                </label>
+                            <?php endforeach; ?>
                         </div>
-                    <?php endforeach; ?>
 
-                    <div class="mt-5">
-                        <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill shadow-sm" style="font-size: 1.1rem;">
-                            <i class="bi bi-send-fill me-2"></i> Simpan Absen Kulo
+                        <!-- Input keterangan jika diwajibkan -->
+                        <div class="izin-ket-wrap mt-3" id="ket_wrap_<?= $pId ?>"
+                             style="display:none">
+                            <label class="izin-ket-label">
+                                <i class="bi bi-chat-text me-1"></i>
+                                Tuliskan keterangan:
+                            </label>
+                            <textarea name="keterangan[<?= $pId ?>]"
+                                      id="ket_input_<?= $pId ?>"
+                                      class="izin-ket-input"
+                                      rows="2"
+                                      placeholder="Ketik keterangan di sini..."><?= htmlspecialchars($ansKet) ?></textarea>
+                        </div>
+
+                    <?php elseif ($p['tipe'] === 'angka'): ?>
+                        <div class="quran-jumlah-wrap mt-3" style="display:block;">
+                            <label class="izin-ket-label text-center d-block mb-2">
+                                <?= !empty($opsi['satuan']) ? htmlspecialchars($opsi['satuan']) : 'Jumlah' ?>
+                            </label>
+                            <div class="quran-counter">
+                                <button type="button" class="quran-counter-btn btnMinAngka" data-target="angka_<?= $pId ?>">
+                                    <i class="bi bi-dash-lg"></i>
+                                </button>
+                                <input type="number"
+                                       id="angka_<?= $pId ?>"
+                                       name="jawaban[<?= $pId ?>]"
+                                       class="quran-counter-input"
+                                       value="<?= htmlspecialchars($ansValue !== '' ? $ansValue : '0') ?>"
+                                       min="0" max="999">
+                                <button type="button" class="quran-counter-btn btnPlusAngka" data-target="angka_<?= $pId ?>">
+                                    <i class="bi bi-plus-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <?php if (!empty($opsi['require_ket'])): ?>
+                            <div class="izin-ket-wrap mt-3">
+                                <label class="izin-ket-label">Keterangan:</label>
+                                <textarea name="keterangan[<?= $pId ?>]" class="izin-ket-input" rows="2" required><?= htmlspecialchars($ansKet) ?></textarea>
+                            </div>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Navigasi step -->
+                <div class="wizard-nav">
+                    <?php if (!$isFirst): ?>
+                        <button type="button" class="btn-wizard-prev" data-step="<?= $stepIdx + 1 ?>">
+                            <i class="bi bi-arrow-left me-1"></i> Kembali
                         </button>
-                    </div>
-                <?php endif; ?>
+                    <?php else: ?>
+                        <div></div>
+                    <?php endif; ?>
 
-            </div>
-        </div>
-    </form>
-</div>
+                    <?php if (!$isLast): ?>
+                        <button type="button" class="btn-wizard-next" data-step="<?= $stepIdx + 1 ?>">
+                            Lanjut <i class="bi bi-arrow-right ms-1"></i>
+                        </button>
+                    <?php else: ?>
+                        <button type="submit" class="btn-wizard-submit" id="btnSubmit">
+                            <i class="bi bi-check-lg me-1"></i> Selesai &amp; Simpan
+                        </button>
+                    <?php endif; ?>
+                </div>
 
+            </div><!-- /wizard-step -->
+        <?php endforeach; ?>
+
+    </div><!-- /wizardContainer -->
+</form>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Logic to show/hide Keterangan input based on 'require_ket'
-    const radios = document.querySelectorAll('.radio-pg');
-    
-    function updateKetVisibility(radio) {
-        const pid = radio.getAttribute('data-pid');
-        const reqKet = radio.getAttribute('data-reqket') === '1';
-        const container = document.getElementById('ket_container_' + pid);
-        const input = document.getElementById('ket_input_' + pid);
-        
-        if (radio.checked) {
-            if (reqKet) {
-                container.style.display = 'block';
-                input.required = true;
-            } else {
-                container.style.display = 'none';
-                input.required = false;
-                input.value = '';
-            }
-        }
+(function () {
+    'use strict';
+
+    const TOTAL = <?= $totalStep ?>;
+    let current = 1;
+
+    // ── Update progress bar & label ─────────────────────────
+    function updateProgress(step) {
+        const pct = Math.round((step / TOTAL) * 100);
+        document.getElementById('progressBar').style.width = pct + '%';
+        document.getElementById('stepLabel').textContent = step + ' / ' + TOTAL;
     }
 
-    radios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            // update all radios in same group
-            const pid = this.getAttribute('data-pid');
-            const group = document.querySelectorAll('.radio-pg[data-pid="'+pid+'"]');
-            group.forEach(r => {
-                if(r.checked) updateKetVisibility(r);
-            });
+    // ── Show step ───────────────────────────────────────────
+    function showStep(step) {
+        document.querySelectorAll('.wizard-step').forEach(el => {
+            el.classList.remove('wizard-step--active', 'wizard-step--exit-left', 'wizard-step--enter-right');
         });
+        const el = document.getElementById('step' + step);
+        if (el) {
+            el.classList.add('wizard-step--active');
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        updateProgress(step);
+        current = step;
+    }
+
+    // ── Tombol Lanjut ───────────────────────────────────────
+    document.querySelectorAll('.btn-wizard-next').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const step = parseInt(btn.dataset.step);
+            if (step < TOTAL) showStep(step + 1);
+        });
+    });
+
+    // ── Tombol Kembali ──────────────────────────────────────
+    document.querySelectorAll('.btn-wizard-prev').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const step = parseInt(btn.dataset.step);
+            if (step > 1) showStep(step - 1);
+        });
+    });
+
+    // ── Pilihan radio → visual selected & Auto-next & Ket ───
+    document.querySelectorAll('.option-radio').forEach(radio => {
         
-        // Init on load
+        // Initial setup for existing value
         if (radio.checked) {
-            updateKetVisibility(radio);
+            const reqKet = radio.getAttribute('data-reqket') === '1';
+            const field = radio.dataset.field;
+            if (field) {
+                const ketWrap = document.getElementById('ket_wrap_' + field);
+                const ketInput = document.getElementById('ket_input_' + field);
+                if (ketWrap && ketInput) {
+                    ketWrap.style.display = reqKet ? '' : 'none';
+                    ketInput.required = reqKet;
+                }
+            }
+        }
+
+        radio.addEventListener('change', function () {
+            const group = this.closest('.option-grid');
+            if (group) group.querySelectorAll('.option-btn').forEach(lbl => lbl.classList.remove('selected'));
+            this.closest('label')?.classList.add('selected');
+
+            let autoNext = true;
+            const reqKet = this.getAttribute('data-reqket') === '1';
+            const field = this.dataset.field;
+
+            if (field) {
+                const ketWrap = document.getElementById('ket_wrap_' + field);
+                const ketInput = document.getElementById('ket_input_' + field);
+                if (ketWrap && ketInput) {
+                    ketWrap.style.display = reqKet ? '' : 'none';
+                    ketInput.required = reqKet;
+                    
+                    if (reqKet) {
+                        ketInput.focus();
+                        autoNext = false; // Jangan auto-next karena harus ketik keterangan
+                    } else {
+                        ketInput.value = '';
+                    }
+                }
+            }
+
+            // Auto-next dengan delay agar animasi klik terlihat
+            if (autoNext && current < TOTAL) {
+                setTimeout(() => showStep(current + 1), 300);
+            }
+        });
+    });
+
+    // ── Counter Angka Dinamis ───────────────────────────────
+    document.querySelectorAll('.btnMinAngka').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            if (input && parseInt(input.value) > 0) {
+                input.value = parseInt(input.value) - 1;
+            }
+        });
+    });
+    
+    document.querySelectorAll('.btnPlusAngka').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            if (input) {
+                input.value = parseInt(input.value || 0) + 1;
+            }
+        });
+    });
+
+    // ── Submit loading ──────────────────────────────────────
+    document.getElementById('formAbsen').addEventListener('submit', function () {
+        const btn = document.getElementById('btnSubmit');
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Menyimpan...';
+        btn.disabled = true;
+    });
+
+    // ── Keyboard navigation ─────────────────────────────────
+    document.addEventListener('keydown', function (e) {
+        // Hanya jika tidak sedang di dalam textarea/input text
+        if (e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'INPUT' || e.target.type === 'radio' || e.target.type === 'checkbox') {
+            if (e.key === 'ArrowRight' && current < TOTAL) showStep(current + 1);
+            if (e.key === 'ArrowLeft'  && current > 1)     showStep(current - 1);
         }
     });
-});
-</script>
 
+})();
+</script>
 </body>
 </html>
