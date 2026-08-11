@@ -3,40 +3,58 @@ require_once APP_PATH . '/core/Model.php';
 
 /**
  * LaporanModel.php
- * Mengelola data laporan harian presensi
- * Setiap laporan disimpan sebagai: storage/laporan/YYYY-MM-DD.json
+ * Mengelola data laporan harian presensi dari MySQL
  */
 class LaporanModel extends Model
 {
-    private string $folder = 'absen';
-
     /**
      * Ambil laporan berdasarkan tanggal (YYYY-MM-DD)
      */
     public function getByTanggal(string $tanggal): array
     {
-        return $this->db->read($this->folder . '/' . $tanggal . '.json');
+        // Panggil AbsenModel untuk mengurangi duplikasi
+        require_once APP_PATH . '/models/AbsenModel.php';
+        $absenModel = new AbsenModel();
+        return $absenModel->getByTanggal($tanggal);
     }
 
     /**
-     * Simpan laporan baru atau update laporan yang sudah ada
-     * 
-     * @param string $tanggal Format YYYY-MM-DD
-     * @param array  $data    Data presensi siswa
+     * Simpan laporan baru atau update laporan yang sudah ada (dari dashboard admin)
      */
     public function save(string $tanggal, array $data): bool
     {
-        $laporan = [
-            'tanggal'       => $tanggal,
-            'kelas'         => $data['kelas'] ?? '',
-            'kategori'      => $data['kategori'] ?? [],
-            'siswa'         => $data['siswa'] ?? [],
-            'created_at'    => $data['created_at'] ?? date('Y-m-d H:i:s'),
-            'updated_at'    => date('Y-m-d H:i:s'),
-            'created_by'    => Session::get('username', 'admin'),
-        ];
+        // $data['siswa'] berisi array id_siswa => data_absen
+        if (!isset($data['siswa']) || empty($data['siswa'])) {
+            return false;
+        }
 
-        return $this->db->write($this->folder . '/' . $tanggal . '.json', $laporan);
+        require_once APP_PATH . '/models/AbsenModel.php';
+        $absenModel = new AbsenModel();
+
+        $success = true;
+        foreach ($data['siswa'] as $id => $s) {
+            $nama = $s['nama'] ?? '';
+            // Pastikan data dalam format yang diharapkan oleh AbsenModel
+            $dataSiswa = [
+                'sekolah' => ['status' => $s['sekolah'], 'ket' => $s['sekolah_ket'] ?? ''],
+                'almiftah' => ['status' => $s['almiftah'], 'ket' => $s['almiftah_ket'] ?? ''],
+                'diniyah' => ['status' => $s['diniyah'], 'ket' => $s['diniyah_ket'] ?? ''],
+                'subuh' => ['status' => $s['subuh'], 'ket' => $s['subuh_ket'] ?? ''],
+                'quran' => ['type' => $s['quran_type'] ?? 'halaman', 'jumlah' => $s['quran_jumlah'] ?? 0],
+                'baca_buku' => ['status' => $s['baca_buku_status'] ?? 'belum', 'jumlah' => $s['baca_buku_jumlah'] ?? 0],
+                'dluha' => ['status' => $s['dluha'] ?? 'tidak_ikut'],
+                'belajar' => ['status' => $s['belajar'] ?? 'tidak'],
+                'memaafkan' => ['status' => $s['memaafkan'] ?? 'tidak'],
+                'mendoakan_muslimin' => ['status' => $s['mendoakan_muslimin'] ?? 'tidak'],
+                'mendoakan_ortu' => ['status' => $s['mendoakan_ortu'] ?? 'tidak'],
+                'shadaqah' => ['status' => $s['shadaqah'] ?? 'tidak']
+            ];
+
+            if (!$absenModel->simpanSiswa($tanggal, $id, $nama, $dataSiswa)) {
+                $success = false;
+            }
+        }
+        return $success;
     }
 
     /**
@@ -44,7 +62,9 @@ class LaporanModel extends Model
      */
     public function delete(string $tanggal): bool
     {
-        return $this->db->delete($this->folder . '/' . $tanggal . '.json');
+        require_once APP_PATH . '/models/AbsenModel.php';
+        $absenModel = new AbsenModel();
+        return $absenModel->deleteTanggal($tanggal);
     }
 
     /**
@@ -52,7 +72,10 @@ class LaporanModel extends Model
      */
     public function exists(string $tanggal): bool
     {
-        return $this->db->exists($this->folder . '/' . $tanggal . '.json');
+        $this->db->query("SELECT id FROM absen WHERE tanggal = :tanggal LIMIT 1");
+        $this->db->bind(':tanggal', $tanggal);
+        $this->db->execute();
+        return $this->db->rowCount() > 0;
     }
 
     /**
@@ -60,39 +83,41 @@ class LaporanModel extends Model
      */
     public function getAll(): array
     {
-        $files   = $this->db->listFiles($this->folder);
-        $laporan = [];
+        // Gunakan fungsi dari AbsenModel dan tambahkan data kelas/created_by
+        $this->db->query("
+            SELECT tanggal, COUNT(id_siswa) as jumlah_siswa, MAX(waktu_isi) as updated_at 
+            FROM absen 
+            GROUP BY tanggal 
+            ORDER BY tanggal DESC
+        ");
+        
+        $laporan = $this->db->resultSet();
+        
+        require_once APP_PATH . '/models/KonfigurasiModel.php';
+        $konfig = new KonfigurasiModel();
+        $kelas = $konfig->getKelas();
 
-        foreach ($files as $file) {
-            $tanggal = pathinfo($file, PATHINFO_FILENAME);
-            $data    = $this->db->read($this->folder . '/' . $file);
-            if (!empty($data)) {
-                $laporan[] = [
-                    'tanggal'    => $tanggal,
-                    'kelas'      => $data['kelas'] ?? '',
-                    'jumlah_siswa' => count($data['siswa'] ?? []),
-                    'updated_at' => $data['updated_at'] ?? '',
-                    'created_by' => $data['created_by'] ?? '',
-                ];
-            }
+        foreach ($laporan as &$lap) {
+            $lap['kelas'] = $kelas;
+            $lap['created_by'] = 'admin'; // Static for now, as we only have one admin
         }
-
-        // Urutkan dari terbaru
-        usort($laporan, fn($a, $b) => strcmp($b['tanggal'], $a['tanggal']));
-
         return $laporan;
     }
 
     /**
      * Hitung rekap kehadiran per siswa dari semua laporan
-     * 
-     * @return array [nama_siswa => [kategori => jumlah_hadir]]
      */
     public function getRekapPerSiswa(): array
     {
-        $files = $this->db->listFiles($this->folder);
-        $rekap = [];
+        $this->db->query("
+            SELECT a.*, s.nama 
+            FROM absen a 
+            JOIN siswa s ON a.id_siswa = s.id 
+            ORDER BY a.id_siswa ASC
+        ");
+        $allAbsen = $this->db->resultSet();
 
+        $rekap = [];
         $kategoriList = [
             'sekolah', 'almiftah', 'diniyah', 'subuh',
             'quran', 'dluha', 'belajar', 'baca_buku',
@@ -113,66 +138,46 @@ class LaporanModel extends Model
             'shadaqah' => 'Membantu'
         ];
 
-        foreach ($files as $file) {
-            $data = $this->db->read($this->folder . '/' . $file);
-            foreach ($data['siswa'] ?? [] as $siswa) {
-                $id = $siswa['id'] ?? null;
-                $nama = $siswa['nama'] ?? '';
-                
-                if (empty($id)) continue;
+        foreach ($allAbsen as $absen) {
+            $id = $absen['id_siswa'];
+            if (!isset($rekap[$id])) {
+                $rekap[$id] = [
+                    'id' => $id, 
+                    'nama' => $absen['nama'], 
+                    'total_hadir' => 0, 
+                    'total_hari' => 0, 
+                    'kategori' => []
+                ];
+                foreach ($kategoriList as $k) {
+                    $rekap[$id]['kategori'][$k] = ['label' => $kategoriLabel[$k], 'hadir' => 0];
+                }
+            }
 
-                if (!isset($rekap[$id])) {
-                    $rekap[$id] = ['id' => $id, 'nama' => $nama, 'total_hadir' => 0, 'total_hari' => 0, 'kategori' => []];
-                    foreach ($kategoriList as $k) {
-                        $rekap[$id]['kategori'][$k] = ['label' => $kategoriLabel[$k], 'hadir' => 0];
-                    }
-                } else if ($nama) {
-                    $rekap[$id]['nama'] = $nama;
+            $rekap[$id]['total_hari']++;
+
+            foreach ($kategoriList as $k) {
+                $isHadir = false;
+                if (in_array($k, ['sekolah', 'almiftah', 'diniyah', 'subuh'])) {
+                    $statusField = $k . '_status';
+                    $isHadir = ($absen[$statusField] === 'hadir');
+                } elseif ($k === 'quran') {
+                    $isHadir = ($absen['quran_type'] !== 'tidak' && !empty($absen['quran_type']));
+                } elseif ($k === 'baca_buku') {
+                    $isHadir = ($absen['baca_buku_status'] === 'iya');
+                } elseif ($k === 'dluha') {
+                    $isHadir = ($absen['dluha_status'] === 'ikut' || $absen['dluha_status'] === 'udzur_haid');
+                } else {
+                    $statusField = $k . '_status';
+                    $isHadir = ($absen[$statusField] === 'iya');
                 }
 
-                $rekap[$id]['total_hari']++;
-                
-                foreach ($kategoriList as $k) {
-                    $isHadir = false;
-                    
-                    if (in_array($k, ['sekolah', 'almiftah', 'diniyah', 'subuh'])) {
-                        if (isset($siswa[$k])) {
-                            if (is_array($siswa[$k])) {
-                                $isHadir = ($siswa[$k]['status'] ?? '') === 'hadir';
-                            } else {
-                                $isHadir = (bool)$siswa[$k]; // old format
-                            }
-                        }
-                    } elseif ($k === 'quran') {
-                        $q = $siswa['quran'] ?? [];
-                        if (!empty($q) && ($q['type'] ?? '') !== 'tidak') {
-                            $isHadir = true;
-                        }
-                    } elseif ($k === 'dluha') {
-                        $dl = $siswa['dluha']['status'] ?? '';
-                        if ($dl === 'ikut' || $dl === 'udzur_haid') {
-                            $isHadir = true;
-                        }
-                    } elseif ($k === 'baca_buku') {
-                        if (($siswa[$k]['status'] ?? '') === 'iya') {
-                            $isHadir = true;
-                        }
-                    } else {
-                        // Belajar, Memaafkan, Doa Muslim, Doa Ortu, Membantu
-                        if (($siswa[$k]['status'] ?? '') === 'iya') {
-                            $isHadir = true;
-                        }
-                    }
-
-                    if ($isHadir) {
-                        $rekap[$id]['kategori'][$k]['hadir']++;
-                        $rekap[$id]['total_hadir']++;
-                    }
+                if ($isHadir) {
+                    $rekap[$id]['kategori'][$k]['hadir']++;
+                    $rekap[$id]['total_hadir']++;
                 }
             }
         }
 
-        ksort($rekap);
         return $rekap;
     }
 
@@ -181,20 +186,23 @@ class LaporanModel extends Model
      */
     public function getByRange(string $dari, string $sampai): array
     {
-        $files   = $this->db->listFiles($this->folder);
-        $laporan = [];
+        $this->db->query("SELECT DISTINCT tanggal FROM absen WHERE tanggal >= :dari AND tanggal <= :sampai ORDER BY tanggal ASC");
+        $this->db->bind(':dari', $dari);
+        $this->db->bind(':sampai', $sampai);
+        $tanggals = $this->db->resultSet();
 
-        foreach ($files as $file) {
-            $tanggal = pathinfo($file, PATHINFO_FILENAME);
-            if ($tanggal >= $dari && $tanggal <= $sampai) {
-                $data = $this->db->read($this->folder . '/' . $file);
-                if (!empty($data)) {
-                    $laporan[$tanggal] = $data;
-                }
+        $laporan = [];
+        require_once APP_PATH . '/models/AbsenModel.php';
+        $absenModel = new AbsenModel();
+        
+        foreach ($tanggals as $row) {
+            $tgl = $row['tanggal'];
+            $data = $absenModel->getByTanggal($tgl);
+            if (!empty($data)) {
+                $laporan[$tgl] = $data;
             }
         }
 
-        ksort($laporan);
         return $laporan;
     }
 }

@@ -31,6 +31,7 @@ if (defined('APP_ENV') && APP_ENV === 'production') {
 // ── Autoload Core Classes ───────────────────────────────────
 require_once APP_PATH . '/core/Session.php';
 require_once APP_PATH . '/core/Flash.php';
+require_once APP_PATH . '/config/config.php';
 require_once APP_PATH . '/core/Database.php';
 require_once APP_PATH . '/core/Model.php';
 require_once APP_PATH . '/core/Controller.php';

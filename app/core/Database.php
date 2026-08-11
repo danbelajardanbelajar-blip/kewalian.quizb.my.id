@@ -1,115 +1,89 @@
 <?php
 /**
- * Database.php — JSON File Database Handler
- * Menangani operasi baca/tulis data dalam format JSON
+ * Database.php — MySQL PDO Database Handler
  */
 class Database
 {
-    private string $storagePath;
+    private $host = DB_HOST;
+    private $user = DB_USER;
+    private $pass = DB_PASS;
+    private $dbname = DB_NAME;
+
+    private $dbh;
+    private $stmt;
+    private $error;
 
     public function __construct()
     {
-        $this->storagePath = ROOT_PATH . '/storage';
+        // Set DSN
+        $dsn = 'mysql:host=' . $this->host . ';dbname=' . $this->dbname . ';charset=utf8mb4';
+        
+        // Options
+        $options = array(
+            PDO::ATTR_PERSISTENT => true,
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        );
+
+        // Create PDO instance
+        try {
+            $this->dbh = new PDO($dsn, $this->user, $this->pass, $options);
+        } catch (PDOException $e) {
+            $this->error = $e->getMessage();
+            echo 'Database Error: ' . $this->error;
+            exit;
+        }
     }
 
-    /**
-     * Baca file JSON, kembalikan sebagai array
-     */
-    public function read(string $filename): array
+    // Prepare statement with query
+    public function query($sql)
     {
-        $file = $this->storagePath . '/' . $filename;
-
-        if (!file_exists($file)) {
-            return [];
-        }
-
-        $content = file_get_contents($file);
-        if ($content === false || trim($content) === '') {
-            return [];
-        }
-
-        $data = json_decode($content, true);
-        return is_array($data) ? $data : [];
+        $this->stmt = $this->dbh->prepare($sql);
     }
 
-    /**
-     * Tulis data ke file JSON (overwrite)
-     */
-    public function write(string $filename, array $data): bool
+    // Bind values
+    public function bind($param, $value, $type = null)
     {
-        $file  = $this->storagePath . '/' . $filename;
-        $dir   = dirname($file);
-
-        if (!is_dir($dir)) {
-            mkdir($dir, 0755, true);
+        if (is_null($type)) {
+            switch (true) {
+                case is_int($value):
+                    $type = PDO::PARAM_INT;
+                    break;
+                case is_bool($value):
+                    $type = PDO::PARAM_BOOL;
+                    break;
+                case is_null($value):
+                    $type = PDO::PARAM_NULL;
+                    break;
+                default:
+                    $type = PDO::PARAM_STR;
+            }
         }
-
-        $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-        return file_put_contents($file, $json) !== false;
+        $this->stmt->bindValue($param, $value, $type);
     }
 
-    /**
-     * Baca file JSON dari root project (bukan storage)
-     */
-    public function readRoot(string $filename): array
+    // Execute the prepared statement
+    public function execute()
     {
-        $file = ROOT_PATH . '/' . $filename;
-
-        if (!file_exists($file)) {
-            return [];
-        }
-
-        $content = file_get_contents($file);
-        if ($content === false || trim($content) === '') {
-            return [];
-        }
-
-        $data = json_decode($content, true);
-        return is_array($data) ? $data : [];
+        return $this->stmt->execute();
     }
 
-    /**
-     * Tulis data ke file JSON di root project
-     */
-    public function writeRoot(string $filename, array $data): bool
+    // Get result set as array of objects or assoc array (assoc chosen here)
+    public function resultSet()
     {
-        $file = ROOT_PATH . '/' . $filename;
-        $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-        return file_put_contents($file, $json) !== false;
+        $this->execute();
+        return $this->stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Hapus file JSON
-     */
-    public function delete(string $filename): bool
+    // Get single record as assoc array
+    public function single()
     {
-        $file = $this->storagePath . '/' . $filename;
-        if (file_exists($file)) {
-            return unlink($file);
-        }
-        return false;
+        $this->execute();
+        return $this->stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * List semua file dalam folder storage
-     */
-    public function listFiles(string $folder, string $pattern = '*.json'): array
+    // Get row count
+    public function rowCount()
     {
-        $path  = $this->storagePath . '/' . $folder;
-        $files = glob($path . '/' . $pattern);
-
-        if ($files === false) {
-            return [];
-        }
-
-        return array_map('basename', $files);
-    }
-
-    /**
-     * Cek apakah file storage ada
-     */
-    public function exists(string $filename): bool
-    {
-        return file_exists($this->storagePath . '/' . $filename);
+        return $this->stmt->rowCount();
     }
 }

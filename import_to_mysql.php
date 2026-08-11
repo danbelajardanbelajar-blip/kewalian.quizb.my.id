@@ -13,13 +13,35 @@ try {
     $pdo = new PDO("mysql:host=" . DB_HOST . ";charset=utf8mb4", DB_USER, DB_PASS);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // 1. Buat Database jika belum ada (walaupun biasanya sudah dibuat via cPanel)
+    // 1. Buat Database
     $pdo->exec("CREATE DATABASE IF NOT EXISTS `" . DB_NAME . "`");
     $pdo->exec("USE `" . DB_NAME . "`");
 
     echo "<h3>Memulai Migrasi ke Database: " . DB_NAME . "</h3>";
 
-    // 2. Buat tabel `siswa`
+    // 2. Buat tabel `users` (Admin/Wali)
+    $sqlUsers = "CREATE TABLE IF NOT EXISTS `users` (
+        `id` INT AUTO_INCREMENT,
+        `username` VARCHAR(100) NOT NULL,
+        `password` VARCHAR(255) NOT NULL,
+        PRIMARY KEY (`id`),
+        UNIQUE KEY `unique_username` (`username`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+    $pdo->exec($sqlUsers);
+    echo "<p>✔ Tabel `users` berhasil dibuat/dicek.</p>";
+
+    // 3. Buat tabel `pengaturan` (Konfigurasi Aplikasi)
+    $sqlPengaturan = "CREATE TABLE IF NOT EXISTS `pengaturan` (
+        `id` INT AUTO_INCREMENT,
+        `key_name` VARCHAR(100) NOT NULL,
+        `key_value` TEXT NOT NULL,
+        PRIMARY KEY (`id`),
+        UNIQUE KEY `unique_key` (`key_name`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+    $pdo->exec($sqlPengaturan);
+    echo "<p>✔ Tabel `pengaturan` berhasil dibuat/dicek.</p>";
+
+    // 4. Buat tabel `siswa`
     $sqlSiswa = "CREATE TABLE IF NOT EXISTS `siswa` (
         `id` INT NOT NULL,
         `nama` VARCHAR(255) NOT NULL,
@@ -29,7 +51,7 @@ try {
     $pdo->exec($sqlSiswa);
     echo "<p>✔ Tabel `siswa` berhasil dibuat/dicek.</p>";
 
-    // 3. Buat tabel `absen`
+    // 5. Buat tabel `absen`
     $sqlAbsen = "CREATE TABLE IF NOT EXISTS `absen` (
         `id` INT AUTO_INCREMENT,
         `id_siswa` INT NOT NULL,
@@ -59,16 +81,38 @@ try {
     $pdo->exec($sqlAbsen);
     echo "<p>✔ Tabel `absen` berhasil dibuat/dicek.</p>";
 
-    // 4. Migrasi data_siswa dari data.json
+    // 6. Migrasi konfigurasi dan data_siswa dari data.json
     $dataFile = __DIR__ . '/data.json';
     if (file_exists($dataFile)) {
         $json = file_get_contents($dataFile);
         $data = json_decode($json, true);
+
+        // Migrasi Auth
+        if (isset($data['auth']['username']) && isset($data['auth']['password'])) {
+            $stmtUser = $pdo->prepare("INSERT IGNORE INTO `users` (`username`, `password`) VALUES (:username, :password) ON DUPLICATE KEY UPDATE `password` = VALUES(`password`)");
+            $stmtUser->execute([
+                ':username' => $data['auth']['username'],
+                ':password' => $data['auth']['password']
+            ]);
+            echo "<p>✔ Berhasil memigrasi kredensial Admin.</p>";
+        }
+
+        // Migrasi Pengaturan (Kelas dan Kategori)
+        $stmtConfig = $pdo->prepare("INSERT IGNORE INTO `pengaturan` (`key_name`, `key_value`) VALUES (:key, :value) ON DUPLICATE KEY UPDATE `key_value` = VALUES(`key_value`)");
+        if (isset($data['kelas'])) {
+            $stmtConfig->execute([':key' => 'kelas', ':value' => $data['kelas']]);
+        }
+        if (isset($data['kategori'])) {
+            $stmtConfig->execute([':key' => 'kategori', ':value' => json_encode($data['kategori'])]);
+        }
+        echo "<p>✔ Berhasil memigrasi konfigurasi pengaturan.</p>";
+
+        // Migrasi Siswa
         if (isset($data['data_siswa']) && is_array($data['data_siswa'])) {
-            $stmt = $pdo->prepare("INSERT IGNORE INTO `siswa` (`id`, `nama`, `no_hp`) VALUES (:id, :nama, :no_hp) ON DUPLICATE KEY UPDATE `nama` = VALUES(`nama`), `no_hp` = VALUES(`no_hp`)");
+            $stmtSiswa = $pdo->prepare("INSERT IGNORE INTO `siswa` (`id`, `nama`, `no_hp`) VALUES (:id, :nama, :no_hp) ON DUPLICATE KEY UPDATE `nama` = VALUES(`nama`), `no_hp` = VALUES(`no_hp`)");
             $countSiswa = 0;
             foreach ($data['data_siswa'] as $s) {
-                $stmt->execute([
+                $stmtSiswa->execute([
                     ':id'    => $s['id'],
                     ':nama'  => $s['nama'],
                     ':no_hp' => $s['no_hp'] ?? ''
@@ -81,7 +125,7 @@ try {
         echo "<p>⚠ File data.json tidak ditemukan.</p>";
     }
 
-    // 5. Migrasi data absen harian
+    // 7. Migrasi data absen harian
     $absenDir = __DIR__ . '/storage/absen';
     if (is_dir($absenDir)) {
         $files = scandir($absenDir);
@@ -103,9 +147,9 @@ try {
             $jsonAbsen = file_get_contents($absenDir . '/' . $file);
             $dataAbsen = json_decode($jsonAbsen, true);
             
-            if (is_array($dataAbsen)) {
+            if (is_array($dataAbsen) && isset($dataAbsen['siswa']) && is_array($dataAbsen['siswa'])) {
                 $countHariIni = 0;
-                foreach ($dataAbsen as $id_siswa => $ab) {
+                foreach ($dataAbsen['siswa'] as $id_siswa => $ab) {
                     $stmtAbsen->execute([
                         ':id_siswa'                  => $id_siswa,
                         ':tanggal'                   => $tanggal,
