@@ -65,10 +65,12 @@ class KonfigurasiModel extends Model
             $this->db->execute();
 
             foreach ($siswa as $s) {
-                $this->db->query("INSERT INTO siswa (id, nama, no_hp) VALUES (:id, :nama, :no_hp)");
+                $this->db->query("INSERT INTO siswa (id, nama, no_hp, alamat, foto) VALUES (:id, :nama, :no_hp, :alamat, :foto)");
                 $this->db->bind(':id', $s['id']);
                 $this->db->bind(':nama', $s['nama']);
                 $this->db->bind(':no_hp', $s['no_hp'] ?? '');
+                $this->db->bind(':alamat', $s['alamat'] ?? null);
+                $this->db->bind(':foto', $s['foto'] ?? null);
                 $this->db->execute();
             }
             return true;

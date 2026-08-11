@@ -57,10 +57,35 @@ class SiswaController extends Controller
             }
         }
 
+        $alamat = trim($_POST['alamat'] ?? '');
+        
+        $fotoName = null;
+        if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = ROOT_PATH . '/public/uploads/foto_siswa/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+            
+            $fileTmp = $_FILES['foto']['tmp_name'];
+            $fileName = $_FILES['foto']['name'];
+            $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+            $allowedExt = ['jpg', 'jpeg', 'png', 'gif'];
+            
+            if (in_array($fileExt, $allowedExt)) {
+                $fotoName = uniqid('foto_') . '.' . $fileExt;
+                move_uploaded_file($fileTmp, $uploadDir . $fotoName);
+            } else {
+                Flash::set('error', 'Format foto tidak didukung (harus JPG/PNG/GIF).');
+                $this->redirect('siswa');
+            }
+        }
+
         $maxId = array_reduce($siswa, fn($max, $s) => max($max, $s['id']), 0);
         $siswa[] = [
             'id' => $maxId + 1,
-            'nama' => $namaBaru
+            'nama' => $namaBaru,
+            'alamat' => $alamat,
+            'foto' => $fotoName
         ];
         
         // Sort by name
@@ -104,7 +129,18 @@ class SiswaController extends Controller
             }
         }
 
-        $siswa = array_filter($siswa, fn($s) => $s['id'] !== $idHapus);
+        $siswa = array_filter($siswa, function($s) use ($idHapus) {
+            if ($s['id'] === $idHapus) {
+                if (!empty($s['foto'])) {
+                    $uploadDir = ROOT_PATH . '/public/uploads/foto_siswa/';
+                    if (file_exists($uploadDir . $s['foto'])) {
+                        unlink($uploadDir . $s['foto']);
+                    }
+                }
+                return false;
+            }
+            return true;
+        });
 
         if ($this->konfig->saveSiswa(array_values($siswa))) {
             Flash::set('success', 'Siswa "' . htmlspecialchars($namaHapus) . '" berhasil dihapus.');
@@ -129,6 +165,7 @@ class SiswaController extends Controller
         $idEdit = (int)($_POST['id'] ?? 0);
         $namaBaru = strtoupper(trim($_POST['nama'] ?? ''));
         $noHpBaru = trim($_POST['no_hp'] ?? '');
+        $alamatBaru = trim($_POST['alamat'] ?? '');
 
         if ($idEdit <= 0 || empty($namaBaru)) {
             Flash::set('error', 'Data tidak valid.');
@@ -153,6 +190,36 @@ class SiswaController extends Controller
             if ($s['id'] === $idEdit) {
                 $s['nama'] = $namaBaru;
                 $s['no_hp'] = $noHpBaru;
+                $s['alamat'] = $alamatBaru;
+                
+                // Handle foto update
+                if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+                    $uploadDir = ROOT_PATH . '/public/uploads/foto_siswa/';
+                    if (!is_dir($uploadDir)) {
+                        mkdir($uploadDir, 0755, true);
+                    }
+                    
+                    $fileTmp = $_FILES['foto']['tmp_name'];
+                    $fileName = $_FILES['foto']['name'];
+                    $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                    $allowedExt = ['jpg', 'jpeg', 'png', 'gif'];
+                    
+                    if (in_array($fileExt, $allowedExt)) {
+                        // Hapus foto lama jika ada
+                        if (!empty($s['foto']) && file_exists($uploadDir . $s['foto'])) {
+                            unlink($uploadDir . $s['foto']);
+                        }
+                        
+                        $fotoName = uniqid('foto_') . '.' . $fileExt;
+                        if (move_uploaded_file($fileTmp, $uploadDir . $fotoName)) {
+                            $s['foto'] = $fotoName;
+                        }
+                    } else {
+                        Flash::set('error', 'Format foto tidak didukung (harus JPG/PNG/GIF).');
+                        $this->redirect('siswa');
+                    }
+                }
+                
                 $found = true;
                 break;
             }

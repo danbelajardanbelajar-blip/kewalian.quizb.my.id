@@ -26,7 +26,7 @@
                 <i class="bi bi-person-plus me-2"></i> Tambah Siswa Baru
             </div>
             <div class="card-body">
-                <form action="<?= BASE_URL ?>/siswa/tambah" method="POST" id="formTambah">
+                <form action="<?= BASE_URL ?>/siswa/tambah" method="POST" id="formTambah" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label for="namaBaru" class="form-label fw-semibold">Nama Lengkap Siswa</label>
                         <input type="text"
@@ -40,6 +40,14 @@
                             <i class="bi bi-info-circle me-1"></i>
                             Nama akan otomatis diubah ke HURUF KAPITAL
                         </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="alamatBaru" class="form-label fw-semibold">Alamat (Opsional)</label>
+                        <textarea class="form-control" id="alamatBaru" name="alamat" rows="2" placeholder="Contoh: Jl. Sudirman No. 123..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fotoBaru" class="form-label fw-semibold">Foto Siswa (Opsional)</label>
+                        <input type="file" class="form-control" id="fotoBaru" name="foto" accept="image/*">
                     </div>
                     <button type="submit" class="btn btn-primary-custom w-100">
                         <i class="bi bi-person-plus me-1"></i> Tambah Siswa
@@ -75,10 +83,20 @@
                             <li class="list-group-item d-flex justify-content-between align-items-center siswa-item">
                                 <div class="d-flex align-items-center gap-3">
                                     <div class="siswa-no" title="ID Siswa"><?= $s['id'] ?></div>
+                                    <?php if (!empty($s['foto'])): ?>
+                                        <img src="<?= BASE_URL ?>/public/uploads/foto_siswa/<?= htmlspecialchars($s['foto']) ?>" alt="Foto" class="rounded-circle" style="width:40px;height:40px;object-fit:cover;border:1px solid #dee2e6;">
+                                    <?php else: ?>
+                                        <div class="rounded-circle bg-light d-flex justify-content-center align-items-center text-secondary border" style="width:40px;height:40px;">
+                                            <i class="bi bi-person"></i>
+                                        </div>
+                                    <?php endif; ?>
                                     <div class="d-flex flex-column">
                                         <span class="fw-medium siswa-nama"><?= htmlspecialchars($s['nama']) ?></span>
                                         <?php if (!empty($s['no_hp'])): ?>
                                             <span class="text-muted small" style="font-size:0.8rem"><i class="bi bi-whatsapp text-success me-1"></i><?= htmlspecialchars($s['no_hp']) ?></span>
+                                        <?php endif; ?>
+                                        <?php if (!empty($s['alamat'])): ?>
+                                            <span class="text-muted small text-truncate" style="font-size:0.8rem; max-width: 250px;"><i class="bi bi-geo-alt me-1"></i><?= htmlspecialchars($s['alamat']) ?></span>
                                         <?php endif; ?>
                                     </div>
                                 </div>
@@ -87,6 +105,7 @@
                                             data-id="<?= $s['id'] ?>"
                                             data-nama="<?= htmlspecialchars($s['nama'], ENT_QUOTES) ?>"
                                             data-nohp="<?= htmlspecialchars($s['no_hp'] ?? '', ENT_QUOTES) ?>"
+                                            data-alamat="<?= htmlspecialchars($s['alamat'] ?? '', ENT_QUOTES) ?>"
                                             title="Edit Siswa">
                                         <i class="bi bi-pencil"></i>
                                     </button>
@@ -111,7 +130,7 @@
 <!-- Modal Edit Siswa -->
 <div class="modal fade" id="modalEditSiswa" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
-        <form action="<?= BASE_URL ?>/siswa/edit" method="POST" class="modal-content">
+        <form action="<?= BASE_URL ?>/siswa/edit" method="POST" class="modal-content" enctype="multipart/form-data">
             <div class="modal-header">
                 <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Edit Data Siswa</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -126,6 +145,15 @@
                     <label for="editNoHp" class="form-label fw-semibold">Nomor WhatsApp (Opsional)</label>
                     <input type="text" class="form-control" id="editNoHp" name="no_hp" placeholder="Contoh: 6281234567890" autocomplete="off">
                     <div class="form-text text-muted">Awali dengan 62 tanpa spasi/simbol.</div>
+                </div>
+                <div class="mb-3">
+                    <label for="editAlamat" class="form-label fw-semibold">Alamat (Opsional)</label>
+                    <textarea class="form-control" id="editAlamat" name="alamat" rows="2"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="editFoto" class="form-label fw-semibold">Ganti Foto Siswa (Opsional)</label>
+                    <input type="file" class="form-control" id="editFoto" name="foto" accept="image/*">
+                    <div class="form-text text-muted">Biarkan kosong jika tidak ingin mengubah foto.</div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -165,6 +193,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('editId').value = this.dataset.id;
                 document.getElementById('editNama').value = this.dataset.nama;
                 document.getElementById('editNoHp').value = this.dataset.nohp;
+                document.getElementById('editAlamat').value = this.dataset.alamat;
                 modalEdit.show();
             });
         });
