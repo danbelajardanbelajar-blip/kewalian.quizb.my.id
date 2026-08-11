@@ -209,29 +209,57 @@ $labelKat  = [
                                 $noHp = $sObj['no_hp'] ?? '';
                                 if (!empty($noHp)) {
                                     // Pengelompokan Kegiatan
+                                    // Pengelompokan Kegiatan
                                     $hadirKegiatan = [];
                                     $absenKegiatan = [];
                                     
+                                    $formatAbsenLabel = function($nama, $data) {
+                                        $status = strtolower($data['status'] ?? '');
+                                        if ($status === 'izin') {
+                                            $ket = $data['keterangan'] ?? '';
+                                            return $ket ? "$nama (Izin: $ket)" : "$nama (Izin)";
+                                        } elseif ($status === 'sakit') {
+                                            return "$nama (Sakit)";
+                                        }
+                                        return $nama;
+                                    };
+                                    
                                     $statusSekolah = strtolower($s['sekolah']['status'] ?? '');
-                                    if (in_array($statusSekolah, ['hadir', 'telat'])) $hadirKegiatan[] = 'Sekolah'; else $absenKegiatan[] = 'Sekolah';
+                                    if (in_array($statusSekolah, ['hadir', 'telat'])) $hadirKegiatan[] = 'Sekolah'; else $absenKegiatan[] = $formatAbsenLabel('Sekolah', $s['sekolah'] ?? []);
                                     
                                     $statusAlmiftah = strtolower($s['almiftah']['status'] ?? '');
-                                    if (in_array($statusAlmiftah, ['hadir', 'telat'])) $hadirKegiatan[] = 'Al-Miftah'; else $absenKegiatan[] = 'Al-Miftah';
+                                    if (in_array($statusAlmiftah, ['hadir', 'telat'])) $hadirKegiatan[] = 'Al-Miftah'; else $absenKegiatan[] = $formatAbsenLabel('Al-Miftah', $s['almiftah'] ?? []);
                                     
                                     $statusDiniyah = strtolower($s['diniyah']['status'] ?? '');
-                                    if (in_array($statusDiniyah, ['hadir', 'telat'])) $hadirKegiatan[] = 'Diniyah'; else $absenKegiatan[] = 'Diniyah';
+                                    if (in_array($statusDiniyah, ['hadir', 'telat'])) $hadirKegiatan[] = 'Diniyah'; else $absenKegiatan[] = $formatAbsenLabel('Diniyah', $s['diniyah'] ?? []);
                                     
                                     $statusSubuh = strtolower($s['subuh']['status'] ?? '');
-                                    if (in_array($statusSubuh, ['hadir', 'telat'])) $hadirKegiatan[] = 'Ngaji Pagi'; else $absenKegiatan[] = 'Ngaji Pagi';
+                                    if (in_array($statusSubuh, ['hadir', 'telat'])) $hadirKegiatan[] = 'Ngaji Pagi'; else $absenKegiatan[] = $formatAbsenLabel('Ngaji Pagi', $s['subuh'] ?? []);
                                     
                                     $qType = $s['quran']['type'] ?? '';
-                                    if (!empty($qType) && (int)($s['quran']['jumlah'] ?? 0) > 0) $hadirKegiatan[] = "Membaca Al-Qur'an"; else $absenKegiatan[] = "Membaca Al-Qur'an";
+                                    $qJumlah = (int)($s['quran']['jumlah'] ?? 0);
+                                    if (!empty($qType) && $qJumlah > 0) {
+                                        $labelQType = $qType === 'juz' ? 'Juz' : ($qType === 'setengah_juz' ? 'Setengah Juz' : 'Halaman');
+                                        if ($qType === 'setengah_juz') {
+                                            $hadirKegiatan[] = "Membaca Al-Qur'an (Setengah Juz)";
+                                        } else {
+                                            $hadirKegiatan[] = "Membaca Al-Qur'an ($qJumlah $labelQType)";
+                                        }
+                                    } else {
+                                        $absenKegiatan[] = "Membaca Al-Qur'an";
+                                    }
                                     
                                     $statusDluha = strtolower($s['dluha']['status'] ?? '');
                                     if (in_array($statusDluha, ['ikut', 'udzur_haid'])) $hadirKegiatan[] = 'Shalat Dluha'; else $absenKegiatan[] = 'Shalat Dluha';
                                     
                                     if (strtolower($s['belajar']['status'] ?? '') === 'iya') $hadirKegiatan[] = 'Belajar Mandiri'; else $absenKegiatan[] = 'Belajar Mandiri';
-                                    if (strtolower($s['baca_buku']['status'] ?? '') === 'iya') $hadirKegiatan[] = 'Membaca Buku'; else $absenKegiatan[] = 'Membaca Buku';
+                                    
+                                    if (strtolower($s['baca_buku']['status'] ?? '') === 'iya') {
+                                        $bbJumlah = (int)($s['baca_buku']['jumlah'] ?? 0);
+                                        $hadirKegiatan[] = "Membaca Buku ($bbJumlah Halaman)";
+                                    } else {
+                                        $absenKegiatan[] = 'Membaca Buku';
+                                    }
 
                                     // Pengelompokan Amalan
                                     $sudahAmalan = [];
@@ -252,11 +280,11 @@ $labelKat  = [
                                     };
 
                                     $namaSiswaProper = ucwords(strtolower(trim($namaSiswa)));
-                                    $pesanWa = "Salam Ayah/Ibu. Ini kulo, ananda *" . $namaSiswaProper . "*.\n";
+                                    $pesanWa = "Salam Ayah dan Ibu. Ini kulo, ananda *" . $namaSiswaProper . "*.\n";
                                     $pesanWa .= "Semoga Ayah dan Ibu sekeluarga senantiasa sehat dan dijaga oleh Allah.\n\n";
 
                                     if (!empty($hadirKegiatan)) {
-                                        $pesanWa .= "Alhamdulillah Ayah/Ibu. Kemarin saya hadir pada kegiatan: " . $joinWithDan($hadirKegiatan) . ".\n";
+                                        $pesanWa .= "Alhamdulillah Ayah dan Ibu. Kemarin saya hadir pada kegiatan: " . $joinWithDan($hadirKegiatan) . ".\n";
                                     }
                                     if (!empty($sudahAmalan)) {
                                         $pesanWa .= "Alhamdulillah, saya tadi malam juga sudah " . $joinWithDan($sudahAmalan) . ".\n";
@@ -265,14 +293,14 @@ $labelKat  = [
                                     if (!empty($absenKegiatan) || !empty($belumAmalan)) {
                                         $pesanWa .= "\n";
                                         if (!empty($absenKegiatan)) {
-                                            $pesanWa .= "Mohon doanya Bapak/Ibu agar saya bisa hadir/melaksanakan: " . $joinWithDan($absenKegiatan) . ".\n";
+                                            $pesanWa .= "Mohon doanya Ayah dan Ibu agar saya bisa hadir/melaksanakan: " . $joinWithDan($absenKegiatan) . ".\n";
                                         }
                                         if (!empty($belumAmalan)) {
                                             $pesanWa .= "Mohon doanya pula agar hari ini saya bisa " . $joinWithDan($belumAmalan) . ".\n";
                                         }
                                     }
 
-                                    $pesanWa .= "\nMohon ridlanya Ayah/Ibu.\nMatur Nuwun.\nSalam.";
+                                    $pesanWa .= "\nMohon ridlanya Ayah dan Ibu.\nMatur Nuwun.\nSalam.";
                                     
                                     $linkWa = "https://wa.me/" . urlencode($noHp) . "?text=" . urlencode($pesanWa);
                                     echo '<a href="' . $linkWa . '" target="_blank" class="btn btn-outline-success btn-sm p-1 me-1" title="Kirim WA ke Wali"><i class="bi bi-whatsapp"></i></a>';
