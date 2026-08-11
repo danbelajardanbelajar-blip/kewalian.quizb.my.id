@@ -173,6 +173,7 @@ class AbsenController extends Controller
         $data = [];
         
         $postJawaban = $_POST['jawaban'] ?? [];
+        $postAngka = $_POST['jawaban_angka'] ?? [];
         $postKet = $_POST['keterangan'] ?? [];
 
         foreach ($pertanyaanAktif as $p) {
@@ -193,6 +194,32 @@ class AbsenController extends Controller
                 $nilaiAngka = (float)$ans;
                 $poin_per_angka = (float)($opsi['poin_per_angka'] ?? 1);
                 $poin_didapat = (int)($nilaiAngka * $poin_per_angka);
+            } else if ($p['tipe'] === 'ganda_dan_angka') {
+                $nilaiAngkaInput = (float)($postAngka[$pId] ?? 0);
+                
+                // Cari opsi pilihan
+                $basePoin = 0;
+                $reqAngka = false;
+                if (isset($opsi['pilihan'])) {
+                    foreach ($opsi['pilihan'] as $op) {
+                        if ($op['value'] === $ans) {
+                            $basePoin = (int)$op['poin'];
+                            $reqAngka = !empty($op['require_angka']);
+                            break;
+                        }
+                    }
+                }
+                
+                $poinAngka = 0;
+                if ($reqAngka) {
+                    $poin_per_angka = (float)($opsi['angka']['poin_per_angka'] ?? 1);
+                    $poinAngka = (int)($nilaiAngkaInput * $poin_per_angka);
+                    $ans = $ans . ':' . $nilaiAngkaInput; // simpan format "value:number"
+                } else {
+                    $ans = $ans . ':0'; // default kalau tidak req angka
+                }
+                
+                $poin_didapat = $basePoin + $poinAngka;
             }
             
             $data[$pId] = [

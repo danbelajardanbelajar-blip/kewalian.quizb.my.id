@@ -65,9 +65,28 @@ if ($totalStep === 0) {
 
             $pId = $p['id'];
             $ansData = $existing['jawaban'][$pId] ?? null;
-            $ansValue = $ansData['jawaban'] ?? '';
+            $rawAnsValue = $ansData['jawaban'] ?? '';
             $ansKet = $ansData['keterangan'] ?? '';
+            
             $opsi = json_decode($p['opsi'], true);
+            
+            $pilihanGandaList = [];
+            $angkaSatuan = '';
+            
+            $ansValue = $rawAnsValue;
+            $ansAngka = '1';
+
+            if ($p['tipe'] === 'ganda_dan_angka') {
+                $pilihanGandaList = $opsi['pilihan'] ?? [];
+                $angkaSatuan = $opsi['angka']['satuan'] ?? '';
+                
+                // parse value:angka
+                $parts = explode(':', $rawAnsValue);
+                $ansValue = $parts[0] ?? '';
+                $ansAngka = $parts[1] ?? '1';
+            } else if ($p['tipe'] === 'pilihan_ganda') {
+                $pilihanGandaList = $opsi;
+            }
 
             // Icon dan emoji dinamis sederhana berdasarkan judul
             $emoji = '📝';
@@ -92,9 +111,9 @@ if ($totalStep === 0) {
                     <div class="question-number">Pertanyaan <?= $stepIdx + 1 ?> dari <?= $totalStep ?></div>
                     <h2 class="question-text"><?= htmlspecialchars($p['judul']) ?></h2>
 
-                    <?php if ($p['tipe'] === 'pilihan_ganda'): ?>
+                    <?php if ($p['tipe'] === 'pilihan_ganda' || $p['tipe'] === 'ganda_dan_angka'): ?>
                         <div class="option-grid" data-group="<?= $pId ?>">
-                            <?php foreach ($opsi as $idx => $op): ?>
+                            <?php foreach ($pilihanGandaList as $idx => $op): ?>
                                 <?php
                                 $checked = ($ansValue === $op['value']) ? 'checked' : '';
                                 // Tentukan warna/icon berdasarkan text
@@ -120,11 +139,33 @@ if ($totalStep === 0) {
                                            <?= $checked ?>
                                            class="d-none option-radio"
                                            data-field="<?= $pId ?>"
-                                           data-reqket="<?= !empty($op['require_ket']) ? '1' : '0' ?>">
+                                           data-reqket="<?= !empty($op['require_ket']) ? '1' : '0' ?>"
+                                           data-reqangka="<?= !empty($op['require_angka']) ? '1' : '0' ?>">
                                     <i class="bi <?= $icon ?> option-icon"></i>
                                     <span><?= htmlspecialchars($op['label']) ?></span>
                                 </label>
                             <?php endforeach; ?>
+                        </div>
+
+                        <!-- Input angka bersyarat -->
+                        <div class="quran-jumlah-wrap mt-3" id="angka_wrap_<?= $pId ?>" style="display:none">
+                            <label class="izin-ket-label text-center d-block mb-2">
+                                <?= $angkaSatuan !== '' ? htmlspecialchars($angkaSatuan) : 'Jumlah' ?>
+                            </label>
+                            <div class="quran-counter">
+                                <button type="button" class="quran-counter-btn btnMinAngka" data-target="angka_input_<?= $pId ?>">
+                                    <i class="bi bi-dash-lg"></i>
+                                </button>
+                                <input type="number"
+                                       id="angka_input_<?= $pId ?>"
+                                       name="jawaban_angka[<?= $pId ?>]"
+                                       class="quran-counter-input"
+                                       value="<?= htmlspecialchars($ansAngka) ?>"
+                                       min="1" max="999">
+                                <button type="button" class="quran-counter-btn btnPlusAngka" data-target="angka_input_<?= $pId ?>">
+                                    <i class="bi bi-plus-lg"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Input keterangan jika diwajibkan -->
@@ -248,6 +289,7 @@ if ($totalStep === 0) {
         // Initial setup for existing value
         if (radio.checked) {
             const reqKet = radio.getAttribute('data-reqket') === '1';
+            const reqAngka = radio.getAttribute('data-reqangka') === '1';
             const field = radio.dataset.field;
             if (field) {
                 const ketWrap = document.getElementById('ket_wrap_' + field);
@@ -255,6 +297,11 @@ if ($totalStep === 0) {
                 if (ketWrap && ketInput) {
                     ketWrap.style.display = reqKet ? '' : 'none';
                     ketInput.required = reqKet;
+                }
+                
+                const angkaWrap = document.getElementById('angka_wrap_' + field);
+                if (angkaWrap) {
+                    angkaWrap.style.display = reqAngka ? '' : 'none';
                 }
             }
         }
@@ -266,6 +313,7 @@ if ($totalStep === 0) {
 
             let autoNext = true;
             const reqKet = this.getAttribute('data-reqket') === '1';
+            const reqAngka = this.getAttribute('data-reqangka') === '1';
             const field = this.dataset.field;
 
             if (field) {
@@ -278,9 +326,15 @@ if ($totalStep === 0) {
                     if (reqKet) {
                         ketInput.focus();
                         autoNext = false; // Jangan auto-next karena harus ketik keterangan
-                    } else {
-                        ketInput.value = '';
+                    } else if (ketWrap.style.display === 'none') {
+                        // Jangan clear input keterangan jika tidak required, biarkan saja
                     }
+                }
+                
+                const angkaWrap = document.getElementById('angka_wrap_' + field);
+                if (angkaWrap) {
+                    angkaWrap.style.display = reqAngka ? '' : 'none';
+                    if (reqAngka) autoNext = false;
                 }
             }
 

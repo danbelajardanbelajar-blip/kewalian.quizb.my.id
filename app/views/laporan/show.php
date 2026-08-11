@@ -115,6 +115,29 @@ $avgPoin = $totalSiswa > 0 ? round($totalPoin / $totalSiswa) : 0;
                                             break;
                                         }
                                     }
+                                } else if ($p['tipe'] === 'ganda_dan_angka') {
+                                    $opsi = json_decode($p['opsi'], true);
+                                    $parts = explode(':', $val);
+                                    $ansVal = $parts[0];
+                                    $ansAngka = $parts[1] ?? '0';
+                                    
+                                    if (isset($opsi['pilihan'])) {
+                                        foreach ($opsi['pilihan'] as $op) {
+                                            if ($op['value'] === $ansVal) {
+                                                $dispLabel = $op['label'];
+                                                $badgeClass = ($poin > 0) ? 'bg-success' : 'bg-danger';
+                                                
+                                                if (!empty($op['require_angka']) && $ansAngka > 0) {
+                                                    $sat = $opsi['angka']['satuan'] ?? '';
+                                                    $dispLabel .= " ($ansAngka $sat)";
+                                                }
+                                                if (!empty($ket)) {
+                                                    $dispLabel .= " [$ket]";
+                                                }
+                                                break;
+                                            }
+                                        }
+                                    }
                                 } else {
                                     $opsi = json_decode($p['opsi'], true);
                                     $sat = $opsi['satuan'] ?? '';

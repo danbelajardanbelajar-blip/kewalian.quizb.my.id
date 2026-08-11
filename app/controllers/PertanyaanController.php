@@ -58,25 +58,38 @@ class PertanyaanController extends Controller
 
             // Proses opsi JSON
             $opsiArray = [];
-            if ($tipe === 'pilihan_ganda') {
+            if ($tipe === 'pilihan_ganda' || $tipe === 'ganda_dan_angka') {
                 $labels = $_POST['opsi_label'] ?? [];
                 $poins = $_POST['opsi_poin'] ?? [];
                 $reqKets = $_POST['opsi_req_ket'] ?? [];
+                $reqAngkas = $_POST['opsi_req_angka'] ?? [];
 
+                $pilihanList = [];
                 foreach ($labels as $idx => $label) {
                     $label = trim($label);
                     if ($label !== '') {
-                        $opsiArray[] = [
+                        $pilihanList[] = [
                             'label' => $label,
                             'value' => strtolower(preg_replace('/[^a-zA-Z0-9]+/', '_', $label)),
                             'poin' => (int)($poins[$idx] ?? 0),
-                            'require_ket' => isset($reqKets[$idx]) ? true : false
+                            'require_ket' => isset($reqKets[$idx]) ? true : false,
+                            'require_angka' => isset($reqAngkas[$idx]) ? true : false
                         ];
                     }
                 }
+
+                if ($tipe === 'ganda_dan_angka') {
+                    $opsiArray['pilihan'] = $pilihanList;
+                    $opsiArray['angka'] = [
+                        'poin_per_angka' => (float)($_POST['gda_poin_per_angka'] ?? 1),
+                        'satuan' => trim($_POST['gda_satuan'] ?? '')
+                    ];
+                } else {
+                    $opsiArray = $pilihanList;
+                }
             } else if ($tipe === 'angka') {
                 $opsiArray = [
-                    'poin_per_angka' => (int)($_POST['poin_per_angka'] ?? 1),
+                    'poin_per_angka' => (float)($_POST['poin_per_angka'] ?? 1),
                     'require_ket' => isset($_POST['angka_req_ket']) ? true : false,
                     'satuan' => trim($_POST['satuan'] ?? '')
                 ];
@@ -111,25 +124,38 @@ class PertanyaanController extends Controller
 
             // Proses opsi JSON
             $opsiArray = [];
-            if ($tipe === 'pilihan_ganda') {
+            if ($tipe === 'pilihan_ganda' || $tipe === 'ganda_dan_angka') {
                 $labels = $_POST['opsi_label'] ?? [];
                 $poins = $_POST['opsi_poin'] ?? [];
                 $reqKets = $_POST['opsi_req_ket'] ?? [];
+                $reqAngkas = $_POST['opsi_req_angka'] ?? [];
 
+                $pilihanList = [];
                 foreach ($labels as $idx => $label) {
                     $label = trim($label);
                     if ($label !== '') {
-                        $opsiArray[] = [
+                        $pilihanList[] = [
                             'label' => $label,
                             'value' => strtolower(preg_replace('/[^a-zA-Z0-9]+/', '_', $label)),
                             'poin' => (int)($poins[$idx] ?? 0),
-                            'require_ket' => isset($reqKets[$idx]) ? true : false
+                            'require_ket' => isset($reqKets[$idx]) ? true : false,
+                            'require_angka' => isset($reqAngkas[$idx]) ? true : false
                         ];
                     }
                 }
+
+                if ($tipe === 'ganda_dan_angka') {
+                    $opsiArray['pilihan'] = $pilihanList;
+                    $opsiArray['angka'] = [
+                        'poin_per_angka' => (float)($_POST['gda_poin_per_angka'] ?? 1),
+                        'satuan' => trim($_POST['gda_satuan'] ?? '')
+                    ];
+                } else {
+                    $opsiArray = $pilihanList;
+                }
             } else if ($tipe === 'angka') {
                 $opsiArray = [
-                    'poin_per_angka' => (int)($_POST['poin_per_angka'] ?? 1),
+                    'poin_per_angka' => (float)($_POST['poin_per_angka'] ?? 1),
                     'require_ket' => isset($_POST['angka_req_ket']) ? true : false,
                     'satuan' => trim($_POST['satuan'] ?? '')
                 ];
