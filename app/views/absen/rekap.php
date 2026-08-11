@@ -217,10 +217,10 @@ $labelKat  = [
                                         $status = strtolower($data['status'] ?? '');
                                         if ($status === 'izin') {
                                             $ket = $data['ket'] ?? '';
-                                            return $ket ? "$nama (karena saya kemarin izin \"$ket\")" : "$nama (karena saya kemarin izin)";
+                                            return $ket ? "$nama (karena kulo kemarin izin \"$ket\")" : "$nama (karena kulo kemarin izin)";
                                         } elseif ($status === 'sakit') {
                                             $ket = $data['ket'] ?? '';
-                                            return $ket ? "$nama (karena saya kemarin sakit \"$ket\")" : "$nama (karena saya kemarin sakit)";
+                                            return $ket ? "$nama (karena kulo kemarin sakit \"$ket\")" : "$nama (karena kulo kemarin sakit)";
                                         }
                                         return $nama;
                                     };
@@ -285,19 +285,19 @@ $labelKat  = [
                                     $pesanWa .= "Semoga Ayah dan Ibu sekeluarga senantiasa sehat dan dijaga oleh Allah.\n\n";
 
                                     if (!empty($hadirKegiatan)) {
-                                        $pesanWa .= "Alhamdulillah Ayah dan Ibu. Kemarin saya hadir pada kegiatan: " . $joinWithDan($hadirKegiatan) . ".\n";
+                                        $pesanWa .= "Alhamdulillah Ayah dan Ibu. Kemarin kulo hadir pada kegiatan: " . $joinWithDan($hadirKegiatan) . ".\n";
                                     }
                                     if (!empty($sudahAmalan)) {
-                                        $pesanWa .= "Alhamdulillah, saya tadi malam juga sudah " . $joinWithDan($sudahAmalan) . ".\n";
+                                        $pesanWa .= "Alhamdulillah, kulo tadi malam juga sudah " . $joinWithDan($sudahAmalan) . ".\n";
                                     }
 
                                     if (!empty($absenKegiatan) || !empty($belumAmalan)) {
                                         $pesanWa .= "\n";
                                         if (!empty($absenKegiatan)) {
-                                            $pesanWa .= "Mohon doanya Ayah dan Ibu agar saya bisa hadir/melaksanakan: " . $joinWithDan($absenKegiatan) . ".\n";
+                                            $pesanWa .= "Mohon doanya Ayah dan Ibu agar kulo bisa hadir/melaksanakan: " . $joinWithDan($absenKegiatan) . ".\n";
                                         }
                                         if (!empty($belumAmalan)) {
-                                            $pesanWa .= "Mohon doanya pula agar hari ini saya terbiasa " . $joinWithDan($belumAmalan) . ".\n";
+                                            $pesanWa .= "Mohon doanya pula agar hari ini kulo terbiasa " . $joinWithDan($belumAmalan) . ".\n";
                                         }
                                     }
 
