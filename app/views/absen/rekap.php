@@ -213,16 +213,16 @@ $labelKat  = [
                                     $absenKegiatan = [];
                                     
                                     $statusSekolah = strtolower($s['sekolah']['status'] ?? '');
-                                    if (in_array($statusSekolah, ['hadir', 'telat', 'izin', 'sakit'])) $hadirKegiatan[] = 'Sekolah'; else $absenKegiatan[] = 'Sekolah';
+                                    if (in_array($statusSekolah, ['hadir', 'telat'])) $hadirKegiatan[] = 'Sekolah'; else $absenKegiatan[] = 'Sekolah';
                                     
                                     $statusAlmiftah = strtolower($s['almiftah']['status'] ?? '');
-                                    if (in_array($statusAlmiftah, ['hadir', 'telat', 'izin', 'sakit'])) $hadirKegiatan[] = 'Al-Miftah'; else $absenKegiatan[] = 'Al-Miftah';
+                                    if (in_array($statusAlmiftah, ['hadir', 'telat'])) $hadirKegiatan[] = 'Al-Miftah'; else $absenKegiatan[] = 'Al-Miftah';
                                     
                                     $statusDiniyah = strtolower($s['diniyah']['status'] ?? '');
-                                    if (in_array($statusDiniyah, ['hadir', 'telat', 'izin', 'sakit'])) $hadirKegiatan[] = 'Diniyah'; else $absenKegiatan[] = 'Diniyah';
+                                    if (in_array($statusDiniyah, ['hadir', 'telat'])) $hadirKegiatan[] = 'Diniyah'; else $absenKegiatan[] = 'Diniyah';
                                     
                                     $statusSubuh = strtolower($s['subuh']['status'] ?? '');
-                                    if (in_array($statusSubuh, ['hadir', 'telat', 'izin', 'sakit'])) $hadirKegiatan[] = 'Ngaji Pagi'; else $absenKegiatan[] = 'Ngaji Pagi';
+                                    if (in_array($statusSubuh, ['hadir', 'telat'])) $hadirKegiatan[] = 'Ngaji Pagi'; else $absenKegiatan[] = 'Ngaji Pagi';
                                     
                                     $qType = $s['quran']['type'] ?? '';
                                     if (!empty($qType) && (int)($s['quran']['jumlah'] ?? 0) > 0) $hadirKegiatan[] = "Membaca Al-Qur'an"; else $absenKegiatan[] = "Membaca Al-Qur'an";
