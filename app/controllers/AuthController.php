@@ -306,13 +306,22 @@ class AuthController extends Controller
      */
     private function loginByUser(array $user): void
     {
-        Session::set('logged_in',   true);
-        Session::set('username',    $user['username']);
-        Session::set('user_id',     $user['id']);
-        Session::set('login_time',  time());
+        Session::set('logged_in',    true);
+        Session::set('username',     $user['username']);
+        Session::set('user_id',      $user['id']);
+        Session::set('nama_lengkap', $user['nama_lengkap'] ?? $user['username']);
+        Session::set('is_admin',     !empty($user['is_admin']) && (int)$user['is_admin'] === 1);
+        Session::set('login_time',   time());
         // Simpan avatar Google jika ada
         if (!empty($user['google_avatar'])) {
             Session::set('google_avatar', $user['google_avatar']);
         }
+        // Update last_login_at
+        try {
+            $db = new Database();
+            $db->query("UPDATE users SET last_login_at = NOW() WHERE id = :id");
+            $db->bind(':id', $user['id']);
+            $db->execute();
+        } catch (Exception $e) {}
     }
 }
