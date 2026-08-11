@@ -257,9 +257,9 @@ $labelKat  = [
                                     
                                     if (strtolower($s['baca_buku']['status'] ?? '') === 'iya') {
                                         $bbJumlah = (int)($s['baca_buku']['jumlah'] ?? 0);
-                                        $hadirKegiatan[] = "Membaca Buku sebanyak $bbJumlah Halaman";
+                                        $hadirKegiatan[] = "Membaca Buku secara mandiri sebanyak $bbJumlah Halaman";
                                     } else {
-                                        $absenKegiatan[] = 'Membaca Buku';
+                                        $absenKegiatan[] = 'Membaca Buku secara mandiri';
                                     }
 
                                     // Pengelompokan Amalan
