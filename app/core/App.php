@@ -17,6 +17,26 @@ class App
     {
         $url = $this->parseUrl();
 
+        // ── Khusus: /auth/google/callback → AuthController::callback
+        //            /auth/google/setup   → AuthController::setup
+        //            /auth/google/simpan  → AuthController::simpan
+        if (
+            isset($url[0], $url[1], $url[2]) &&
+            strtolower($url[0]) === 'auth' &&
+            strtolower($url[1]) === 'google'
+        ) {
+            require_once APP_PATH . '/controllers/AuthController.php';
+            require_once APP_PATH . '/models/PertanyaanModel.php';
+            $ctrl   = new AuthController();
+            $method = strtolower($url[2]); // callback | setup | simpan
+            if (method_exists($ctrl, $method)) {
+                call_user_func([$ctrl, $method]);
+            } else {
+                $this->notFound();
+            }
+            return;
+        }
+
         // Tentukan Controller dari URL segment pertama
         if (!empty($url[0])) {
             $name = ucfirst(strtolower($url[0])) . 'Controller';

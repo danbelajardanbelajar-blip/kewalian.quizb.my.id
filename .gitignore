@@ -2,6 +2,10 @@
 storage/laporan/*.json
 storage/logs/*.log
 
+# Environment / Secrets
+.env
+
+
 # OS files
 .DS_Store
 Thumbs.db
