@@ -47,53 +47,45 @@ class SiswaController extends Controller
             $this->redirect('siswa');
         }
 
-        $siswa = $this->konfig->getSiswa();
+        $userId = Session::get('user_id');
 
-        // Cek duplikasi
-        foreach ($siswa as $s) {
-            if ($s['nama'] === $namaBaru) {
-                Flash::set('warning', 'Siswa "' . htmlspecialchars($namaBaru) . '" sudah ada dalam daftar.');
-                $this->redirect('siswa');
-            }
+        // Cek duplikasi langsung dari DB
+        $db = new Database();
+        $db->query("SELECT id FROM siswa WHERE user_id = :uid AND nama = :nama");
+        $db->bind(':uid', $userId);
+        $db->bind(':nama', $namaBaru);
+        if ($db->single()) {
+            Flash::set('warning', 'Siswa "' . htmlspecialchars($namaBaru) . '" sudah ada dalam daftar.');
+            $this->redirect('siswa');
         }
 
         $alamat = trim($_POST['alamat'] ?? '');
-        $noHp = preg_replace('/[^0-9]/', '', $_POST['no_hp'] ?? '');
-        
+        $noHp   = preg_replace('/[^0-9]/', '', $_POST['no_hp'] ?? '');
+
         $fotoName = null;
         if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
             $uploadDir = ROOT_PATH . '/public/uploads/foto_siswa/';
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0755, true);
-            }
-            
-            $fileTmp = $_FILES['foto']['tmp_name'];
-            $fileName = $_FILES['foto']['name'];
-            $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-            $allowedExt = ['jpg', 'jpeg', 'png', 'gif'];
-            
-            if (in_array($fileExt, $allowedExt)) {
+            if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+
+            $fileExt = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
+            if (in_array($fileExt, ['jpg', 'jpeg', 'png', 'gif'])) {
                 $fotoName = uniqid('foto_') . '.' . $fileExt;
-                move_uploaded_file($fileTmp, $uploadDir . $fotoName);
+                move_uploaded_file($_FILES['foto']['tmp_name'], $uploadDir . $fotoName);
             } else {
                 Flash::set('error', 'Format foto tidak didukung (harus JPG/PNG/GIF).');
                 $this->redirect('siswa');
             }
         }
 
-        $maxId = array_reduce($siswa, fn($max, $s) => max($max, $s['id']), 0);
-        $siswa[] = [
-            'id' => $maxId + 1,
-            'nama' => $namaBaru,
-            'no_hp' => $noHp,
-            'alamat' => $alamat,
-            'foto' => $fotoName
-        ];
-        
-        // Sort by name
-        usort($siswa, fn($a, $b) => strcmp($a['nama'], $b['nama']));
+        // INSERT langsung tanpa mengelola id manual
+        $db->query("INSERT INTO siswa (user_id, nama, no_hp, alamat, foto) VALUES (:uid, :nama, :no_hp, :alamat, :foto)");
+        $db->bind(':uid',    $userId);
+        $db->bind(':nama',   $namaBaru);
+        $db->bind(':no_hp',  $noHp);
+        $db->bind(':alamat', $alamat ?: null);
+        $db->bind(':foto',   $fotoName);
 
-        if ($this->konfig->saveSiswa($siswa)) {
+        if ($db->execute()) {
             Flash::set('success', 'Siswa "' . htmlspecialchars($namaBaru) . '" berhasil ditambahkan.');
         } else {
             Flash::set('error', 'Gagal menyimpan data siswa.');
@@ -114,38 +106,39 @@ class SiswaController extends Controller
         }
 
         $idHapus = (int)($_POST['id'] ?? 0);
+        $userId  = Session::get('user_id');
 
         if ($idHapus <= 0) {
             Flash::set('error', 'ID siswa tidak valid.');
             $this->redirect('siswa');
         }
 
-        $siswa = $this->konfig->getSiswa();
-        
-        // Cari nama untuk flash message
-        $namaHapus = '';
-        foreach ($siswa as $s) {
-            if ($s['id'] === $idHapus) {
-                $namaHapus = $s['nama'];
-                break;
-            }
+        $db = new Database();
+
+        // Ambil data siswa dulu untuk nama & foto
+        $db->query("SELECT nama, foto FROM siswa WHERE id = :id AND user_id = :uid");
+        $db->bind(':id',  $idHapus);
+        $db->bind(':uid', $userId);
+        $row = $db->single();
+
+        if (!$row) {
+            Flash::set('error', 'Siswa tidak ditemukan.');
+            $this->redirect('siswa');
         }
 
-        $siswa = array_filter($siswa, function($s) use ($idHapus) {
-            if ($s['id'] === $idHapus) {
-                if (!empty($s['foto'])) {
-                    $uploadDir = ROOT_PATH . '/public/uploads/foto_siswa/';
-                    if (file_exists($uploadDir . $s['foto'])) {
-                        unlink($uploadDir . $s['foto']);
-                    }
-                }
-                return false;
-            }
-            return true;
-        });
+        // Hapus foto fisik jika ada
+        if (!empty($row['foto'])) {
+            $fotoPath = ROOT_PATH . '/public/uploads/foto_siswa/' . $row['foto'];
+            if (file_exists($fotoPath)) unlink($fotoPath);
+        }
 
-        if ($this->konfig->saveSiswa(array_values($siswa))) {
-            Flash::set('success', 'Siswa "' . htmlspecialchars($namaHapus) . '" berhasil dihapus.');
+        // DELETE langsung
+        $db->query("DELETE FROM siswa WHERE id = :id AND user_id = :uid");
+        $db->bind(':id',  $idHapus);
+        $db->bind(':uid', $userId);
+
+        if ($db->execute()) {
+            Flash::set('success', 'Siswa "' . htmlspecialchars($row['nama']) . '" berhasil dihapus.');
         } else {
             Flash::set('error', 'Gagal menghapus siswa.');
         }
@@ -164,79 +157,71 @@ class SiswaController extends Controller
             $this->redirect('siswa');
         }
 
-        $idEdit = (int)($_POST['id'] ?? 0);
-        $namaBaru = strtoupper(trim($_POST['nama'] ?? ''));
-        $noHpBaru = trim($_POST['no_hp'] ?? '');
+        $idEdit     = (int)($_POST['id'] ?? 0);
+        $namaBaru   = strtoupper(trim($_POST['nama'] ?? ''));
+        $noHpBaru   = preg_replace('/[^0-9]/', '', $_POST['no_hp'] ?? '');
         $alamatBaru = trim($_POST['alamat'] ?? '');
+        $userId     = Session::get('user_id');
 
         if ($idEdit <= 0 || empty($namaBaru)) {
             Flash::set('error', 'Data tidak valid.');
             $this->redirect('siswa');
         }
 
-        $siswa = $this->konfig->getSiswa();
-        
+        $db = new Database();
+
         // Cek duplikasi nama untuk ID lain
-        foreach ($siswa as $s) {
-            if ($s['id'] !== $idEdit && $s['nama'] === $namaBaru) {
-                Flash::set('warning', 'Siswa dengan nama "' . htmlspecialchars($namaBaru) . '" sudah ada.');
-                $this->redirect('siswa');
-            }
+        $db->query("SELECT id FROM siswa WHERE user_id = :uid AND nama = :nama AND id != :id");
+        $db->bind(':uid',  $userId);
+        $db->bind(':nama', $namaBaru);
+        $db->bind(':id',   $idEdit);
+        if ($db->single()) {
+            Flash::set('warning', 'Siswa dengan nama "' . htmlspecialchars($namaBaru) . '" sudah ada.');
+            $this->redirect('siswa');
         }
 
-        // Format No HP (hapus karakter selain angka)
-        $noHpBaru = preg_replace('/[^0-9]/', '', $noHpBaru);
+        // Ambil data lama untuk foto
+        $db->query("SELECT foto FROM siswa WHERE id = :id AND user_id = :uid");
+        $db->bind(':id',  $idEdit);
+        $db->bind(':uid', $userId);
+        $existing = $db->single();
 
-        $found = false;
-        foreach ($siswa as &$s) {
-            if ($s['id'] === $idEdit) {
-                $s['nama'] = $namaBaru;
-                $s['no_hp'] = $noHpBaru;
-                $s['alamat'] = $alamatBaru;
-                
-                // Handle foto update
-                if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-                    $uploadDir = ROOT_PATH . '/public/uploads/foto_siswa/';
-                    if (!is_dir($uploadDir)) {
-                        mkdir($uploadDir, 0755, true);
-                    }
-                    
-                    $fileTmp = $_FILES['foto']['tmp_name'];
-                    $fileName = $_FILES['foto']['name'];
-                    $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-                    $allowedExt = ['jpg', 'jpeg', 'png', 'gif'];
-                    
-                    if (in_array($fileExt, $allowedExt)) {
-                        // Hapus foto lama jika ada
-                        if (!empty($s['foto']) && file_exists($uploadDir . $s['foto'])) {
-                            unlink($uploadDir . $s['foto']);
-                        }
-                        
-                        $fotoName = uniqid('foto_') . '.' . $fileExt;
-                        if (move_uploaded_file($fileTmp, $uploadDir . $fotoName)) {
-                            $s['foto'] = $fotoName;
-                        }
-                    } else {
-                        Flash::set('error', 'Format foto tidak didukung (harus JPG/PNG/GIF).');
-                        $this->redirect('siswa');
-                    }
-                }
-                
-                $found = true;
-                break;
-            }
-        }
-        unset($s);
-
-        if (!$found) {
+        if (!$existing) {
             Flash::set('error', 'Siswa tidak ditemukan.');
             $this->redirect('siswa');
         }
 
-        // Sort by name
-        usort($siswa, fn($a, $b) => strcmp($a['nama'], $b['nama']));
+        $fotoName = $existing['foto'];
 
-        if ($this->konfig->saveSiswa($siswa)) {
+        // Handle foto baru
+        if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = ROOT_PATH . '/public/uploads/foto_siswa/';
+            if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+
+            $fileExt = strtolower(pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION));
+            if (in_array($fileExt, ['jpg', 'jpeg', 'png', 'gif'])) {
+                // Hapus foto lama
+                if (!empty($fotoName) && file_exists($uploadDir . $fotoName)) {
+                    unlink($uploadDir . $fotoName);
+                }
+                $fotoName = uniqid('foto_') . '.' . $fileExt;
+                move_uploaded_file($_FILES['foto']['tmp_name'], $uploadDir . $fotoName);
+            } else {
+                Flash::set('error', 'Format foto tidak didukung (harus JPG/PNG/GIF).');
+                $this->redirect('siswa');
+            }
+        }
+
+        // UPDATE langsung
+        $db->query("UPDATE siswa SET nama = :nama, no_hp = :no_hp, alamat = :alamat, foto = :foto WHERE id = :id AND user_id = :uid");
+        $db->bind(':nama',   $namaBaru);
+        $db->bind(':no_hp',  $noHpBaru);
+        $db->bind(':alamat', $alamatBaru ?: null);
+        $db->bind(':foto',   $fotoName);
+        $db->bind(':id',     $idEdit);
+        $db->bind(':uid',    $userId);
+
+        if ($db->execute()) {
             Flash::set('success', 'Data siswa berhasil diperbarui.');
         } else {
             Flash::set('error', 'Gagal memperbarui data siswa.');
