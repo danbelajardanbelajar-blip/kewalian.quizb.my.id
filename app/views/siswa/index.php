@@ -137,32 +137,37 @@
 </div>
 
 <script>
-// Search siswa
-document.getElementById('searchSiswa')?.addEventListener('input', function () {
-    const q = this.value.toLowerCase();
-    document.querySelectorAll('.siswa-item').forEach(item => {
-        const nama = item.querySelector('.siswa-nama').textContent.toLowerCase();
-        item.style.display = nama.includes(q) ? '' : 'none';
+document.addEventListener('DOMContentLoaded', function() {
+    // Search siswa
+    document.getElementById('searchSiswa')?.addEventListener('input', function () {
+        const q = this.value.toLowerCase();
+        document.querySelectorAll('.siswa-item').forEach(item => {
+            const nama = item.querySelector('.siswa-nama').textContent.toLowerCase();
+            item.style.display = nama.includes(q) ? '' : 'none';
+        });
     });
-});
 
-// Konfirmasi hapus siswa — pakai data-nama agar aman dari apostrof
-document.querySelectorAll('.form-hapus-siswa').forEach(form => {
-    form.addEventListener('submit', function (e) {
-        const nama = this.dataset.nama;
-        const pesan = 'Hapus siswa ' + nama + '?\nSiswa yang dihapus tidak akan muncul di form presensi.\nData laporan yang sudah ada tidak terpengaruh.';
-        if (!confirm(pesan)) e.preventDefault();
+    // Konfirmasi hapus siswa — pakai data-nama agar aman dari apostrof
+    document.querySelectorAll('.form-hapus-siswa').forEach(form => {
+        form.addEventListener('submit', function (e) {
+            const nama = this.dataset.nama;
+            const pesan = 'Hapus siswa ' + nama + '?\nSiswa yang dihapus tidak akan muncul di form presensi.\nData laporan yang sudah ada tidak terpengaruh.';
+            if (!confirm(pesan)) e.preventDefault();
+        });
     });
-});
 
-// Modal edit siswa
-const modalEdit = new bootstrap.Modal(document.getElementById('modalEditSiswa'));
-document.querySelectorAll('.btn-edit-siswa').forEach(btn => {
-    btn.addEventListener('click', function() {
-        document.getElementById('editId').value = this.dataset.id;
-        document.getElementById('editNama').value = this.dataset.nama;
-        document.getElementById('editNoHp').value = this.dataset.nohp;
-        modalEdit.show();
-    });
+    // Modal edit siswa
+    const modalEditEl = document.getElementById('modalEditSiswa');
+    if (modalEditEl) {
+        const modalEdit = new bootstrap.Modal(modalEditEl);
+        document.querySelectorAll('.btn-edit-siswa').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.getElementById('editId').value = this.dataset.id;
+                document.getElementById('editNama').value = this.dataset.nama;
+                document.getElementById('editNoHp').value = this.dataset.nohp;
+                modalEdit.show();
+            });
+        });
+    }
 });
 </script>
