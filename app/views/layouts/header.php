@@ -87,6 +87,12 @@ $pageTitle = $title ?? 'Dashboard Wali Kelas';
                         <i class="bi bi-people me-1"></i> Data Siswa
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/pertanyaan') !== false ? 'active' : '' ?>"
+                       href="<?= BASE_URL ?>/pertanyaan">
+                        <i class="bi bi-ui-checks me-1"></i> Pertanyaan
+                    </a>
+                </li>
             </ul>
 
             <!-- User Info + Logout -->

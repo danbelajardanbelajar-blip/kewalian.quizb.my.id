@@ -3,73 +3,88 @@ require_once APP_PATH . '/core/Model.php';
 
 /**
  * AbsenModel.php
- * Mengelola data absen mandiri siswa (MySQL)
+ * Mengelola data absen mandiri siswa secara dinamis.
  */
 class AbsenModel extends Model
 {
     /**
      * Ambil data absen berdasarkan tanggal
-     * Mengembalikan struktur array yang kompatibel dengan format lama:
-     * ['tanggal' => ..., 'siswa' => [ id => [ data absen... ] ]]
+     * Mengembalikan struktur array yang memuat list siswa beserta jawaban dinamisnya.
      */
     public function getByTanggal(string $tanggal, int $userId = null): array
     {
         $userId = $userId ?? Session::get('user_id');
         
+        // 1. Ambil header absen
         $this->db->query("
-            SELECT a.*, s.nama 
-            FROM absen a 
-            JOIN siswa s ON a.id_siswa = s.id 
-            WHERE a.tanggal = :tanggal AND s.user_id = :user_id
+            SELECT h.*, s.nama 
+            FROM absen_header h 
+            JOIN siswa s ON h.id_siswa = s.id 
+            WHERE h.tanggal = :tanggal AND s.user_id = :user_id
         ");
         $this->db->bind(':tanggal', $tanggal);
         $this->db->bind(':user_id', $userId);
-        $results = $this->db->resultSet();
+        $headers = $this->db->resultSet();
 
+        if (empty($headers)) {
+            return ['tanggal' => $tanggal, 'siswa' => []];
+        }
+
+        $headerIds = array_column($headers, 'id');
+        $inQuery = implode(',', array_fill(0, count($headerIds), '?'));
+
+        // 2. Ambil detail jawaban untuk header-header tersebut
+        $this->db->query("SELECT * FROM absen_detail WHERE id_absen IN ($inQuery)");
+        foreach ($headerIds as $k => $vid) {
+            $this->db->bind($k + 1, $vid); // array PDO bindings 1-indexed
+        }
+        $details = $this->db->resultSet();
+
+        // 3. Kelompokkan detail ke tiap siswa
         $data = [
             'tanggal' => $tanggal,
             'siswa'   => []
         ];
 
-        foreach ($results as $row) {
-            $id = $row['id_siswa'];
-            $data['siswa'][$id] = [
-                'id' => $id,
-                'nama' => $row['nama'],
-                'waktu_isi' => $row['waktu_isi'],
-                'sekolah' => ['status' => $row['sekolah_status'], 'ket' => $row['sekolah_ket']],
-                'almiftah' => ['status' => $row['almiftah_status'], 'ket' => $row['almiftah_ket']],
-                'diniyah' => ['status' => $row['diniyah_status'], 'ket' => $row['diniyah_ket']],
-                'subuh' => ['status' => $row['subuh_status'], 'ket' => $row['subuh_ket']],
-                'quran' => ['type' => $row['quran_type'], 'jumlah' => $row['quran_jumlah']],
-                'baca_buku' => ['status' => $row['baca_buku_status'], 'jumlah' => $row['baca_buku_jumlah']],
-                'dluha' => ['status' => $row['dluha_status']],
-                'belajar' => ['status' => $row['belajar_status']],
-                'memaafkan' => ['status' => $row['memaafkan_status']],
-                'mendoakan_muslimin' => ['status' => $row['mendoakan_muslimin_status']],
-                'mendoakan_ortu' => ['status' => $row['mendoakan_ortu_status']],
-                'shadaqah' => ['status' => $row['shadaqah_status']]
+        foreach ($headers as $h) {
+            $idSiswa = $h['id_siswa'];
+            $data['siswa'][$idSiswa] = [
+                'id' => $idSiswa,
+                'nama' => $h['nama'],
+                'waktu_isi' => $h['waktu_isi'],
+                'total_poin' => 0,
+                'jawaban' => [] // key: id_pertanyaan
             ];
+        }
+
+        foreach ($details as $d) {
+            // cari siapa yang punya id_absen ini
+            foreach ($headers as $h) {
+                if ($h['id'] == $d['id_absen']) {
+                    $idSiswa = $h['id_siswa'];
+                    $data['siswa'][$idSiswa]['jawaban'][$d['id_pertanyaan']] = [
+                        'jawaban' => $d['jawaban'],
+                        'keterangan' => $d['keterangan'],
+                        'poin' => $d['poin']
+                    ];
+                    $data['siswa'][$idSiswa]['total_poin'] += $d['poin'];
+                    break;
+                }
+            }
         }
 
         return $data;
     }
 
-    /**
-     * Ambil data absen satu siswa berdasarkan tanggal
-     */
     public function getSiswaByTanggal(string $tanggal, int $id, int $userId = null): array
     {
         $data = $this->getByTanggal($tanggal, $userId);
         return $data['siswa'][$id] ?? [];
     }
 
-    /**
-     * Cek apakah siswa sudah mengisi absen hari ini
-     */
     public function sudahIsi(string $tanggal, int $id): bool
     {
-        $this->db->query("SELECT id FROM absen WHERE id_siswa = :id_siswa AND tanggal = :tanggal");
+        $this->db->query("SELECT id FROM absen_header WHERE id_siswa = :id_siswa AND tanggal = :tanggal");
         $this->db->bind(':id_siswa', $id);
         $this->db->bind(':tanggal', $tanggal);
         $this->db->execute();
@@ -77,91 +92,83 @@ class AbsenModel extends Model
     }
 
     /**
-     * Simpan/update data absen satu siswa
+     * Menyimpan data dari form dinamis
+     * $jawabanArray format: [id_pertanyaan => ['jawaban' => '...', 'keterangan' => '...', 'poin' => 10]]
      */
-    public function simpanSiswa(string $tanggal, int $id, string $nama, array $dataSiswa): bool
+    public function simpanSiswa(string $tanggal, int $id, array $jawabanArray): bool
     {
         $waktu_isi = date('Y-m-d H:i:s');
         
-        $sql = "INSERT INTO absen (
-            id_siswa, tanggal, waktu_isi, 
-            sekolah_status, sekolah_ket, 
-            almiftah_status, almiftah_ket, 
-            diniyah_status, diniyah_ket, 
-            subuh_status, subuh_ket, 
-            quran_type, quran_jumlah, 
-            baca_buku_status, baca_buku_jumlah, 
-            dluha_status, belajar_status, 
-            memaafkan_status, mendoakan_muslimin_status, mendoakan_ortu_status, shadaqah_status
-        ) VALUES (
-            :id_siswa, :tanggal, :waktu_isi,
-            :sekolah_status, :sekolah_ket,
-            :almiftah_status, :almiftah_ket,
-            :diniyah_status, :diniyah_ket,
-            :subuh_status, :subuh_ket,
-            :quran_type, :quran_jumlah,
-            :baca_buku_status, :baca_buku_jumlah,
-            :dluha_status, :belajar_status,
-            :memaafkan_status, :mendoakan_muslimin_status, :mendoakan_ortu_status, :shadaqah_status
-        ) ON DUPLICATE KEY UPDATE
-            waktu_isi = VALUES(waktu_isi),
-            sekolah_status = VALUES(sekolah_status), sekolah_ket = VALUES(sekolah_ket),
-            almiftah_status = VALUES(almiftah_status), almiftah_ket = VALUES(almiftah_ket),
-            diniyah_status = VALUES(diniyah_status), diniyah_ket = VALUES(diniyah_ket),
-            subuh_status = VALUES(subuh_status), subuh_ket = VALUES(subuh_ket),
-            quran_type = VALUES(quran_type), quran_jumlah = VALUES(quran_jumlah),
-            baca_buku_status = VALUES(baca_buku_status), baca_buku_jumlah = VALUES(baca_buku_jumlah),
-            dluha_status = VALUES(dluha_status), belajar_status = VALUES(belajar_status),
-            memaafkan_status = VALUES(memaafkan_status), mendoakan_muslimin_status = VALUES(mendoakan_muslimin_status), 
-            mendoakan_ortu_status = VALUES(mendoakan_ortu_status), shadaqah_status = VALUES(shadaqah_status)";
-            
-        $this->db->query($sql);
-        $this->db->bind(':id_siswa', $id);
-        $this->db->bind(':tanggal', $tanggal);
-        $this->db->bind(':waktu_isi', $waktu_isi);
-        $this->db->bind(':sekolah_status', $dataSiswa['sekolah']['status'] ?? null);
-        $this->db->bind(':sekolah_ket', $dataSiswa['sekolah']['ket'] ?? null);
-        $this->db->bind(':almiftah_status', $dataSiswa['almiftah']['status'] ?? null);
-        $this->db->bind(':almiftah_ket', $dataSiswa['almiftah']['ket'] ?? null);
-        $this->db->bind(':diniyah_status', $dataSiswa['diniyah']['status'] ?? null);
-        $this->db->bind(':diniyah_ket', $dataSiswa['diniyah']['ket'] ?? null);
-        $this->db->bind(':subuh_status', $dataSiswa['subuh']['status'] ?? null);
-        $this->db->bind(':subuh_ket', $dataSiswa['subuh']['ket'] ?? null);
-        $this->db->bind(':quran_type', $dataSiswa['quran']['type'] ?? null);
-        $this->db->bind(':quran_jumlah', $dataSiswa['quran']['jumlah'] ?? 0);
-        $this->db->bind(':baca_buku_status', $dataSiswa['baca_buku']['status'] ?? null);
-        $this->db->bind(':baca_buku_jumlah', $dataSiswa['baca_buku']['jumlah'] ?? 0);
-        $this->db->bind(':dluha_status', $dataSiswa['dluha']['status'] ?? null);
-        $this->db->bind(':belajar_status', $dataSiswa['belajar']['status'] ?? null);
-        $this->db->bind(':memaafkan_status', $dataSiswa['memaafkan']['status'] ?? null);
-        $this->db->bind(':mendoakan_muslimin_status', $dataSiswa['mendoakan_muslimin']['status'] ?? null);
-        $this->db->bind(':mendoakan_ortu_status', $dataSiswa['mendoakan_ortu']['status'] ?? null);
-        $this->db->bind(':shadaqah_status', $dataSiswa['shadaqah']['status'] ?? null);
-        
-        return $this->db->execute();
+        try {
+            $this->db->beginTransaction();
+
+            // Insert atau Update Header
+            $this->db->query("SELECT id FROM absen_header WHERE id_siswa = :id_siswa AND tanggal = :tanggal");
+            $this->db->bind(':id_siswa', $id);
+            $this->db->bind(':tanggal', $tanggal);
+            $existing = $this->db->single();
+
+            $id_absen = null;
+            if ($existing) {
+                $id_absen = $existing['id'];
+                $this->db->query("UPDATE absen_header SET waktu_isi = :waktu_isi WHERE id = :id");
+                $this->db->bind(':waktu_isi', $waktu_isi);
+                $this->db->bind(':id', $id_absen);
+                $this->db->execute();
+            } else {
+                $this->db->query("INSERT INTO absen_header (id_siswa, tanggal, waktu_isi) VALUES (:id_siswa, :tanggal, :waktu_isi)");
+                $this->db->bind(':id_siswa', $id);
+                $this->db->bind(':tanggal', $tanggal);
+                $this->db->bind(':waktu_isi', $waktu_isi);
+                $this->db->execute();
+                $id_absen = $this->db->lastInsertId();
+            }
+
+            // Hapus detail lama jika ada
+            $this->db->query("DELETE FROM absen_detail WHERE id_absen = :id_absen");
+            $this->db->bind(':id_absen', $id_absen);
+            $this->db->execute();
+
+            // Insert detail baru
+            foreach ($jawabanArray as $id_pertanyaan => $ans) {
+                $this->db->query("INSERT INTO absen_detail (id_absen, id_pertanyaan, jawaban, keterangan, poin) 
+                                  VALUES (:id_absen, :id_pertanyaan, :jawaban, :keterangan, :poin)");
+                $this->db->bind(':id_absen', $id_absen);
+                $this->db->bind(':id_pertanyaan', $id_pertanyaan);
+                $this->db->bind(':jawaban', $ans['jawaban'] ?? '');
+                $this->db->bind(':keterangan', $ans['keterangan'] ?? null);
+                $this->db->bind(':poin', (int)($ans['poin'] ?? 0));
+                $this->db->execute();
+            }
+
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            error_log("Error saving absen dinamis: " . $e->getMessage());
+            return false;
+        }
     }
 
-    /**
-     * Ambil semua rekap absen (semua tanggal)
-     */
     public function getAllDates(int $userId = null): array
     {
         $userId = $userId ?? Session::get('user_id');
         
         $this->db->query("
-            SELECT a.tanggal, COUNT(a.id_siswa) as jumlah_isi, MAX(a.waktu_isi) as updated_at 
-            FROM absen a
-            JOIN siswa s ON a.id_siswa = s.id
+            SELECT h.tanggal, COUNT(h.id_siswa) as jumlah_isi, MAX(h.waktu_isi) as updated_at 
+            FROM absen_header h
+            JOIN siswa s ON h.id_siswa = s.id
             WHERE s.user_id = :user_id
-            GROUP BY a.tanggal 
-            ORDER BY a.tanggal DESC
+            GROUP BY h.tanggal 
+            ORDER BY h.tanggal DESC
         ");
         $this->db->bind(':user_id', $userId);
         return $this->db->resultSet();
     }
 
     /**
-     * Hitung statistik absen untuk satu tanggal
+     * getStatistik tidak lagi dihitung berdasarkan kolom hardcoded.
+     * Akan mengembalikan stats dasar, laporan per soal dilakukan di laporan.
      */
     public function getStatistik(string $tanggal, array $daftarSiswa, int $userId = null): array
     {
@@ -172,58 +179,29 @@ class AbsenModel extends Model
             'total'        => count($daftarSiswa),
             'sudah_isi'    => count($siswaData),
             'belum_isi'    => [],
-            'per_kategori' => [],
         ];
 
-        // Siswa belum isi
         foreach ($daftarSiswa as $s) {
             if (!isset($siswaData[$s['id']])) {
                 $stats['belum_isi'][] = $s['nama'];
             }
         }
 
-        // Statistik per kategori kehadiran
-        $kategoriAbsen = ['sekolah', 'almiftah', 'diniyah', 'subuh'];
-        foreach ($kategoriAbsen as $kat) {
-            $stats['per_kategori'][$kat] = ['hadir' => 0, 'absen' => 0, 'sakit' => 0, 'izin' => 0];
-            foreach ($siswaData as $s) {
-                $status = $s[$kat]['status'] ?? 'absen';
-                if (isset($stats['per_kategori'][$kat][$status])) {
-                    $stats['per_kategori'][$kat][$status]++;
-                }
-            }
-        }
-
         return $stats;
     }
 
-    /**
-     * Hapus data absen berdasarkan tanggal
-     */
     public function deleteTanggal(string $tanggal, int $userId = null): bool
     {
         $userId = $userId ?? Session::get('user_id');
         if (!$userId) return false;
         
-        // Hanya hapus absen yang id_siswa nya milik user_id ini
         $this->db->query("
-            DELETE a FROM absen a
-            JOIN siswa s ON a.id_siswa = s.id
-            WHERE a.tanggal = :tanggal AND s.user_id = :user_id
+            DELETE h FROM absen_header h
+            JOIN siswa s ON h.id_siswa = s.id
+            WHERE h.tanggal = :tanggal AND s.user_id = :user_id
         ");
         $this->db->bind(':tanggal', $tanggal);
         $this->db->bind(':user_id', $userId);
-        return $this->db->execute();
-    }
-
-    /**
-     * Hapus data absen satu siswa berdasarkan tanggal
-     */
-    public function deleteSiswa(string $tanggal, int $id): bool
-    {
-        $this->db->query("DELETE FROM absen WHERE tanggal = :tanggal AND id_siswa = :id_siswa");
-        $this->db->bind(':tanggal', $tanggal);
-        $this->db->bind(':id_siswa', $id);
         return $this->db->execute();
     }
 }

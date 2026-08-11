@@ -2,6 +2,7 @@
 require_once APP_PATH . '/core/Controller.php';
 require_once APP_PATH . '/models/LaporanModel.php';
 require_once APP_PATH . '/models/KonfigurasiModel.php';
+require_once APP_PATH . '/models/PertanyaanModel.php';
 
 /**
  * LaporanController.php
@@ -11,11 +12,13 @@ class LaporanController extends Controller
 {
     private LaporanModel     $laporanModel;
     private KonfigurasiModel $konfig;
+    private PertanyaanModel  $pertanyaanModel;
 
     public function __construct()
     {
         $this->laporanModel = new LaporanModel();
         $this->konfig       = new KonfigurasiModel();
+        $this->pertanyaanModel = new PertanyaanModel();
     }
 
     /**
@@ -24,8 +27,9 @@ class LaporanController extends Controller
     public function index(): void
     {
         $this->requireAuth();
+        $userId = Session::get('user_id');
 
-        $semua = $this->laporanModel->getAll();
+        $semua = $this->laporanModel->getAll($userId);
 
         $this->view('laporan/index', [
             'title'   => 'Riwayat Laporan Presensi',
@@ -34,113 +38,31 @@ class LaporanController extends Controller
     }
 
     /**
-     * POST /laporan/simpan — Simpan laporan baru / update
-     */
-    public function simpan(): void
-    {
-        $this->requireAuth();
-
-        if (!$this->isPost()) {
-            $this->redirect('dashboard');
-        }
-
-        $tanggal = trim($_POST['tanggal'] ?? '');
-
-        // Validasi tanggal
-        if (empty($tanggal) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggal)) {
-            Flash::set('error', 'Tanggal tidak valid.');
-            $this->redirect('dashboard');
-        }
-
-        $kategori = $this->konfig->getKategori();
-        $kelas    = $this->konfig->getKelas();
-        $rawData  = $_POST['data'] ?? [];
-        $siswa    = [];
-
-        foreach ($rawData as $idStr => $row) {
-            $namaRaw = $row['nama'] ?? '';
-            $id      = (int) $idStr;
-            if (empty($namaRaw) || $id <= 0) continue;
-
-            $entry = [
-                'id'   => $id,
-                'nama' => strip_tags(trim($namaRaw))
-            ];
-
-            // Parse detailed answers same as Absen format
-            foreach (['sekolah', 'almiftah', 'diniyah', 'subuh'] as $k) {
-                $status = $row[$k]['status'] ?? 'absen';
-                $ket    = ($status === 'izin') ? strip_tags($row[$k]['ket'] ?? '') : '';
-                $entry[$k] = ['status' => $status, 'ket' => $ket];
-            }
-
-            $quranType = $row['quran']['type'] ?? 'tidak';
-            $entry['quran'] = [
-                'type'   => $quranType,
-                'jumlah' => in_array($quranType, ['halaman', 'juz']) ? max(1, (int)($row['quran']['jumlah'] ?? 1)) : 0
-            ];
-
-            $entry['dluha']   = ['status' => $row['dluha']['status'] ?? 'tidak_ikut'];
-            $entry['belajar'] = ['status' => $row['belajar']['status'] ?? 'tidak'];
-
-            $bukuSudah = $row['baca_buku']['status'] ?? 'belum';
-            $entry['baca_buku'] = [
-                'status' => $bukuSudah,
-                'jumlah' => $bukuSudah === 'iya' ? max(1, (int)($row['baca_buku']['jumlah'] ?? 1)) : 0
-            ];
-
-            $siswa[$id] = $entry; // Use ID as key
-        }
-
-        if (empty($siswa)) {
-            Flash::set('error', 'Data siswa tidak boleh kosong.');
-            $this->redirect('dashboard?tanggal=' . $tanggal);
-        }
-
-        $isUpdate = $this->laporanModel->exists($tanggal);
-        $existing = $isUpdate ? $this->laporanModel->getByTanggal($tanggal) : [];
-
-        $saved = $this->laporanModel->save($tanggal, [
-            'kelas'      => $kelas,
-            'kategori'   => $kategori,
-            'siswa'      => $siswa,
-            'created_at' => $existing['created_at'] ?? date('Y-m-d H:i:s'),
-        ]);
-
-        if ($saved) {
-            $msg = $isUpdate
-                ? "Laporan tanggal {$tanggal} berhasil diperbarui."
-                : "Laporan tanggal {$tanggal} berhasil disimpan.";
-            Flash::set('success', $msg);
-            $this->redirect('laporan/lihat/' . $tanggal);
-        } else {
-            Flash::set('error', 'Gagal menyimpan laporan. Pastikan folder storage/laporan dapat ditulis.');
-            $this->redirect('dashboard?tanggal=' . $tanggal);
-        }
-    }
-
-    /**
      * GET /laporan/lihat/{tanggal} — Detail laporan
      */
     public function lihat(string $tanggal = ''): void
     {
         $this->requireAuth();
+        $userId = Session::get('user_id');
 
         if (empty($tanggal)) {
             $this->redirect('laporan');
         }
 
-        $data = $this->laporanModel->getByTanggal($tanggal);
+        $data = $this->laporanModel->getByTanggal($tanggal, $userId);
 
         if (empty($data)) {
             Flash::set('error', 'Laporan untuk tanggal ' . $tanggal . ' tidak ditemukan.');
             $this->redirect('laporan');
         }
 
+        $pertanyaan = $this->pertanyaanModel->getActive($userId);
+
         $this->view('laporan/show', [
-            'title'    => 'Detail Laporan — ' . date('d F Y', strtotime($tanggal)),
-            'laporan'  => $data,
-            'tanggal'  => $tanggal,
+            'title'      => 'Detail Laporan — ' . date('d F Y', strtotime($tanggal)),
+            'laporan'    => $data,
+            'tanggal'    => $tanggal,
+            'pertanyaan' => $pertanyaan
         ]);
     }
 
@@ -155,15 +77,8 @@ class LaporanController extends Controller
             $this->redirect('laporan');
         }
 
-        $data = $this->laporanModel->getByTanggal($tanggal);
-
-        if (empty($data)) {
-            Flash::set('error', 'Laporan tidak ditemukan.');
-            $this->redirect('laporan');
-        }
-
-        // Dashboard sekarang sudah menangani mode edit
-        $this->redirect('dashboard?tanggal=' . $tanggal);
+        // Dashboard/Rekap sekarang menangani mode edit secara implisit melalui form siswa individual
+        $this->redirect('absen/rekap?tanggal=' . $tanggal);
     }
 
     /**
@@ -172,12 +87,13 @@ class LaporanController extends Controller
     public function hapus(string $tanggal = ''): void
     {
         $this->requireAuth();
+        $userId = Session::get('user_id');
 
         if (empty($tanggal)) {
             $this->redirect('laporan');
         }
 
-        if ($this->laporanModel->delete($tanggal)) {
+        if ($this->laporanModel->delete($tanggal, $userId)) {
             Flash::set('success', 'Laporan tanggal ' . $tanggal . ' berhasil dihapus.');
         } else {
             Flash::set('error', 'Gagal menghapus laporan.');
@@ -187,34 +103,20 @@ class LaporanController extends Controller
     }
 
     /**
-     * GET /laporan/rekap — Rekap kehadiran per siswa
+     * GET /laporan/rekap — Rekap kehadiran/poin per siswa secara kumulatif
      */
     public function rekap(): void
     {
         $this->requireAuth();
+        $userId = Session::get('user_id');
 
-        $rekap    = $this->laporanModel->getRekapPerSiswa();
-        $kategori = [
-            'sekolah'  => 'Sekolah',
-            'almiftah' => 'Al-Miftah',
-            'diniyah'  => 'Diniyah',
-            'subuh'    => 'Ngaji Pagi',
-            'quran'    => 'Al-Qur\'an',
-            'dluha'    => 'Dluha',
-            'belajar'  => 'Belajar',
-            'baca_buku'=> 'Baca Buku',
-            'memaafkan'=> 'Memaafkan',
-            'mendoakan_muslimin'=> 'Doa Muslim',
-            'mendoakan_ortu' => 'Doa Ortu',
-            'shadaqah' => 'Membantu'
-        ];
-        $kelas    = $this->konfig->getKelas();
+        $rekap = $this->laporanModel->getRekapPerSiswa($userId);
+        $kelas = $this->konfig->getKelas($userId);
 
         $this->view('laporan/rekap', [
-            'title'    => 'Rekap Kehadiran — Kelas ' . $kelas,
-            'rekap'    => $rekap,
-            'kategori' => $kategori,
-            'kelas'    => $kelas,
+            'title' => 'Rekap Kumulatif — Kelas ' . $kelas,
+            'rekap' => $rekap,
+            'kelas' => $kelas,
         ]);
     }
 
@@ -224,47 +126,36 @@ class LaporanController extends Controller
     public function export(string $tanggal = ''): void
     {
         $this->requireAuth();
+        $userId = Session::get('user_id');
 
         if (empty($tanggal)) {
             $this->redirect('laporan');
         }
 
-        $data = $this->laporanModel->getByTanggal($tanggal);
+        $data = $this->laporanModel->getByTanggal($tanggal, $userId);
 
         if (empty($data)) {
             Flash::set('error', 'Laporan tidak ditemukan untuk diexport.');
             $this->redirect('laporan');
         }
 
+        $pertanyaan = $this->pertanyaanModel->getActive($userId);
+
         $filename = 'laporan_' . $tanggal . '.csv';
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename="' . $filename . '"');
 
         $output = fopen('php://output', 'w');
-
         // BOM untuk Excel
         fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
-        $kategori = [
-            'sekolah'  => 'Sekolah',
-            'almiftah' => 'Al-Miftah',
-            'diniyah'  => 'Diniyah',
-            'subuh'    => 'Ngaji Pagi'
-        ];
-
         // Header row
         $headers = ['No', 'Nama Siswa'];
-        foreach ($kategori as $label) {
-            $headers[] = $label;
+        foreach ($pertanyaan as $p) {
+            $headers[] = $p['judul'];
+            $headers[] = $p['judul'] . ' (Keterangan)';
         }
-        $headers[] = 'Al-Qur\'an';
-        $headers[] = 'Shalat Dluha';
-        $headers[] = 'Belajar Kamar';
-        $headers[] = 'Baca Buku';
-        $headers[] = 'Memaafkan';
-        $headers[] = 'Doa Muslim';
-        $headers[] = 'Doa Ortu';
-        $headers[] = 'Membantu';
+        $headers[] = 'Total Poin';
         
         fputcsv($output, $headers);
 
@@ -273,54 +164,19 @@ class LaporanController extends Controller
         foreach ($data['siswa'] ?? [] as $siswa) {
             $row = [$no++, $siswa['nama']];
             
-            // Kehadiran Dasar
-            foreach ($kategori as $key => $label) {
-                if (isset($siswa[$key])) {
-                    if (is_array($siswa[$key])) {
-                        $st = ucfirst($siswa[$key]['status'] ?? 'absen');
-                        if ($st === 'Izin' && !empty($siswa[$key]['ket'])) {
-                            $st .= ' (' . $siswa[$key]['ket'] . ')';
-                        }
-                        $row[] = $st;
-                    } else {
-                        $row[] = !empty($siswa[$key]) ? 'Hadir' : 'Tidak';
-                    }
+            foreach ($pertanyaan as $p) {
+                $pId = $p['id'];
+                $ans = $siswa['jawaban'][$pId] ?? null;
+                if ($ans) {
+                    $row[] = $ans['jawaban'];
+                    $row[] = $ans['keterangan'] ?? '';
                 } else {
+                    $row[] = '-';
                     $row[] = '-';
                 }
             }
 
-            // Al Quran
-            $q = $siswa['quran'] ?? [];
-            if (!empty($q)) {
-                if (($q['type'] ?? '') === 'setengah_juz') $row[] = 'Setengah Juz';
-                elseif (($q['type'] ?? '') === 'juz') $row[] = $q['jumlah'] . ' Juz';
-                elseif (($q['type'] ?? '') === 'halaman') $row[] = $q['jumlah'] . ' Halaman';
-                else $row[] = 'Belum';
-            } else {
-                $row[] = '-';
-            }
-
-            // Dluha & Belajar
-            $dl = $siswa['dluha']['status'] ?? '';
-            $row[] = $dl === 'ikut' ? 'Ikut' : ($dl === 'udzur_haid' ? 'Udzur' : 'Tidak');
-            
-            $bl = $siswa['belajar']['status'] ?? '';
-            $row[] = $bl === 'iya' ? 'Iya' : 'Tidak';
-
-            $bb = $siswa['baca_buku'] ?? [];
-            if (!empty($bb) && ($bb['status'] ?? '') === 'iya') {
-                $row[] = $bb['jumlah'] . ' Halaman';
-            } else {
-                $row[] = 'Belum';
-            }
-
-            // 4 Pertanyaan Tambahan
-            $row[] = ($siswa['memaafkan']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum';
-            $row[] = ($siswa['mendoakan_muslimin']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum';
-            $row[] = ($siswa['mendoakan_ortu']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum';
-            $row[] = ($siswa['shadaqah']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum';
-
+            $row[] = $siswa['total_poin'] ?? 0;
             fputcsv($output, $row);
         }
 

@@ -1,15 +1,14 @@
 <?php
 /**
- * laporan/rekap.php — Rekap Kehadiran Per Siswa
+ * laporan/rekap.php — Rekap Kumulatif Poin Per Siswa
  */
-$totalLaporan = count(array_unique(array_column(array_values($rekap), 'total_hari')));
 ?>
 <div class="page-header mb-4">
     <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
         <div>
             <h1 class="page-title">
                 <i class="bi bi-bar-chart-line me-2 text-info"></i>
-                Rekap Kehadiran Siswa
+                Rekap Akumulasi Poin Siswa
             </h1>
             <p class="page-subtitle">
                 Kelas <strong><?= htmlspecialchars($kelas) ?></strong> —
@@ -21,7 +20,7 @@ $totalLaporan = count(array_unique(array_column(array_values($rekap), 'total_har
                 <i class="bi bi-journal-text me-1"></i> Riwayat Laporan
             </a>
             <a href="<?= BASE_URL ?>" class="btn btn-primary-custom btn-sm">
-                <i class="bi bi-plus-circle me-1"></i> Input Presensi
+                <i class="bi bi-plus-circle me-1"></i> Dashboard
             </a>
         </div>
     </div>
@@ -32,8 +31,7 @@ $totalLaporan = count(array_unique(array_column(array_values($rekap), 'total_har
         <div class="card-body text-center py-5">
             <i class="bi bi-bar-chart display-4 text-muted d-block mb-3"></i>
             <h5 class="text-muted">Belum ada data rekap</h5>
-            <p class="text-muted small">Rekap akan muncul setelah minimal 1 laporan disimpan.</p>
-            <a href="<?= BASE_URL ?>" class="btn btn-primary-custom mt-2">Input Presensi Pertama</a>
+            <p class="text-muted small">Rekap akan muncul setelah minimal 1 absen disimpan.</p>
         </div>
     </div>
 <?php else: ?>
@@ -41,7 +39,7 @@ $totalLaporan = count(array_unique(array_column(array_values($rekap), 'total_har
         <div class="card-header-custom">
             <i class="bi bi-table me-2"></i>
             Rekap <strong><?= count($rekap) ?></strong> Siswa
-            <span class="text-muted small ms-2">— data diambil dari semua laporan tersimpan</span>
+            <span class="text-muted small ms-2">— akumulasi dari awal hingga saat ini</span>
         </div>
         <div class="table-responsive">
             <table class="table table-bordered table-hover align-middle mb-0">
@@ -49,53 +47,32 @@ $totalLaporan = count(array_unique(array_column(array_values($rekap), 'total_har
                     <tr>
                         <th class="text-center" width="5%">No</th>
                         <th>Nama Siswa</th>
-                        <?php foreach ($kategori as $label): ?>
-                            <th class="text-center"><?= htmlspecialchars($label) ?></th>
-                        <?php endforeach; ?>
-                        <th class="text-center">Total Hari</th>
-                        <th class="text-center">% Kehadiran</th>
+                        <th class="text-center">Total Hari Mengisi</th>
+                        <th class="text-center">Total Akumulasi Poin</th>
+                        <th class="text-center">Rata-rata Poin Harian</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php $no = 1; ?>
-                    <?php foreach ($rekap as $id => $data): ?>
+                    <?php 
+                    $no = 1; 
+                    // Sort descending by total poin
+                    usort($rekap, function($a, $b) {
+                        return $b['total_poin'] <=> $a['total_poin'];
+                    });
+                    ?>
+                    <?php foreach ($rekap as $data): ?>
                         <?php
                         $nama = $data['nama'] ?? '';
-                        $totalKat   = count($kategori);
-                        $totalHadir = 0;
-                        $totalMax   = $data['total_hari'] * $totalKat;
-                        foreach ($kategori as $key => $label) {
-                            $totalHadir += $data['kategori'][$key]['hadir'] ?? 0;
-                        }
-                        $pctTotal = $totalMax > 0 ? round(($totalHadir / $totalMax) * 100) : 0;
+                        $totalHari = $data['total_hari'];
+                        $totalPoin = $data['total_poin'];
+                        $rataRata = $totalHari > 0 ? round($totalPoin / $totalHari, 1) : 0;
                         ?>
                         <tr>
                             <td class="text-center text-muted"><?= $no++ ?></td>
                             <td class="fw-medium"><?= htmlspecialchars($nama) ?></td>
-                            <?php foreach ($kategori as $key => $label): ?>
-                                <?php
-                                $hadir = $data['kategori'][$key]['hadir'] ?? 0;
-                                $total = $data['total_hari'];
-                                $pct   = $total > 0 ? round(($hadir / $total) * 100) : 0;
-                                $cls   = $pct >= 80 ? 'text-success' : ($pct >= 60 ? 'text-warning' : 'text-danger');
-                                ?>
-                                <td class="text-center <?= $cls ?> fw-semibold">
-                                    <?= $hadir ?>/<?= $total ?>
-                                    <div class="small fw-normal"><?= $pct ?>%</div>
-                                </td>
-                            <?php endforeach; ?>
-                            <td class="text-center fw-semibold"><?= $data['total_hari'] ?> hari</td>
-                            <td class="text-center">
-                                <div class="d-flex align-items-center gap-2 justify-content-center">
-                                    <div class="progress flex-grow-1" style="height:8px; max-width:80px">
-                                        <div class="progress-bar <?= $pctTotal >= 80 ? 'bg-success' : ($pctTotal >= 60 ? 'bg-warning' : 'bg-danger') ?>"
-                                             style="width: <?= $pctTotal ?>%"></div>
-                                    </div>
-                                    <span class="fw-semibold <?= $pctTotal >= 80 ? 'text-success' : ($pctTotal >= 60 ? 'text-warning' : 'text-danger') ?>">
-                                        <?= $pctTotal ?>%
-                                    </span>
-                                </div>
-                            </td>
+                            <td class="text-center fw-semibold"><?= $totalHari ?> hari</td>
+                            <td class="text-center fw-bold text-success fs-5"><?= $totalPoin ?></td>
+                            <td class="text-center fw-semibold text-primary"><?= $rataRata ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>

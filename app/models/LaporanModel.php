@@ -3,64 +3,18 @@ require_once APP_PATH . '/core/Model.php';
 
 /**
  * LaporanModel.php
- * Mengelola data laporan harian presensi dari MySQL
+ * Mengelola data laporan presensi dinamis dari MySQL
  */
 class LaporanModel extends Model
 {
-    /**
-     * Ambil laporan berdasarkan tanggal (YYYY-MM-DD)
-     */
     public function getByTanggal(string $tanggal, int $userId = null): array
     {
         $userId = $userId ?? Session::get('user_id');
-        // Panggil AbsenModel untuk mengurangi duplikasi
         require_once APP_PATH . '/models/AbsenModel.php';
         $absenModel = new AbsenModel();
         return $absenModel->getByTanggal($tanggal, $userId);
     }
 
-    /**
-     * Simpan laporan baru atau update laporan yang sudah ada (dari dashboard admin)
-     */
-    public function save(string $tanggal, array $data): bool
-    {
-        // $data['siswa'] berisi array id_siswa => data_absen
-        if (!isset($data['siswa']) || empty($data['siswa'])) {
-            return false;
-        }
-
-        require_once APP_PATH . '/models/AbsenModel.php';
-        $absenModel = new AbsenModel();
-
-        $success = true;
-        foreach ($data['siswa'] as $id => $s) {
-            $nama = $s['nama'] ?? '';
-            // Pastikan data dalam format yang diharapkan oleh AbsenModel
-            $dataSiswa = [
-                'sekolah' => ['status' => $s['sekolah'], 'ket' => $s['sekolah_ket'] ?? ''],
-                'almiftah' => ['status' => $s['almiftah'], 'ket' => $s['almiftah_ket'] ?? ''],
-                'diniyah' => ['status' => $s['diniyah'], 'ket' => $s['diniyah_ket'] ?? ''],
-                'subuh' => ['status' => $s['subuh'], 'ket' => $s['subuh_ket'] ?? ''],
-                'quran' => ['type' => $s['quran_type'] ?? 'halaman', 'jumlah' => $s['quran_jumlah'] ?? 0],
-                'baca_buku' => ['status' => $s['baca_buku_status'] ?? 'belum', 'jumlah' => $s['baca_buku_jumlah'] ?? 0],
-                'dluha' => ['status' => $s['dluha'] ?? 'tidak_ikut'],
-                'belajar' => ['status' => $s['belajar'] ?? 'tidak'],
-                'memaafkan' => ['status' => $s['memaafkan'] ?? 'tidak'],
-                'mendoakan_muslimin' => ['status' => $s['mendoakan_muslimin'] ?? 'tidak'],
-                'mendoakan_ortu' => ['status' => $s['mendoakan_ortu'] ?? 'tidak'],
-                'shadaqah' => ['status' => $s['shadaqah'] ?? 'tidak']
-            ];
-
-            if (!$absenModel->simpanSiswa($tanggal, $id, $nama, $dataSiswa)) {
-                $success = false;
-            }
-        }
-        return $success;
-    }
-
-    /**
-     * Hapus laporan berdasarkan tanggal
-     */
     public function delete(string $tanggal, int $userId = null): bool
     {
         $userId = $userId ?? Session::get('user_id');
@@ -69,16 +23,13 @@ class LaporanModel extends Model
         return $absenModel->deleteTanggal($tanggal, $userId);
     }
 
-    /**
-     * Cek apakah laporan untuk tanggal tertentu sudah ada
-     */
     public function exists(string $tanggal, int $userId = null): bool
     {
         $userId = $userId ?? Session::get('user_id');
         $this->db->query("
-            SELECT a.id FROM absen a 
-            JOIN siswa s ON a.id_siswa = s.id 
-            WHERE a.tanggal = :tanggal AND s.user_id = :user_id LIMIT 1
+            SELECT h.id FROM absen_header h 
+            JOIN siswa s ON h.id_siswa = s.id 
+            WHERE h.tanggal = :tanggal AND s.user_id = :user_id LIMIT 1
         ");
         $this->db->bind(':tanggal', $tanggal);
         $this->db->bind(':user_id', $userId);
@@ -86,23 +37,18 @@ class LaporanModel extends Model
         return $this->db->rowCount() > 0;
     }
 
-    /**
-     * Ambil semua laporan yang tersedia (urut terbaru)
-     */
     public function getAll(int $userId = null): array
     {
         $userId = $userId ?? Session::get('user_id');
-        // Gunakan fungsi dari AbsenModel dan tambahkan data kelas/created_by
         $this->db->query("
-            SELECT a.tanggal, COUNT(a.id_siswa) as jumlah_siswa, MAX(a.waktu_isi) as updated_at 
-            FROM absen a
-            JOIN siswa s ON a.id_siswa = s.id
+            SELECT h.tanggal, COUNT(h.id_siswa) as jumlah_siswa, MAX(h.waktu_isi) as updated_at 
+            FROM absen_header h
+            JOIN siswa s ON h.id_siswa = s.id
             WHERE s.user_id = :user_id
-            GROUP BY a.tanggal 
-            ORDER BY a.tanggal DESC
+            GROUP BY h.tanggal 
+            ORDER BY h.tanggal DESC
         ");
         $this->db->bind(':user_id', $userId);
-        
         $laporan = $this->db->resultSet();
         
         require_once APP_PATH . '/models/KonfigurasiModel.php';
@@ -111,103 +57,81 @@ class LaporanModel extends Model
 
         foreach ($laporan as &$lap) {
             $lap['kelas'] = $kelas;
-            $lap['created_by'] = 'admin'; // Static for now, as we only have one admin
+            $lap['created_by'] = 'admin'; 
         }
         return $laporan;
     }
 
     /**
-     * Hitung rekap kehadiran per siswa dari semua laporan
+     * Hitung rekap kehadiran/poin per siswa dari semua laporan
      */
     public function getRekapPerSiswa(int $userId = null): array
     {
         $userId = $userId ?? Session::get('user_id');
+        
+        // Ambil semua header absen
         $this->db->query("
-            SELECT a.*, s.nama 
-            FROM absen a 
-            JOIN siswa s ON a.id_siswa = s.id 
+            SELECT h.*, s.nama 
+            FROM absen_header h 
+            JOIN siswa s ON h.id_siswa = s.id 
             WHERE s.user_id = :user_id
-            ORDER BY a.id_siswa ASC
+            ORDER BY h.id_siswa ASC
         ");
         $this->db->bind(':user_id', $userId);
-        $allAbsen = $this->db->resultSet();
+        $headers = $this->db->resultSet();
 
         $rekap = [];
-        $kategoriList = [
-            'sekolah', 'almiftah', 'diniyah', 'subuh',
-            'quran', 'dluha', 'belajar', 'baca_buku',
-            'memaafkan', 'mendoakan_muslimin', 'mendoakan_ortu', 'shadaqah'
-        ];
-        $kategoriLabel = [
-            'sekolah'  => 'Sekolah',
-            'almiftah' => 'Al-Miftah',
-            'diniyah'  => 'Diniyah',
-            'subuh'    => 'Ngaji Pagi',
-            'quran'    => 'Al-Qur\'an',
-            'dluha'    => 'Dluha',
-            'belajar'  => 'Belajar',
-            'baca_buku'=> 'Baca Buku',
-            'memaafkan'=> 'Memaafkan',
-            'mendoakan_muslimin'=> 'Doa Muslim',
-            'mendoakan_ortu' => 'Doa Ortu',
-            'shadaqah' => 'Membantu'
-        ];
+        if (empty($headers)) return $rekap;
+        
+        $headerIds = array_column($headers, 'id');
+        $inQuery = implode(',', array_fill(0, count($headerIds), '?'));
+        
+        // Ambil semua detail
+        $this->db->query("SELECT id_absen, id_pertanyaan, poin FROM absen_detail WHERE id_absen IN ($inQuery)");
+        foreach ($headerIds as $k => $vid) {
+            $this->db->bind($k + 1, $vid);
+        }
+        $details = $this->db->resultSet();
+        
+        // Group details by id_absen
+        $detByAbsen = [];
+        foreach ($details as $d) {
+            $detByAbsen[$d['id_absen']][] = $d;
+        }
 
-        foreach ($allAbsen as $absen) {
-            $id = $absen['id_siswa'];
+        // Susun rekap
+        foreach ($headers as $h) {
+            $id = $h['id_siswa'];
             if (!isset($rekap[$id])) {
                 $rekap[$id] = [
                     'id' => $id, 
-                    'nama' => $absen['nama'], 
-                    'total_hadir' => 0, 
-                    'total_hari' => 0, 
-                    'kategori' => []
+                    'nama' => $h['nama'], 
+                    'total_poin' => 0, 
+                    'total_hari' => 0
                 ];
-                foreach ($kategoriList as $k) {
-                    $rekap[$id]['kategori'][$k] = ['label' => $kategoriLabel[$k], 'hadir' => 0];
-                }
             }
 
             $rekap[$id]['total_hari']++;
-
-            foreach ($kategoriList as $k) {
-                $isHadir = false;
-                if (in_array($k, ['sekolah', 'almiftah', 'diniyah', 'subuh'])) {
-                    $statusField = $k . '_status';
-                    $isHadir = ($absen[$statusField] === 'hadir');
-                } elseif ($k === 'quran') {
-                    $isHadir = ($absen['quran_type'] !== 'tidak' && !empty($absen['quran_type']));
-                } elseif ($k === 'baca_buku') {
-                    $isHadir = ($absen['baca_buku_status'] === 'iya');
-                } elseif ($k === 'dluha') {
-                    $isHadir = ($absen['dluha_status'] === 'ikut' || $absen['dluha_status'] === 'udzur_haid');
-                } else {
-                    $statusField = $k . '_status';
-                    $isHadir = ($absen[$statusField] === 'iya');
-                }
-
-                if ($isHadir) {
-                    $rekap[$id]['kategori'][$k]['hadir']++;
-                    $rekap[$id]['total_hadir']++;
-                }
+            
+            // Hitung poin dari absen_detail
+            $absenDetails = $detByAbsen[$h['id']] ?? [];
+            foreach ($absenDetails as $d) {
+                $rekap[$id]['total_poin'] += $d['poin'];
             }
         }
 
         return $rekap;
     }
 
-    /**
-     * Ambil laporan dalam rentang tanggal tertentu
-     */
     public function getByRange(string $dari, string $sampai, int $userId = null): array
     {
         $userId = $userId ?? Session::get('user_id');
         $this->db->query("
-            SELECT DISTINCT a.tanggal 
-            FROM absen a
-            JOIN siswa s ON a.id_siswa = s.id
-            WHERE a.tanggal >= :dari AND a.tanggal <= :sampai AND s.user_id = :user_id
-            ORDER BY a.tanggal ASC
+            SELECT DISTINCT h.tanggal 
+            FROM absen_header h
+            JOIN siswa s ON h.id_siswa = s.id
+            WHERE h.tanggal >= :dari AND h.tanggal <= :sampai AND s.user_id = :user_id
+            ORDER BY h.tanggal ASC
         ");
         $this->db->bind(':dari', $dari);
         $this->db->bind(':sampai', $sampai);

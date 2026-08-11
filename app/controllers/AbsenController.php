@@ -2,6 +2,7 @@
 require_once APP_PATH . '/core/Controller.php';
 require_once APP_PATH . '/models/AbsenModel.php';
 require_once APP_PATH . '/models/KonfigurasiModel.php';
+require_once APP_PATH . '/models/PertanyaanModel.php';
 
 /**
  * AbsenController.php
@@ -12,11 +13,13 @@ class AbsenController extends Controller
 {
     private AbsenModel     $absenModel;
     private KonfigurasiModel $konfig;
+    private PertanyaanModel  $pertanyaanModel;
 
     public function __construct()
     {
         $this->absenModel = new AbsenModel();
         $this->konfig     = new KonfigurasiModel();
+        $this->pertanyaanModel = new PertanyaanModel();
     }
 
     /**
@@ -108,6 +111,9 @@ class AbsenController extends Controller
 
         // Ambil data existing jika sudah pernah isi
         $existing = $this->absenModel->getSiswaByTanggal($tanggal, $id, $userId);
+        
+        // Ambil daftar pertanyaan aktif untuk kelas ini
+        $pertanyaan = $this->pertanyaanModel->getActive($userId);
 
         $this->view('absen/form', [
             'title'    => 'Absen Harian — ' . htmlspecialchars($nama),
@@ -117,6 +123,7 @@ class AbsenController extends Controller
             'kelas'    => $kelas,
             'existing' => $existing,
             'isEdit'   => !empty($existing),
+            'pertanyaan' => $pertanyaan,
             'usernameWali' => $usernameWali
         ], false);
     }
@@ -161,8 +168,39 @@ class AbsenController extends Controller
             $this->redirect('absen?wali=' . urlencode($usernameWali));
         }
 
-        // Bangun data absen
-        $data = $this->buildAbsenData($_POST);
+        // Bangun data absen dinamis
+        $pertanyaanAktif = $this->pertanyaanModel->getActive($userId);
+        $data = [];
+        
+        $postJawaban = $_POST['jawaban'] ?? [];
+        $postKet = $_POST['keterangan'] ?? [];
+
+        foreach ($pertanyaanAktif as $p) {
+            $pId = $p['id'];
+            $ans = $postJawaban[$pId] ?? '';
+            $ket = $postKet[$pId] ?? '';
+            $poin_didapat = 0;
+            
+            $opsi = json_decode($p['opsi'], true);
+            if ($p['tipe'] === 'pilihan_ganda') {
+                foreach ($opsi as $op) {
+                    if ($op['value'] === $ans) {
+                        $poin_didapat = (int)$op['poin'];
+                        break;
+                    }
+                }
+            } else if ($p['tipe'] === 'angka') {
+                $nilaiAngka = (float)$ans;
+                $poin_per_angka = (float)($opsi['poin_per_angka'] ?? 1);
+                $poin_didapat = (int)($nilaiAngka * $poin_per_angka);
+            }
+            
+            $data[$pId] = [
+                'jawaban' => $ans,
+                'keterangan' => $ket,
+                'poin' => $poin_didapat
+            ];
+        }
 
         $isEdit = $this->absenModel->sudahIsi($tanggal, $id);
 
@@ -209,13 +247,15 @@ class AbsenController extends Controller
     {
         $this->requireAuth();
 
+        $userId = Session::get('user_id');
         $tanggal = $_GET['tanggal'] ?? date('Y-m-d');
-        $siswa   = $this->konfig->getSiswa();
-        $kelas   = $this->konfig->getKelas();
+        $siswa   = $this->konfig->getSiswa($userId);
+        $kelas   = $this->konfig->getKelas($userId);
 
-        $dataTanggal = $this->absenModel->getByTanggal($tanggal);
-        $statistik   = $this->absenModel->getStatistik($tanggal, $siswa);
-        $allDates    = $this->absenModel->getAllDates();
+        $dataTanggal = $this->absenModel->getByTanggal($tanggal, $userId);
+        $statistik   = $this->absenModel->getStatistik($tanggal, $siswa, $userId);
+        $allDates    = $this->absenModel->getAllDates($userId);
+        $pertanyaan  = $this->pertanyaanModel->getActive($userId);
 
         $this->view('absen/rekap', [
             'title'       => 'Rekap Absen Mandiri — ' . date('d F Y', strtotime($tanggal)),
@@ -225,58 +265,13 @@ class AbsenController extends Controller
             'siswa'       => $siswa,
             'statistik'   => $statistik,
             'allDates'    => $allDates,
+            'pertanyaan'  => $pertanyaan,
         ]);
     }
 
     /**
-     * Bangun array data absen dari POST
+     * DELETE LAMA buildAbsenData
      */
-    private function buildAbsenData(array $post): array
-    {
-        // Kategori dengan status hadir/absen/sakit/izin
-        $kategoriAbsen = ['sekolah', 'almiftah', 'diniyah', 'subuh'];
-        $data = [];
-
-        foreach ($kategoriAbsen as $kat) {
-            $status = $post[$kat] ?? 'absen';
-            $ket    = '';
-            if ($status === 'izin') {
-                $ket = strip_tags(trim($post[$kat . '_ket'] ?? ''));
-            }
-            $data[$kat] = ['status' => $status, 'ket' => $ket];
-        }
-
-        // Baca Al-Qur'an
-        $quranType   = $post['quran_type'] ?? 'halaman';
-        $quranJumlah = (int) ($post['quran_jumlah'] ?? 0);
-        $data['quran'] = [
-            'type'   => $quranType,
-            'jumlah' => $quranJumlah,
-        ];
-
-        // Baca Buku
-        $bukuSudah  = $post['buku_sudah'] ?? 'belum';
-        $bukuJumlah = (int) ($post['buku_jumlah'] ?? 0);
-        if ($bukuSudah === 'belum') $bukuJumlah = 0;
-        $data['baca_buku'] = [
-            'status' => $bukuSudah,
-            'jumlah' => $bukuJumlah,
-        ];
-
-        // Shalat Dluha
-        $data['dluha'] = ['status' => $post['dluha'] ?? 'tidak_ikut'];
-
-        // Belajar di kamar
-        $data['belajar'] = ['status' => $post['belajar'] ?? 'tidak'];
-
-        // Tambahan 4 pertanyaan baru (Memaafkan, Doakan Muslimin, Doakan Ortu, Shadaqah)
-        $data['memaafkan'] = ['status' => $post['memaafkan'] ?? 'tidak'];
-        $data['mendoakan_muslimin'] = ['status' => $post['mendoakan_muslimin'] ?? 'tidak'];
-        $data['mendoakan_ortu'] = ['status' => $post['mendoakan_ortu'] ?? 'tidak'];
-        $data['shadaqah'] = ['status' => $post['shadaqah'] ?? 'tidak'];
-
-        return $data;
-    }
 
     /**
      * POST /absen/hapus — Hapus data absen satu hari penuh

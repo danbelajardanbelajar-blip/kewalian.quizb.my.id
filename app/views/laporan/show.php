@@ -8,27 +8,13 @@ $kelas         = $laporan['kelas'] ?? '';
 $updatedAt     = $laporan['updated_at'] ?? '';
 $createdBy     = $laporan['created_by'] ?? '-';
 
-$labelStatus = [
-    'hadir'       => '<span class="badge bg-success">Hadir</span>',
-    'absen'       => '<span class="badge bg-danger">Absen</span>',
-    'sakit'       => '<span class="badge bg-warning text-dark">Sakit</span>',
-    'izin'        => '<span class="badge bg-info text-dark">Izin</span>',
-    'ikut'        => '<span class="badge bg-success">Ikut</span>',
-    'udzur_haid'  => '<span class="badge bg-warning text-dark">Udzur</span>',
-    'tidak_ikut'  => '<span class="badge bg-danger">Tidak</span>',
-    'iya'         => '<span class="badge bg-success">Iya</span>',
-    'tidak'       => '<span class="badge bg-danger">Belum</span>',
-];
-
-// Hitung statistik (sederhana)
-$totalHadir = 0;
+// Hitung persentase pengisi
 $totalSiswa = count($siswaData);
+$totalPoin = 0;
 foreach ($siswaData as $s) {
-    if (($s['sekolah']['status'] ?? '') === 'hadir') {
-        $totalHadir++;
-    }
+    $totalPoin += ($s['total_poin'] ?? 0);
 }
-$pct = $totalSiswa > 0 ? round(($totalHadir / $totalSiswa) * 100) : 0;
+$avgPoin = $totalSiswa > 0 ? round($totalPoin / $totalSiswa) : 0;
 ?>
 
 <div class="page-header mb-4">
@@ -53,7 +39,7 @@ $pct = $totalSiswa > 0 ? round(($totalHadir / $totalSiswa) * 100) : 0;
                class="btn btn-outline-success btn-sm">
                 <i class="bi bi-file-earmark-excel me-1"></i> Export CSV
             </a>
-            <a href="<?= BASE_URL ?>/?tanggal=<?= $tanggal ?>"
+            <a href="<?= BASE_URL ?>/laporan/edit/<?= $tanggal ?>"
                class="btn btn-outline-warning btn-sm">
                 <i class="bi bi-pencil me-1"></i> Edit Laporan
             </a>
@@ -67,13 +53,9 @@ $pct = $totalSiswa > 0 ? round(($totalHadir / $totalSiswa) * 100) : 0;
 <div class="row g-3 mb-4">
     <div class="col-12 col-md-4">
         <div class="stat-card text-center">
-            <div class="stat-card-label">Kehadiran Sekolah</div>
-            <div class="stat-card-value text-success"><?= $totalHadir ?> / <?= $totalSiswa ?></div>
-            <div class="progress stat-progress mt-2" title="<?= $pct ?>% hadir">
-                <div class="progress-bar <?= $pct >= 80 ? 'bg-success' : ($pct >= 60 ? 'bg-warning' : 'bg-danger') ?>"
-                     style="width: <?= $pct ?>%"></div>
-            </div>
-            <div class="stat-card-pct"><?= $pct ?>% hadir</div>
+            <div class="stat-card-label">Rata-rata Poin</div>
+            <div class="stat-card-value text-primary"><?= $avgPoin ?></div>
+            <div class="stat-card-pct">Poin per Siswa</div>
         </div>
     </div>
 </div>
@@ -98,17 +80,10 @@ $pct = $totalSiswa > 0 ? round(($totalHadir / $totalSiswa) * 100) : 0;
                 <tr>
                     <th class="text-center" width="4%">No</th>
                     <th style="min-width:180px">Nama Siswa</th>
-                    <th class="text-center">🏫 Sekolah</th>
-                    <th class="text-center">📖 Al-Miftah</th>
-                    <th class="text-center">🌙 Diniyah</th>
-                    <th class="text-center">🌅 Ngaji Pagi</th>
-                    <th class="text-center" style="min-width:120px">📿 Al-Qur'an</th>
-                    <th class="text-center">🕌 Dluha</th>
-                    <th class="text-center">📚 Belajar</th>
-                    <th class="text-center">💖 Memaafkan</th>
-                    <th class="text-center">🤲 Doa Muslim</th>
-                    <th class="text-center">👨‍👩‍👦 Doa Ortu</th>
-                    <th class="text-center">🤝 Membantu</th>
+                    <?php foreach ($pertanyaan as $p): ?>
+                        <th class="text-center" style="min-width:100px"><?= htmlspecialchars($p['judul']) ?></th>
+                    <?php endforeach; ?>
+                    <th class="text-center">Total Poin</th>
                 </tr>
             </thead>
             <tbody>
@@ -116,39 +91,54 @@ $pct = $totalSiswa > 0 ? round(($totalHadir / $totalSiswa) * 100) : 0;
                     <tr>
                         <td class="text-center text-muted"><?= $no++ ?></td>
                         <td class="fw-medium"><?= htmlspecialchars($s['nama']) ?></td>
-
-                        <?php foreach (['sekolah','almiftah','diniyah','subuh'] as $kat): ?>
+                        <?php foreach ($pertanyaan as $p): 
+                            $pId = $p['id'];
+                            $ans = $s['jawaban'][$pId] ?? null;
+                            $dispLabel = '-';
+                            $badgeClass = 'bg-secondary';
+                            
+                            if ($ans) {
+                                $val = $ans['jawaban'];
+                                $ket = $ans['keterangan'];
+                                $poin = $ans['poin'];
+                                
+                                if ($p['tipe'] === 'pilihan_ganda') {
+                                    $opsi = json_decode($p['opsi'], true);
+                                    foreach ($opsi as $op) {
+                                        if ($op['value'] === $val) {
+                                            $dispLabel = $op['label'];
+                                            $badgeClass = ($op['poin'] > 0) ? 'bg-success' : 'bg-danger';
+                                            if (!empty($ket)) {
+                                                $dispLabel .= " ($ket)";
+                                                if ($op['poin'] == 0) $badgeClass = 'bg-warning text-dark';
+                                            }
+                                            break;
+                                        }
+                                    }
+                                } else {
+                                    $opsi = json_decode($p['opsi'], true);
+                                    $sat = $opsi['satuan'] ?? '';
+                                    $dispLabel = $val . ' ' . $sat;
+                                    if (!empty($ket)) {
+                                        $dispLabel .= " ($ket)";
+                                    }
+                                    $badgeClass = ($val > 0) ? 'bg-primary' : 'bg-danger';
+                                }
+                            }
+                        ?>
                             <td class="text-center">
-                                <?= $labelStatus[$s[$kat]['status'] ?? 'absen'] ?? '-' ?>
-                                <?php if (!empty($s[$kat]['ket'])): ?>
-                                    <div class="text-muted" style="font-size:.7rem;max-width:100px">
-                                        <?= htmlspecialchars($s[$kat]['ket']) ?>
-                                    </div>
+                                <span class="badge <?= $badgeClass ?> text-wrap" style="line-height:1.2">
+                                    <?= htmlspecialchars($dispLabel) ?>
+                                </span>
+                                <?php if ($ans && $ans['poin'] > 0): ?>
+                                    <div class="text-success mt-1" style="font-size: 0.7rem;">+<?= $ans['poin'] ?></div>
                                 <?php endif; ?>
                             </td>
                         <?php endforeach; ?>
-
-                        <td class="text-center">
-                            <?php $q = $s['quran'] ?? []; ?>
-                            <?php if (!empty($q)): ?>
-                                <?php if ($q['type'] === 'setengah_juz'): ?>
-                                    <span class="badge bg-info text-dark">½ Juz</span>
-                                <?php elseif ($q['type'] === 'juz'): ?>
-                                    <span class="badge bg-success"><?= $q['jumlah'] ?> Juz</span>
-                                <?php elseif ($q['type'] === 'halaman'): ?>
-                                    <span class="badge bg-primary"><?= $q['jumlah'] ?> Hal</span>
-                                <?php else: ?>
-                                    <span class="badge bg-danger">Belum</span>
-                                <?php endif; ?>
-                            <?php else: ?>-<?php endif; ?>
+                        
+                        <td class="text-center fw-bold text-primary">
+                            <?= $s['total_poin'] ?? 0 ?>
                         </td>
-
-                        <td class="text-center"><?= $labelStatus[$s['dluha']['status'] ?? 'tidak_ikut'] ?? '-' ?></td>
-                        <td class="text-center"><?= $labelStatus[$s['belajar']['status'] ?? 'tidak'] ?? '-' ?></td>
-                        <td class="text-center"><?= $labelStatus[$s['memaafkan']['status'] ?? 'tidak'] ?? '-' ?></td>
-                        <td class="text-center"><?= $labelStatus[$s['mendoakan_muslimin']['status'] ?? 'tidak'] ?? '-' ?></td>
-                        <td class="text-center"><?= $labelStatus[$s['mendoakan_ortu']['status'] ?? 'tidak'] ?? '-' ?></td>
-                        <td class="text-center"><?= $labelStatus[$s['shadaqah']['status'] ?? 'tidak'] ?? '-' ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
