@@ -241,23 +241,34 @@ $labelKat  = [
                                     if (strtolower($s['mendoakan_ortu']['status'] ?? '') === 'iya') $sudahAmalan[] = 'mendoakan orang tua'; else $belumAmalan[] = 'mendoakan orang tua';
                                     if (strtolower($s['shadaqah']['status'] ?? '') === 'iya') $sudahAmalan[] = 'membantu teman'; else $belumAmalan[] = 'membantu teman';
 
-                                    $pesanWa = "Salam Ayah/Ibu. Ini kulo, ananda *" . trim($namaSiswa) . "*.\n";
+                                    // Fungsi helper untuk menggabungkan array dengan "dan"
+                                    $joinWithDan = function($items) {
+                                        $count = count($items);
+                                        if ($count === 0) return '';
+                                        if ($count === 1) return $items[0];
+                                        if ($count === 2) return $items[0] . ' dan ' . $items[1];
+                                        $last = array_pop($items);
+                                        return implode(', ', $items) . ', dan ' . $last;
+                                    };
+
+                                    $namaSiswaProper = ucwords(strtolower(trim($namaSiswa)));
+                                    $pesanWa = "Salam Ayah/Ibu. Ini kulo, ananda *" . $namaSiswaProper . "*.\n";
                                     $pesanWa .= "Semoga Ayah dan Ibu sekeluarga senantiasa sehat dan dijaga oleh Allah.\n\n";
 
                                     if (!empty($hadirKegiatan)) {
-                                        $pesanWa .= "Alhamdulillah Ayah/Ibu. Kemarin saya hadir pada kegiatan: " . implode(", ", $hadirKegiatan) . ".\n";
+                                        $pesanWa .= "Alhamdulillah Ayah/Ibu. Kemarin saya hadir pada kegiatan: " . $joinWithDan($hadirKegiatan) . ".\n";
                                     }
                                     if (!empty($sudahAmalan)) {
-                                        $pesanWa .= "Alhamdulillah, saya tadi malam juga sudah " . implode(", ", $sudahAmalan) . ".\n";
+                                        $pesanWa .= "Alhamdulillah, saya tadi malam juga sudah " . $joinWithDan($sudahAmalan) . ".\n";
                                     }
 
                                     if (!empty($absenKegiatan) || !empty($belumAmalan)) {
                                         $pesanWa .= "\n";
                                         if (!empty($absenKegiatan)) {
-                                            $pesanWa .= "Mohon doanya Bapak/Ibu agar saya bisa hadir/melaksanakan: " . implode(", ", $absenKegiatan) . ".\n";
+                                            $pesanWa .= "Mohon doanya Bapak/Ibu agar saya bisa hadir/melaksanakan: " . $joinWithDan($absenKegiatan) . ".\n";
                                         }
                                         if (!empty($belumAmalan)) {
-                                            $pesanWa .= "Mohon doanya pula agar hari ini saya bisa " . implode(", ", $belumAmalan) . ".\n";
+                                            $pesanWa .= "Mohon doanya pula agar hari ini saya bisa " . $joinWithDan($belumAmalan) . ".\n";
                                         }
                                     }
 
