@@ -54,10 +54,10 @@
     ?>
 
     <div class="selesai-actions">
-        <a href="<?= BASE_URL ?>/absen?tanggal=<?= $tanggal ?>" class="btn-selesai-kembali">
+        <a href="<?= BASE_URL ?>/absen?tanggal=<?= $tanggal ?>&wali=<?= urlencode($usernameWali) ?>" class="btn-selesai-kembali">
             <i class="bi bi-arrow-left me-2"></i> Kembali ke Daftar
         </a>
-        <a href="<?= BASE_URL ?>/absen/isi/<?= rawurlencode($nama) ?>?tanggal=<?= $tanggal ?>"
+        <a href="<?= BASE_URL ?>/absen/isi/<?= $id ?>?tanggal=<?= $tanggal ?>&wali=<?= urlencode($usernameWali) ?>"
            class="btn-selesai-edit">
             <i class="bi bi-pencil me-2"></i> Edit Jawabanku
         </a>

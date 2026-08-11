@@ -58,6 +58,46 @@ class AuthController extends Controller
     }
 
     /**
+     * GET /auth/daftar — Tampilkan halaman registrasi
+     */
+    public function daftar(): void
+    {
+        if ($this->authModel->isLoggedIn()) {
+            $this->redirect('dashboard');
+        }
+
+        $this->view('auth/daftar', ['title' => 'Daftar — Dashboard Wali Kelas'], false);
+    }
+
+    /**
+     * POST /auth/register — Proses pendaftaran wali kelas baru
+     */
+    public function register(): void
+    {
+        if (!$this->isPost()) {
+            $this->redirect('auth/daftar');
+        }
+
+        $username = trim($_POST['username'] ?? '');
+        $password = $_POST['password'] ?? '';
+        $nama_lengkap = trim($_POST['nama_lengkap'] ?? '');
+        $kelas = trim($_POST['kelas'] ?? '');
+
+        if (empty($username) || empty($password) || empty($nama_lengkap) || empty($kelas)) {
+            Flash::set('error', 'Semua field wajib diisi.');
+            $this->redirect('auth/daftar');
+        }
+
+        if ($this->authModel->register($username, $password, $nama_lengkap, $kelas)) {
+            Flash::set('success', 'Pendaftaran berhasil! Silakan login.');
+            $this->redirect('auth/login');
+        } else {
+            Flash::set('error', 'Username sudah terdaftar atau terjadi kesalahan. Silakan coba lagi.');
+            $this->redirect('auth/daftar');
+        }
+    }
+
+    /**
      * GET /auth/logout — Logout
      */
     public function logout(): void

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Login Dashboard Wali Kelas — Sistem Manajemen Presensi Santri">
-    <title><?= htmlspecialchars($title ?? 'Login') ?></title>
+    <meta name="description" content="Daftar Wali Kelas — Sistem Manajemen Presensi Santri">
+    <title><?= htmlspecialchars($title ?? 'Daftar Wali Kelas') ?></title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -33,37 +33,55 @@
     <?= Flash::render() ?>
 </div>
 
-<div class="login-wrapper d-flex align-items-center justify-content-center min-vh-100">
+<div class="login-wrapper d-flex align-items-center justify-content-center min-vh-100 py-5">
     <div class="login-card">
         <!-- Logo / Brand -->
         <div class="login-header text-center mb-4">
             <div class="login-icon mb-3">
-                <i class="bi bi-mortarboard-fill"></i>
+                <i class="bi bi-person-plus-fill"></i>
             </div>
-            <h1 class="login-title">Dashboard Wali Kelas</h1>
+            <h1 class="login-title">Daftar Wali Kelas</h1>
             <p class="login-subtitle">Sistem Manajemen Presensi Harian Santri</p>
         </div>
 
-        <!-- Form Login -->
-        <form action="<?= BASE_URL ?>/auth/proses" method="POST" id="loginForm" autocomplete="off" novalidate>
+        <!-- Form Daftar -->
+        <form action="<?= BASE_URL ?>/auth/register" method="POST" id="daftarForm" autocomplete="off" novalidate>
 
-            <div class="mb-4">
-                <label for="username" class="form-label fw-semibold">
-                    <i class="bi bi-person me-1"></i> Username
+            <div class="mb-3">
+                <label for="nama_lengkap" class="form-label fw-semibold">
+                    <i class="bi bi-person-badge me-1"></i> Nama Lengkap
                 </label>
-                <div class="input-group input-group-lg">
-                    <span class="input-group-text bg-transparent">
-                        <i class="bi bi-person-fill text-muted"></i>
-                    </span>
-                    <input type="text"
-                           class="form-control border-start-0"
-                           id="username"
-                           name="username"
-                           placeholder="Masukkan username"
-                           required
-                           autofocus
-                           autocomplete="username">
-                </div>
+                <input type="text"
+                       class="form-control form-control-lg"
+                       id="nama_lengkap"
+                       name="nama_lengkap"
+                       placeholder="Contoh: Ust. Ahmad, S.Pd"
+                       required
+                       autofocus>
+            </div>
+
+            <div class="mb-3">
+                <label for="kelas" class="form-label fw-semibold">
+                    <i class="bi bi-house-door me-1"></i> Nama Kelas
+                </label>
+                <input type="text"
+                       class="form-control form-control-lg"
+                       id="kelas"
+                       name="kelas"
+                       placeholder="Contoh: Kelas 7A"
+                       required>
+            </div>
+
+            <div class="mb-3">
+                <label for="username" class="form-label fw-semibold">
+                    <i class="bi bi-person me-1"></i> Username Login
+                </label>
+                <input type="text"
+                       class="form-control form-control-lg"
+                       id="username"
+                       name="username"
+                       placeholder="Buat username tanpa spasi"
+                       required>
             </div>
 
             <div class="mb-4">
@@ -71,17 +89,13 @@
                     <i class="bi bi-lock me-1"></i> Password
                 </label>
                 <div class="input-group input-group-lg">
-                    <span class="input-group-text bg-transparent">
-                        <i class="bi bi-lock-fill text-muted"></i>
-                    </span>
                     <input type="password"
-                           class="form-control border-start-0 border-end-0"
+                           class="form-control border-end-0"
                            id="password"
                            name="password"
-                           placeholder="Masukkan password"
-                           required
-                           autocomplete="current-password">
-                    <button class="input-group-text bg-transparent border-start-0"
+                           placeholder="Buat password yang kuat"
+                           required>
+                    <button class="input-group-text bg-white"
                             type="button"
                             id="togglePassword"
                             title="Tampilkan/Sembunyikan Password">
@@ -91,22 +105,18 @@
             </div>
 
             <div class="d-grid mt-4">
-                <button type="submit" class="btn btn-login btn-lg" id="loginBtn">
-                    <i class="bi bi-box-arrow-in-right me-2"></i>
-                    Masuk
+                <button type="submit" class="btn btn-primary-custom btn-lg" id="daftarBtn">
+                    <i class="bi bi-person-check-fill me-2"></i>
+                    Daftar Sekarang
                 </button>
             </div>
         </form>
 
-        <div class="login-footer text-center mt-4 border-top pt-3">
-            <p class="mb-2 text-muted">
-                Belum punya akun? 
-                <a href="<?= BASE_URL ?>/auth/daftar" class="text-decoration-none fw-semibold">Daftar di sini</a>
+        <div class="login-footer text-center mt-4 pt-3 border-top">
+            <p class="mb-0 text-muted">
+                Sudah punya akun? 
+                <a href="<?= BASE_URL ?>/auth/login" class="text-decoration-none fw-semibold">Login di sini</a>
             </p>
-            <small class="text-muted">
-                <i class="bi bi-shield-check me-1"></i>
-                Akses terbatas untuk Wali Kelas
-            </small>
         </div>
     </div>
 </div>
@@ -124,11 +134,13 @@
         icon.className = isHidden ? 'bi bi-eye-slash-fill text-muted' : 'bi bi-eye-fill text-muted';
     });
 
-    // Login button loading state
-    document.getElementById('loginForm').addEventListener('submit', function () {
-        const btn = document.getElementById('loginBtn');
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Memverifikasi...';
-        btn.disabled = true;
+    // Button loading state
+    document.getElementById('daftarForm').addEventListener('submit', function (e) {
+        if(this.checkValidity()) {
+            const btn = document.getElementById('daftarBtn');
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Memproses...';
+            btn.disabled = true;
+        }
     });
 </script>
 </body>

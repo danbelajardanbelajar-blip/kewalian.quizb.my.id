@@ -12,15 +12,18 @@ class AbsenModel extends Model
      * Mengembalikan struktur array yang kompatibel dengan format lama:
      * ['tanggal' => ..., 'siswa' => [ id => [ data absen... ] ]]
      */
-    public function getByTanggal(string $tanggal): array
+    public function getByTanggal(string $tanggal, int $userId = null): array
     {
+        $userId = $userId ?? Session::get('user_id');
+        
         $this->db->query("
             SELECT a.*, s.nama 
             FROM absen a 
             JOIN siswa s ON a.id_siswa = s.id 
-            WHERE a.tanggal = :tanggal
+            WHERE a.tanggal = :tanggal AND s.user_id = :user_id
         ");
         $this->db->bind(':tanggal', $tanggal);
+        $this->db->bind(':user_id', $userId);
         $results = $this->db->resultSet();
 
         $data = [
@@ -55,9 +58,9 @@ class AbsenModel extends Model
     /**
      * Ambil data absen satu siswa berdasarkan tanggal
      */
-    public function getSiswaByTanggal(string $tanggal, int $id): array
+    public function getSiswaByTanggal(string $tanggal, int $id, int $userId = null): array
     {
-        $data = $this->getByTanggal($tanggal);
+        $data = $this->getByTanggal($tanggal, $userId);
         return $data['siswa'][$id] ?? [];
     }
 
@@ -141,23 +144,28 @@ class AbsenModel extends Model
     /**
      * Ambil semua rekap absen (semua tanggal)
      */
-    public function getAllDates(): array
+    public function getAllDates(int $userId = null): array
     {
+        $userId = $userId ?? Session::get('user_id');
+        
         $this->db->query("
-            SELECT tanggal, COUNT(id_siswa) as jumlah_isi, MAX(waktu_isi) as updated_at 
-            FROM absen 
-            GROUP BY tanggal 
-            ORDER BY tanggal DESC
+            SELECT a.tanggal, COUNT(a.id_siswa) as jumlah_isi, MAX(a.waktu_isi) as updated_at 
+            FROM absen a
+            JOIN siswa s ON a.id_siswa = s.id
+            WHERE s.user_id = :user_id
+            GROUP BY a.tanggal 
+            ORDER BY a.tanggal DESC
         ");
+        $this->db->bind(':user_id', $userId);
         return $this->db->resultSet();
     }
 
     /**
      * Hitung statistik absen untuk satu tanggal
      */
-    public function getStatistik(string $tanggal, array $daftarSiswa): array
+    public function getStatistik(string $tanggal, array $daftarSiswa, int $userId = null): array
     {
-        $data = $this->getByTanggal($tanggal);
+        $data = $this->getByTanggal($tanggal, $userId);
         $siswaData = $data['siswa'] ?? [];
 
         $stats = [
@@ -192,10 +200,19 @@ class AbsenModel extends Model
     /**
      * Hapus data absen berdasarkan tanggal
      */
-    public function deleteTanggal(string $tanggal): bool
+    public function deleteTanggal(string $tanggal, int $userId = null): bool
     {
-        $this->db->query("DELETE FROM absen WHERE tanggal = :tanggal");
+        $userId = $userId ?? Session::get('user_id');
+        if (!$userId) return false;
+        
+        // Hanya hapus absen yang id_siswa nya milik user_id ini
+        $this->db->query("
+            DELETE a FROM absen a
+            JOIN siswa s ON a.id_siswa = s.id
+            WHERE a.tanggal = :tanggal AND s.user_id = :user_id
+        ");
         $this->db->bind(':tanggal', $tanggal);
+        $this->db->bind(':user_id', $userId);
         return $this->db->execute();
     }
 

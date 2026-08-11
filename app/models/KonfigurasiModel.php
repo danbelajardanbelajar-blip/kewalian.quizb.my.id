@@ -10,11 +10,15 @@ class KonfigurasiModel extends Model
     /**
      * Ambil nama kelas
      */
-    public function getKelas(): string
+    public function getKelas(int $userId = null): string
     {
-        $this->db->query("SELECT key_value FROM pengaturan WHERE key_name = 'kelas'");
+        $userId = $userId ?? Session::get('user_id');
+        if (!$userId) return 'Tidak Diketahui';
+        
+        $this->db->query("SELECT kelas FROM users WHERE id = :id");
+        $this->db->bind(':id', $userId);
         $result = $this->db->single();
-        return $result ? $result['key_value'] : 'Tidak Diketahui';
+        return $result ? $result['kelas'] : 'Tidak Diketahui';
     }
 
     /**
@@ -33,9 +37,13 @@ class KonfigurasiModel extends Model
     /**
      * Ambil daftar siswa
      */
-    public function getSiswa(): array
+    public function getSiswa(int $userId = null): array
     {
-        $this->db->query("SELECT * FROM siswa ORDER BY id ASC");
+        $userId = $userId ?? Session::get('user_id');
+        if (!$userId) return [];
+        
+        $this->db->query("SELECT * FROM siswa WHERE user_id = :user_id ORDER BY id ASC");
+        $this->db->bind(':user_id', $userId);
         return $this->db->resultSet();
     }
 
@@ -56,17 +64,21 @@ class KonfigurasiModel extends Model
     /**
      * Simpan daftar siswa (sinkronisasi)
      */
-    public function saveSiswa(array $siswa): bool
+    public function saveSiswa(array $siswa, int $userId = null): bool
     {
-        // Cara simpel: hapus semua data lama, masukkan data baru
-        // Pada MySQL, ini bisa dilakukan dalam transaksi
+        $userId = $userId ?? Session::get('user_id');
+        if (!$userId) return false;
+        
         try {
-            $this->db->query("TRUNCATE TABLE siswa");
+            // Hapus hanya siswa milik user ini
+            $this->db->query("DELETE FROM siswa WHERE user_id = :user_id");
+            $this->db->bind(':user_id', $userId);
             $this->db->execute();
 
             foreach ($siswa as $s) {
-                $this->db->query("INSERT INTO siswa (id, nama, no_hp, alamat, foto) VALUES (:id, :nama, :no_hp, :alamat, :foto)");
+                $this->db->query("INSERT INTO siswa (id, user_id, nama, no_hp, alamat, foto) VALUES (:id, :user_id, :nama, :no_hp, :alamat, :foto)");
                 $this->db->bind(':id', $s['id']);
+                $this->db->bind(':user_id', $userId);
                 $this->db->bind(':nama', $s['nama']);
                 $this->db->bind(':no_hp', $s['no_hp'] ?? '');
                 $this->db->bind(':alamat', $s['alamat'] ?? null);
@@ -84,22 +96,14 @@ class KonfigurasiModel extends Model
      */
     public function updatePassword(string $newPassword): bool
     {
+        $userId = Session::get('user_id');
+        if (!$userId) return false;
+        
         $hash = password_hash($newPassword, PASSWORD_BCRYPT);
         
-        $this->db->query("SELECT id FROM users LIMIT 1");
-        $user = $this->db->single();
-        
-        if ($user) {
-            $this->db->query("UPDATE users SET password = :password WHERE id = :id");
-            $this->db->bind(':password', $hash);
-            $this->db->bind(':id', $user['id']);
-            return $this->db->execute();
-        } else {
-            // Jika belum ada user, buat baru
-            $this->db->query("INSERT INTO users (username, password) VALUES (:username, :password)");
-            $this->db->bind(':username', 'admin');
-            $this->db->bind(':password', $hash);
-            return $this->db->execute();
-        }
+        $this->db->query("UPDATE users SET password = :password WHERE id = :id");
+        $this->db->bind(':password', $hash);
+        $this->db->bind(':id', $userId);
+        return $this->db->execute();
     }
 }

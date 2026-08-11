@@ -159,7 +159,7 @@ $totalStep = count($pertanyaan);
 
 <!-- Progress bar atas -->
 <div class="wizard-topbar">
-    <a href="<?= BASE_URL ?>/absen?tanggal=<?= $tanggal ?>" class="wizard-back-btn">
+    <a href="<?= BASE_URL ?>/absen?tanggal=<?= $tanggal ?>&wali=<?= urlencode($usernameWali) ?>" class="wizard-back-btn">
         <i class="bi bi-arrow-left"></i>
     </a>
     <div class="wizard-progress-wrap flex-grow-1">
@@ -187,6 +187,7 @@ $totalStep = count($pertanyaan);
     <input type="hidden" name="id" value="<?= $id ?>">
     <input type="hidden" name="nama" value="<?= htmlspecialchars($nama) ?>">
     <input type="hidden" name="tanggal" value="<?= htmlspecialchars($tanggal) ?>">
+    <input type="hidden" name="usernameWali" value="<?= htmlspecialchars($usernameWali) ?>">
 
     <div class="wizard-container" id="wizardContainer">
 

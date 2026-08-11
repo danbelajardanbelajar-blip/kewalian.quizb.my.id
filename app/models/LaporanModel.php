@@ -10,12 +10,13 @@ class LaporanModel extends Model
     /**
      * Ambil laporan berdasarkan tanggal (YYYY-MM-DD)
      */
-    public function getByTanggal(string $tanggal): array
+    public function getByTanggal(string $tanggal, int $userId = null): array
     {
+        $userId = $userId ?? Session::get('user_id');
         // Panggil AbsenModel untuk mengurangi duplikasi
         require_once APP_PATH . '/models/AbsenModel.php';
         $absenModel = new AbsenModel();
-        return $absenModel->getByTanggal($tanggal);
+        return $absenModel->getByTanggal($tanggal, $userId);
     }
 
     /**
@@ -60,20 +61,27 @@ class LaporanModel extends Model
     /**
      * Hapus laporan berdasarkan tanggal
      */
-    public function delete(string $tanggal): bool
+    public function delete(string $tanggal, int $userId = null): bool
     {
+        $userId = $userId ?? Session::get('user_id');
         require_once APP_PATH . '/models/AbsenModel.php';
         $absenModel = new AbsenModel();
-        return $absenModel->deleteTanggal($tanggal);
+        return $absenModel->deleteTanggal($tanggal, $userId);
     }
 
     /**
      * Cek apakah laporan untuk tanggal tertentu sudah ada
      */
-    public function exists(string $tanggal): bool
+    public function exists(string $tanggal, int $userId = null): bool
     {
-        $this->db->query("SELECT id FROM absen WHERE tanggal = :tanggal LIMIT 1");
+        $userId = $userId ?? Session::get('user_id');
+        $this->db->query("
+            SELECT a.id FROM absen a 
+            JOIN siswa s ON a.id_siswa = s.id 
+            WHERE a.tanggal = :tanggal AND s.user_id = :user_id LIMIT 1
+        ");
         $this->db->bind(':tanggal', $tanggal);
+        $this->db->bind(':user_id', $userId);
         $this->db->execute();
         return $this->db->rowCount() > 0;
     }
@@ -81,21 +89,25 @@ class LaporanModel extends Model
     /**
      * Ambil semua laporan yang tersedia (urut terbaru)
      */
-    public function getAll(): array
+    public function getAll(int $userId = null): array
     {
+        $userId = $userId ?? Session::get('user_id');
         // Gunakan fungsi dari AbsenModel dan tambahkan data kelas/created_by
         $this->db->query("
-            SELECT tanggal, COUNT(id_siswa) as jumlah_siswa, MAX(waktu_isi) as updated_at 
-            FROM absen 
-            GROUP BY tanggal 
-            ORDER BY tanggal DESC
+            SELECT a.tanggal, COUNT(a.id_siswa) as jumlah_siswa, MAX(a.waktu_isi) as updated_at 
+            FROM absen a
+            JOIN siswa s ON a.id_siswa = s.id
+            WHERE s.user_id = :user_id
+            GROUP BY a.tanggal 
+            ORDER BY a.tanggal DESC
         ");
+        $this->db->bind(':user_id', $userId);
         
         $laporan = $this->db->resultSet();
         
         require_once APP_PATH . '/models/KonfigurasiModel.php';
         $konfig = new KonfigurasiModel();
-        $kelas = $konfig->getKelas();
+        $kelas = $konfig->getKelas($userId);
 
         foreach ($laporan as &$lap) {
             $lap['kelas'] = $kelas;
@@ -107,14 +119,17 @@ class LaporanModel extends Model
     /**
      * Hitung rekap kehadiran per siswa dari semua laporan
      */
-    public function getRekapPerSiswa(): array
+    public function getRekapPerSiswa(int $userId = null): array
     {
+        $userId = $userId ?? Session::get('user_id');
         $this->db->query("
             SELECT a.*, s.nama 
             FROM absen a 
             JOIN siswa s ON a.id_siswa = s.id 
+            WHERE s.user_id = :user_id
             ORDER BY a.id_siswa ASC
         ");
+        $this->db->bind(':user_id', $userId);
         $allAbsen = $this->db->resultSet();
 
         $rekap = [];
@@ -184,11 +199,19 @@ class LaporanModel extends Model
     /**
      * Ambil laporan dalam rentang tanggal tertentu
      */
-    public function getByRange(string $dari, string $sampai): array
+    public function getByRange(string $dari, string $sampai, int $userId = null): array
     {
-        $this->db->query("SELECT DISTINCT tanggal FROM absen WHERE tanggal >= :dari AND tanggal <= :sampai ORDER BY tanggal ASC");
+        $userId = $userId ?? Session::get('user_id');
+        $this->db->query("
+            SELECT DISTINCT a.tanggal 
+            FROM absen a
+            JOIN siswa s ON a.id_siswa = s.id
+            WHERE a.tanggal >= :dari AND a.tanggal <= :sampai AND s.user_id = :user_id
+            ORDER BY a.tanggal ASC
+        ");
         $this->db->bind(':dari', $dari);
         $this->db->bind(':sampai', $sampai);
+        $this->db->bind(':user_id', $userId);
         $tanggals = $this->db->resultSet();
 
         $laporan = [];
@@ -197,7 +220,7 @@ class LaporanModel extends Model
         
         foreach ($tanggals as $row) {
             $tgl = $row['tanggal'];
-            $data = $absenModel->getByTanggal($tgl);
+            $data = $absenModel->getByTanggal($tgl, $userId);
             if (!empty($data)) {
                 $laporan[$tgl] = $data;
             }
