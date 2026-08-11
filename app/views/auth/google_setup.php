@@ -5,7 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($title ?? 'Lengkapi Profil') ?></title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon"           href="<?= BASE_URL ?>/public/img/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= BASE_URL ?>/public/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="<?= BASE_URL ?>/public/img/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180"    href="<?= BASE_URL ?>/public/img/apple-touch-icon.png">
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">

@@ -11,7 +11,11 @@ $pageTitle = $title ?? 'Dashboard Wali Kelas';
     <title><?= htmlspecialchars($pageTitle) ?></title>
 
     <!-- Favicon -->
-    <link rel="icon" href="<?= BASE_URL ?>/public/img/favicon.svg" type="image/svg+xml">
+    <link rel="icon" type="image/x-icon"        href="<?= BASE_URL ?>/public/img/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= BASE_URL ?>/public/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="<?= BASE_URL ?>/public/img/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180"    href="<?= BASE_URL ?>/public/img/apple-touch-icon.png">
+    <link rel="manifest" href="<?= BASE_URL ?>/public/site.webmanifest">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
