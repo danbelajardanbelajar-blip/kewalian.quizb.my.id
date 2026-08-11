@@ -85,7 +85,7 @@ class AdminModel extends Model
     // Get kunjungan per day for last N days (for chart)
     public function getKunjunganPerDay(int $days = 7): array
     {
-        $this->db->query("SELECT DATE(created_at) as date, COUNT(*) as count FROM kunjungan WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL :days DAY) GROUP BY DATE(created_at) ORDER BY date ASC");
+        $this->db->query("SELECT DATE(created_at) as tanggal, COUNT(*) as jumlah FROM kunjungan WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL :days DAY) GROUP BY DATE(created_at) ORDER BY tanggal ASC");
         $this->db->bind(':days', $days);
         return $this->db->resultSet();
     }
