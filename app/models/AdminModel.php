@@ -110,7 +110,7 @@ class AdminModel extends Model
     // Get kunjungan per halaman (page URL stats)
     public function getKunjunganPerHalaman(): array
     {
-        $this->db->query("SELECT halaman, COUNT(*) as count FROM kunjungan GROUP BY halaman ORDER BY count DESC LIMIT 10");
+        $this->db->query("SELECT halaman, COUNT(*) as jumlah FROM kunjungan GROUP BY halaman ORDER BY jumlah DESC LIMIT 10");
         return $this->db->resultSet();
     }
 
