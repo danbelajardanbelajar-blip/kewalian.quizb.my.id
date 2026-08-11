@@ -149,12 +149,26 @@ class PertanyaanModel extends Model
                 ]
             ],
             [
+                'judul' => 'Membaca Al-Qur\'an',
+                'tipe' => 'ganda_dan_angka',
+                'opsi' => [
+                    'pilihan' => [
+                        ['label' => 'Iya', 'value' => 'iya', 'poin' => 0, 'require_ket' => false, 'require_angka' => true],
+                        ['label' => 'Belum', 'value' => 'belum', 'poin' => 0, 'require_ket' => false, 'require_angka' => false]
+                    ],
+                    'angka' => [
+                        'poin_per_angka' => 2,
+                        'satuan' => 'Halaman'
+                    ]
+                ]
+            ],
+            [
                 'judul' => 'Shalat Dluha',
                 'tipe' => 'pilihan_ganda',
                 'opsi' => [
                     ['label' => 'Ikut', 'value' => 'ikut', 'poin' => 10, 'require_ket' => false],
-                    ['label' => 'Udzur Haid', 'value' => 'udzur haid', 'poin' => 10, 'require_ket' => false],
-                    ['label' => 'Tidak Ikut', 'value' => 'tidak ikut', 'poin' => 0, 'require_ket' => false]
+                    ['label' => 'Udzur Haid', 'value' => 'udzur_haid', 'poin' => 10, 'require_ket' => false],
+                    ['label' => 'Tidak Ikut', 'value' => 'tidak_ikut', 'poin' => 0, 'require_ket' => false]
                 ]
             ],
             [
@@ -163,6 +177,52 @@ class PertanyaanModel extends Model
                 'opsi' => [
                     ['label' => 'Iya', 'value' => 'iya', 'poin' => 10, 'require_ket' => false],
                     ['label' => 'Tidak', 'value' => 'tidak', 'poin' => 0, 'require_ket' => false]
+                ]
+            ],
+            [
+                'judul' => 'Membaca Buku',
+                'tipe' => 'ganda_dan_angka',
+                'opsi' => [
+                    'pilihan' => [
+                        ['label' => 'Iya', 'value' => 'iya', 'poin' => 0, 'require_ket' => false, 'require_angka' => true],
+                        ['label' => 'Belum', 'value' => 'belum', 'poin' => 0, 'require_ket' => false, 'require_angka' => false]
+                    ],
+                    'angka' => [
+                        'poin_per_angka' => 1,
+                        'satuan' => 'Halaman'
+                    ]
+                ]
+            ],
+            [
+                'judul' => 'Memaafkan Semua Teman',
+                'tipe' => 'pilihan_ganda',
+                'opsi' => [
+                    ['label' => 'Iya', 'value' => 'iya', 'poin' => 5, 'require_ket' => false],
+                    ['label' => 'Belum', 'value' => 'belum', 'poin' => 0, 'require_ket' => false]
+                ]
+            ],
+            [
+                'judul' => 'Mendoakan Sesama Muslim',
+                'tipe' => 'pilihan_ganda',
+                'opsi' => [
+                    ['label' => 'Iya', 'value' => 'iya', 'poin' => 5, 'require_ket' => false],
+                    ['label' => 'Belum', 'value' => 'belum', 'poin' => 0, 'require_ket' => false]
+                ]
+            ],
+            [
+                'judul' => 'Mendoakan Orang Tua',
+                'tipe' => 'pilihan_ganda',
+                'opsi' => [
+                    ['label' => 'Iya', 'value' => 'iya', 'poin' => 5, 'require_ket' => false],
+                    ['label' => 'Belum', 'value' => 'belum', 'poin' => 0, 'require_ket' => false]
+                ]
+            ],
+            [
+                'judul' => 'Shadaqah / Membantu Teman',
+                'tipe' => 'pilihan_ganda',
+                'opsi' => [
+                    ['label' => 'Iya', 'value' => 'iya', 'poin' => 5, 'require_ket' => false],
+                    ['label' => 'Belum', 'value' => 'belum', 'poin' => 0, 'require_ket' => false]
                 ]
             ]
         ];
