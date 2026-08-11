@@ -216,10 +216,10 @@ $labelKat  = [
                                     $formatAbsenLabel = function($nama, $data) {
                                         $status = strtolower($data['status'] ?? '');
                                         if ($status === 'izin') {
-                                            $ket = $data['keterangan'] ?? '';
+                                            $ket = $data['ket'] ?? '';
                                             return $ket ? "$nama (karena saya kemarin izin \"$ket\")" : "$nama (karena saya kemarin izin)";
                                         } elseif ($status === 'sakit') {
-                                            $ket = $data['keterangan'] ?? '';
+                                            $ket = $data['ket'] ?? '';
                                             return $ket ? "$nama (karena saya kemarin sakit \"$ket\")" : "$nama (karena saya kemarin sakit)";
                                         }
                                         return $nama;
