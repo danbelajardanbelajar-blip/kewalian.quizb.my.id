@@ -199,11 +199,11 @@ $labelKat  = [
                                 <?php
                                 $noHp = $sObj['no_hp'] ?? '';
                                 if (!empty($noHp)) {
-                                    $pesanWa = "*LAPORAN KEGIATAN HARIAN SANTRI*\n";
-                                    $pesanWa .= "Nama: *" . $namaSiswa . "*\n";
-                                    $pesanWa .= "Tanggal: *" . date('d F Y', strtotime($tanggal)) . "*\n\n";
+                                    $pesanWa = "Assalamu'alaikum wr. wb. Ayah/Bunda,\n\n";
+                                    $pesanWa .= "Semoga Ayah dan Bunda senantiasa dalam keadaan sehat, dirahmati Allah, dan dimudahkan segala urusannya.\n\n";
+                                    $pesanWa .= "Bersama pesan ini, kami ingin menyampaikan perkembangan aktivitas harian ananda tercinta, *" . $namaSiswa . "*, pada tanggal *" . date('d F Y', strtotime($tanggal)) . "*.\n\n";
                                     
-                                    $pesanWa .= "Berikut adalah ringkasan laporan kegiatan ananda:\n";
+                                    $pesanWa .= "Berikut adalah ringkasan laporannya:\n";
                                     $pesanWa .= "🏫 Sekolah: *" . ucfirst($s['sekolah']['status'] ?? 'absen') . "*\n";
                                     $pesanWa .= "📖 Al-Miftah: *" . ucfirst($s['almiftah']['status'] ?? 'absen') . "*\n";
                                     $pesanWa .= "🌙 Diniyah: *" . ucfirst($s['diniyah']['status'] ?? 'absen') . "*\n";
@@ -224,13 +224,14 @@ $labelKat  = [
                                     $bl = $s['belajar']['status'] ?? '';
                                     $pesanWa .= "📚 Belajar di Kamar: *" . ($bl === 'iya' ? 'Iya' : 'Tidak') . "*\n\n";
                                     
-                                    $pesanWa .= "Pertanyaan Tambahan:\n";
-                                    $pesanWa .= "- Memaafkan: *" . (($s['memaafkan']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum') . "*\n";
+                                    $pesanWa .= "Amalan & Kebaikan Hari Ini:\n";
+                                    $pesanWa .= "- Memaafkan Sesama: *" . (($s['memaafkan']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum') . "*\n";
                                     $pesanWa .= "- Doa untuk Muslimin: *" . (($s['mendoakan_muslimin']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum') . "*\n";
                                     $pesanWa .= "- Doa untuk Orang Tua: *" . (($s['mendoakan_ortu']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum') . "*\n";
-                                    $pesanWa .= "- Sedekah: *" . (($s['shadaqah']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum') . "*\n\n";
+                                    $pesanWa .= "- Bersedekah: *" . (($s['shadaqah']['status'] ?? '') === 'iya' ? 'Iya' : 'Belum') . "*\n\n";
                                     
-                                    $pesanWa .= "Demikian laporan harian ananda. Terima kasih atas perhatian dan dukungannya.\n";
+                                    $pesanWa .= "Terima kasih banyak atas kepercayaan, bimbingan, dan dukungan penuh dari Ayah/Bunda.\n\n";
+                                    $pesanWa .= "Semoga ananda *" . $namaSiswa . "* senantiasa dijaga oleh Allah, dimudahkan dalam menuntut ilmu, dan kelak menjadi anak yang salih/salihah, berakhlak mulia, serta menjadi kebanggaan dan penyejuk hati keluarga. Aamiin Ya Rabbal 'Alamin 🤲\n\n";
                                     $pesanWa .= "Wassalamu'alaikum wr. wb.";
                                     
                                     $linkWa = "https://wa.me/" . urlencode($noHp) . "?text=" . urlencode($pesanWa);
