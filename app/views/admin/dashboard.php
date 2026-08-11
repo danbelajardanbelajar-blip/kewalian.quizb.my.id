@@ -70,8 +70,15 @@ require_once APP_PATH . '/views/admin/layout_admin.php';
                 <div class="card-header bg-white border-0 pt-4 pb-0">
                     <h5 class="mb-0">Kunjungan 7 Hari Terakhir</h5>
                 </div>
-                <div class="card-body">
-                    <canvas id="kunjunganChart" height="250"></canvas>
+                <div class="card-body" style="position: relative; height: 260px;">
+                    <?php if (!empty($chartData)): ?>
+                        <canvas id="kunjunganChart" style="max-height:220px;"></canvas>
+                    <?php else: ?>
+                        <div class="d-flex flex-column align-items-center justify-content-center h-100 text-muted">
+                            <i class="bi bi-bar-chart-line fs-1 mb-2 opacity-25"></i>
+                            <p class="mb-0">Belum ada data kunjungan dalam 7 hari terakhir.</p>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -121,55 +128,44 @@ require_once APP_PATH . '/views/admin/layout_admin.php';
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const chartData = <?= json_encode($chartData ?? []) ?>;
-    
-    if(chartData && chartData.length > 0) {
-        const labels = chartData.map(item => item.tanggal);
-        const data = chartData.map(item => item.jumlah);
-        
-        const ctx = document.getElementById('kunjunganChart').getContext('2d');
-        
-        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-        gradient.addColorStop(0, 'rgba(33, 37, 41, 0.5)'); // dark gradient
-        gradient.addColorStop(1, 'rgba(33, 37, 41, 0)');
+    const canvas    = document.getElementById('kunjunganChart');
+    if (!canvas || !chartData || chartData.length === 0) return;
 
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Jumlah Kunjungan',
-                    data: data,
-                    backgroundColor: gradient,
-                    borderColor: '#212529', // dark border
-                    borderWidth: 2,
-                    pointBackgroundColor: '#212529',
-                    pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: '#212529',
-                    fill: true,
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: { display: false, drawBorder: false }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: 'rgba(0, 0, 0, 0.05)', drawBorder: false }
-                    }
-                }
+    const labels = chartData.map(item => item.tanggal);
+    const data   = chartData.map(item => item.jumlah);
+    const ctx    = canvas.getContext('2d');
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+    gradient.addColorStop(0, 'rgba(13, 110, 253, 0.35)');
+    gradient.addColorStop(1, 'rgba(13, 110, 253, 0)');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Jumlah Kunjungan',
+                data: data,
+                backgroundColor: gradient,
+                borderColor: '#0d6efd',
+                borderWidth: 2.5,
+                pointBackgroundColor: '#0d6efd',
+                pointBorderColor: '#fff',
+                pointRadius: 4,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false } },
+                y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { precision: 0 } }
             }
-        });
-    }
+        }
+    });
 });
 </script>
 
