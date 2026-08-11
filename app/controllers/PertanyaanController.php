@@ -16,21 +16,19 @@ class PertanyaanController extends Controller
         $userId = Session::get('user_id');
         $pertanyaan = $this->pertanyaanModel->getAll($userId);
 
-        $this->view('templates/header', ['title' => 'Manajemen Pertanyaan Absen']);
         $this->view('pertanyaan/index', [
+            'title' => 'Manajemen Pertanyaan Absen',
             'pertanyaan' => $pertanyaan
         ]);
-        $this->view('templates/footer');
     }
 
     public function tambah()
     {
-        $this->view('templates/header', ['title' => 'Tambah Pertanyaan']);
         $this->view('pertanyaan/form', [
+            'title' => 'Tambah Pertanyaan',
             'data' => null,
             'action' => BASE_URL . '/pertanyaan/simpan'
         ]);
-        $this->view('templates/footer');
     }
 
     public function edit($id)
@@ -43,12 +41,11 @@ class PertanyaanController extends Controller
             $this->redirect('pertanyaan');
         }
 
-        $this->view('templates/header', ['title' => 'Edit Pertanyaan']);
         $this->view('pertanyaan/form', [
+            'title' => 'Edit Pertanyaan',
             'data' => $data,
             'action' => BASE_URL . '/pertanyaan/update'
         ]);
-        $this->view('templates/footer');
     }
 
     public function simpan()
