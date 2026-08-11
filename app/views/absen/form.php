@@ -267,11 +267,50 @@ if ($totalStep === 0) {
         current = step;
     }
 
+    // ── Validasi Step ───────────────────────────────────────
+    function validateStep(stepIdx) {
+        const stepEl = document.getElementById('step' + stepIdx);
+        if (!stepEl) return true;
+
+        // Cek radio button di step ini
+        const radios = stepEl.querySelectorAll('.option-radio');
+        if (radios.length > 0) {
+            let selected = false;
+            let isValid = false;
+            radios.forEach(r => {
+                if (r.checked) {
+                    selected = true;
+                    isValid = true;
+                    // Cek textarea keterangan jika required
+                    if (r.getAttribute('data-reqket') === '1') {
+                        const field = r.dataset.field;
+                        const ket = document.getElementById('ket_input_' + field);
+                        if (ket && ket.value.trim() === '') {
+                            isValid = false;
+                            ket.classList.add('is-invalid');
+                        } else if (ket) {
+                            ket.classList.remove('is-invalid');
+                        }
+                    }
+                }
+            });
+            if (!selected) {
+                return false; // Belum pilih radio
+            }
+            return isValid;
+        }
+        return true;
+    }
+
     // ── Tombol Lanjut ───────────────────────────────────────
     document.querySelectorAll('.btn-wizard-next').forEach(btn => {
         btn.addEventListener('click', () => {
             const step = parseInt(btn.dataset.step);
-            if (step < TOTAL) showStep(step + 1);
+            if (validateStep(current)) {
+                if (step < TOTAL) showStep(step + 1);
+            } else {
+                alert('Silakan lengkapi jawaban pada pertanyaan ini terlebih dahulu.');
+            }
         });
     });
 
@@ -378,7 +417,12 @@ if ($totalStep === 0) {
     });
 
     // ── Submit loading ──────────────────────────────────────
-    document.getElementById('formAbsen').addEventListener('submit', function () {
+    document.getElementById('formAbsen').addEventListener('submit', function (e) {
+        if (!validateStep(TOTAL)) {
+            e.preventDefault();
+            alert('Silakan lengkapi jawaban pada pertanyaan terakhir ini terlebih dahulu.');
+            return false;
+        }
         const btn = document.getElementById('btnSubmit');
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Menyimpan...';
         btn.disabled = true;
@@ -388,8 +432,12 @@ if ($totalStep === 0) {
     document.addEventListener('keydown', function (e) {
         // Hanya jika tidak sedang di dalam textarea/input text
         if (e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'INPUT' || e.target.type === 'radio' || e.target.type === 'checkbox') {
-            if (e.key === 'ArrowRight' && current < TOTAL) showStep(current + 1);
-            if (e.key === 'ArrowLeft'  && current > 1)     showStep(current - 1);
+            if (e.key === 'ArrowRight' && current < TOTAL) {
+                if (validateStep(current)) showStep(current + 1);
+            }
+            if (e.key === 'ArrowLeft'  && current > 1) {
+                showStep(current - 1);
+            }
         }
     });
 
