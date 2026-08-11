@@ -21,7 +21,7 @@ try {
             'tipe' => 'pilihan_ganda',
             'opsi' => [
                 ['label' => 'Hadir', 'value' => 'hadir', 'poin' => 10, 'require_ket' => false],
-                ['label' => 'Sakit', 'value' => 'sakit', 'poin' => 5, 'require_ket' => true],
+                ['label' => 'Sakit', 'value' => 'sakit', 'poin' => 5, 'require_ket' => false],
                 ['label' => 'Izin', 'value' => 'izin', 'poin' => 5, 'require_ket' => true],
                 ['label' => 'Alpha', 'value' => 'alpha', 'poin' => 0, 'require_ket' => false]
             ]
@@ -31,7 +31,7 @@ try {
             'tipe' => 'pilihan_ganda',
             'opsi' => [
                 ['label' => 'Hadir', 'value' => 'hadir', 'poin' => 10, 'require_ket' => false],
-                ['label' => 'Sakit', 'value' => 'sakit', 'poin' => 5, 'require_ket' => true],
+                ['label' => 'Sakit', 'value' => 'sakit', 'poin' => 5, 'require_ket' => false],
                 ['label' => 'Izin', 'value' => 'izin', 'poin' => 5, 'require_ket' => true],
                 ['label' => 'Alpha', 'value' => 'alpha', 'poin' => 0, 'require_ket' => false]
             ]
@@ -41,7 +41,7 @@ try {
             'tipe' => 'pilihan_ganda',
             'opsi' => [
                 ['label' => 'Hadir', 'value' => 'hadir', 'poin' => 10, 'require_ket' => false],
-                ['label' => 'Sakit', 'value' => 'sakit', 'poin' => 5, 'require_ket' => true],
+                ['label' => 'Sakit', 'value' => 'sakit', 'poin' => 5, 'require_ket' => false],
                 ['label' => 'Izin', 'value' => 'izin', 'poin' => 5, 'require_ket' => true],
                 ['label' => 'Alpha', 'value' => 'alpha', 'poin' => 0, 'require_ket' => false]
             ]
@@ -51,7 +51,7 @@ try {
             'tipe' => 'pilihan_ganda',
             'opsi' => [
                 ['label' => 'Hadir', 'value' => 'hadir', 'poin' => 10, 'require_ket' => false],
-                ['label' => 'Sakit', 'value' => 'sakit', 'poin' => 5, 'require_ket' => true],
+                ['label' => 'Sakit', 'value' => 'sakit', 'poin' => 5, 'require_ket' => false],
                 ['label' => 'Izin', 'value' => 'izin', 'poin' => 5, 'require_ket' => true],
                 ['label' => 'Alpha', 'value' => 'alpha', 'poin' => 0, 'require_ket' => false]
             ]
