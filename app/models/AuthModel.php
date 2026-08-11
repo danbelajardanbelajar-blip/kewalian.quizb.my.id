@@ -59,10 +59,23 @@ class AuthModel extends Model
         $this->db->bind(':username', $username);
         $user = $this->db->single();
 
-        Session::set('logged_in', true);
-        Session::set('username', $username);
-        Session::set('user_id', $user['id'] ?? null);
+        Session::set('logged_in',  true);
+        Session::set('username',   $username);
+        Session::set('user_id',    $user['id'] ?? null);
+        Session::set('is_admin',   !empty($user['is_admin']) && (int)$user['is_admin'] === 1);
         Session::set('login_time', time());
+        if (!empty($user['google_avatar'])) {
+            Session::set('google_avatar', $user['google_avatar']);
+        }
+
+        // Update last_login_at
+        try {
+            $this->db->query("UPDATE users SET last_login_at = NOW() WHERE id = :id");
+            $this->db->bind(':id', $user['id']);
+            $this->db->execute();
+        } catch (Exception $e) {
+            // Kolom belum ada (sebelum migrasi) — abaikan
+        }
     }
 
     /**

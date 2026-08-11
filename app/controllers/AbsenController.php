@@ -3,7 +3,7 @@ require_once APP_PATH . '/core/Controller.php';
 require_once APP_PATH . '/models/AbsenModel.php';
 require_once APP_PATH . '/models/KonfigurasiModel.php';
 require_once APP_PATH . '/models/PertanyaanModel.php';
-
+require_once APP_PATH . '/models/KunjunganModel.php';
 /**
  * AbsenController.php
  * Absen Mandiri Siswa — TIDAK memerlukan login
@@ -29,6 +29,9 @@ class AbsenController extends Controller
     {
         $idWali = $_GET['wali'] ?? '';
         
+        $kunjungan = new KunjunganModel();
+        $kunjungan->record('/absen' . (!empty($idWali) ? "?wali=$idWali" : ""), empty($idWali) ? null : (int)$idWali);
+
         $db = new Database();
         if (empty($idWali)) {
             $db->query("SELECT id, username, nama_lengkap, kelas FROM users ORDER BY kelas ASC");
