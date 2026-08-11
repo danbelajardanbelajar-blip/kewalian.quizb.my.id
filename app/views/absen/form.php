@@ -143,7 +143,7 @@ $pertanyaan = [
     ],
     [
         'id'     => 'shadaqah',
-        'label'  => 'Apakah kemarin ananda ' . htmlspecialchars($namaProper) . ' sudah membantu teman dan bersedekah?',
+        'label'  => 'Apakah kemarin ananda ' . htmlspecialchars($namaProper) . ' sudah membantu teman atau bersedekah?',
         'icon'   => 'bi-gift-fill',
         'emoji'  => '🤝',
         'type'   => 'belajar',
