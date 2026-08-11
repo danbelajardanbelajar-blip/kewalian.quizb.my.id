@@ -109,7 +109,7 @@ if ($totalStep === 0) {
                 <div class="question-card">
                     <div class="question-emoji"><?= $emoji ?></div>
                     <div class="question-number">Pertanyaan <?= $stepIdx + 1 ?> dari <?= $totalStep ?></div>
-                    <h2 class="question-text"><?= htmlspecialchars($p['judul']) ?></h2>
+                    <h2 class="question-text"><?= htmlspecialchars(str_replace('{{nama}}', $namaProper, $p['judul'])) ?></h2>
 
                     <?php if ($p['tipe'] === 'pilihan_ganda' || $p['tipe'] === 'ganda_dan_angka'): ?>
                         <div class="option-grid" data-group="<?= $pId ?>">

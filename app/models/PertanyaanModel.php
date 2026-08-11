@@ -109,7 +109,7 @@ class PertanyaanModel extends Model
     {
         $default_pertanyaan = [
             [
-                'judul' => 'Kehadiran Sekolah',
+                'judul' => 'Apakah kemarin ananda {{nama}} hadir sekolah?',
                 'tipe' => 'pilihan_ganda',
                 'opsi' => [
                     ['label' => 'Hadir', 'value' => 'hadir', 'poin' => 10, 'require_ket' => false],
@@ -119,7 +119,7 @@ class PertanyaanModel extends Model
                 ]
             ],
             [
-                'judul' => 'Kehadiran Al-Miftah',
+                'judul' => 'Apakah kemarin siang ananda {{nama}} hadir Al-Miftah?',
                 'tipe' => 'pilihan_ganda',
                 'opsi' => [
                     ['label' => 'Hadir', 'value' => 'hadir', 'poin' => 10, 'require_ket' => false],
@@ -129,7 +129,7 @@ class PertanyaanModel extends Model
                 ]
             ],
             [
-                'judul' => 'Kehadiran Diniyah',
+                'judul' => 'Apakah tadi malam ananda {{nama}} hadir Diniyah?',
                 'tipe' => 'pilihan_ganda',
                 'opsi' => [
                     ['label' => 'Hadir', 'value' => 'hadir', 'poin' => 10, 'require_ket' => false],
@@ -139,7 +139,7 @@ class PertanyaanModel extends Model
                 ]
             ],
             [
-                'judul' => 'Kehadiran Ngaji Pagi',
+                'judul' => 'Apakah kemarin pagi (bakda shubuh) ananda {{nama}} hadir Ngaji Pagi?',
                 'tipe' => 'pilihan_ganda',
                 'opsi' => [
                     ['label' => 'Hadir', 'value' => 'hadir', 'poin' => 10, 'require_ket' => false],
@@ -149,7 +149,7 @@ class PertanyaanModel extends Model
                 ]
             ],
             [
-                'judul' => 'Membaca Al-Qur\'an',
+                'judul' => 'Apakah sejak kemarin hingga shubuh ini ananda {{nama}} membaca Al-Qur\'an secara mandiri (selain ngaji bersama di kelas atau di pondok)?',
                 'tipe' => 'ganda_dan_angka',
                 'opsi' => [
                     'pilihan' => [
@@ -163,24 +163,7 @@ class PertanyaanModel extends Model
                 ]
             ],
             [
-                'judul' => 'Shalat Dluha',
-                'tipe' => 'pilihan_ganda',
-                'opsi' => [
-                    ['label' => 'Ikut', 'value' => 'ikut', 'poin' => 10, 'require_ket' => false],
-                    ['label' => 'Udzur Haid', 'value' => 'udzur_haid', 'poin' => 10, 'require_ket' => false],
-                    ['label' => 'Tidak Ikut', 'value' => 'tidak_ikut', 'poin' => 0, 'require_ket' => false]
-                ]
-            ],
-            [
-                'judul' => 'Belajar Mandiri di Kamar',
-                'tipe' => 'pilihan_ganda',
-                'opsi' => [
-                    ['label' => 'Iya', 'value' => 'iya', 'poin' => 10, 'require_ket' => false],
-                    ['label' => 'Tidak', 'value' => 'tidak', 'poin' => 0, 'require_ket' => false]
-                ]
-            ],
-            [
-                'judul' => 'Membaca Buku',
+                'judul' => 'Apakah kemarin ananda {{nama}} sudah membaca buku secara mandiri?',
                 'tipe' => 'ganda_dan_angka',
                 'opsi' => [
                     'pilihan' => [
@@ -194,7 +177,24 @@ class PertanyaanModel extends Model
                 ]
             ],
             [
-                'judul' => 'Memaafkan Semua Teman',
+                'judul' => 'Apakah kemarin pagi ananda {{nama}} ikut Shalat Dluha di madrasah?',
+                'tipe' => 'pilihan_ganda',
+                'opsi' => [
+                    ['label' => 'Ikut', 'value' => 'ikut', 'poin' => 10, 'require_ket' => false],
+                    ['label' => 'Udzur Haid', 'value' => 'udzur_haid', 'poin' => 10, 'require_ket' => false],
+                    ['label' => 'Tidak Ikut', 'value' => 'tidak_ikut', 'poin' => 0, 'require_ket' => false]
+                ]
+            ],
+            [
+                'judul' => 'Apakah tadi malam ananda {{nama}} belajar di kamar?',
+                'tipe' => 'pilihan_ganda',
+                'opsi' => [
+                    ['label' => 'Iya', 'value' => 'iya', 'poin' => 10, 'require_ket' => false],
+                    ['label' => 'Tidak', 'value' => 'tidak', 'poin' => 0, 'require_ket' => false]
+                ]
+            ],
+            [
+                'judul' => 'Apakah tadi malam ananda {{nama}} sudah memaafkan semua orang?',
                 'tipe' => 'pilihan_ganda',
                 'opsi' => [
                     ['label' => 'Iya', 'value' => 'iya', 'poin' => 5, 'require_ket' => false],
@@ -202,7 +202,7 @@ class PertanyaanModel extends Model
                 ]
             ],
             [
-                'judul' => 'Mendoakan Sesama Muslim',
+                'judul' => 'Apakah tadi malam ananda {{nama}} sudah mendoakan semua kaum muslimin?',
                 'tipe' => 'pilihan_ganda',
                 'opsi' => [
                     ['label' => 'Iya', 'value' => 'iya', 'poin' => 5, 'require_ket' => false],
@@ -210,7 +210,7 @@ class PertanyaanModel extends Model
                 ]
             ],
             [
-                'judul' => 'Mendoakan Orang Tua',
+                'judul' => 'Apakah kemarin ananda {{nama}} sudah mendoakan kedua orang tua?',
                 'tipe' => 'pilihan_ganda',
                 'opsi' => [
                     ['label' => 'Iya', 'value' => 'iya', 'poin' => 5, 'require_ket' => false],
@@ -218,7 +218,7 @@ class PertanyaanModel extends Model
                 ]
             ],
             [
-                'judul' => 'Shadaqah / Membantu Teman',
+                'judul' => 'Apakah kemarin ananda {{nama}} sudah membantu teman atau bersedekah?',
                 'tipe' => 'pilihan_ganda',
                 'opsi' => [
                     ['label' => 'Iya', 'value' => 'iya', 'poin' => 5, 'require_ket' => false],
