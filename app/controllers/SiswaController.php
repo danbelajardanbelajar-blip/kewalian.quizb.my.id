@@ -116,6 +116,67 @@ class SiswaController extends Controller
     }
 
     /**
+     * POST /siswa/edit — Edit data siswa
+     */
+    public function edit(): void
+    {
+        $this->requireAuth();
+
+        if (!$this->isPost()) {
+            $this->redirect('siswa');
+        }
+
+        $idEdit = (int)($_POST['id'] ?? 0);
+        $namaBaru = strtoupper(trim($_POST['nama'] ?? ''));
+        $noHpBaru = trim($_POST['no_hp'] ?? '');
+
+        if ($idEdit <= 0 || empty($namaBaru)) {
+            Flash::set('error', 'Data tidak valid.');
+            $this->redirect('siswa');
+        }
+
+        $siswa = $this->konfig->getSiswa();
+        
+        // Cek duplikasi nama untuk ID lain
+        foreach ($siswa as $s) {
+            if ($s['id'] !== $idEdit && $s['nama'] === $namaBaru) {
+                Flash::set('warning', 'Siswa dengan nama "' . htmlspecialchars($namaBaru) . '" sudah ada.');
+                $this->redirect('siswa');
+            }
+        }
+
+        // Format No HP (hapus karakter selain angka)
+        $noHpBaru = preg_replace('/[^0-9]/', '', $noHpBaru);
+
+        $found = false;
+        foreach ($siswa as &$s) {
+            if ($s['id'] === $idEdit) {
+                $s['nama'] = $namaBaru;
+                $s['no_hp'] = $noHpBaru;
+                $found = true;
+                break;
+            }
+        }
+        unset($s);
+
+        if (!$found) {
+            Flash::set('error', 'Siswa tidak ditemukan.');
+            $this->redirect('siswa');
+        }
+
+        // Sort by name
+        usort($siswa, fn($a, $b) => strcmp($a['nama'], $b['nama']));
+
+        if ($this->konfig->saveSiswa($siswa)) {
+            Flash::set('success', 'Data siswa berhasil diperbarui.');
+        } else {
+            Flash::set('error', 'Gagal memperbarui data siswa.');
+        }
+
+        $this->redirect('siswa');
+    }
+
+    /**
      * POST /siswa/urut — Simpan urutan siswa baru (drag & drop)
      */
     public function urut(): void
