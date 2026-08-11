@@ -47,23 +47,36 @@
                                 <td>
                                     <?php if ($row['tipe'] === 'pilihan_ganda'): ?>
                                         <span class="badge bg-info text-dark">Pilihan Ganda</span>
+                                    <?php elseif ($row['tipe'] === 'ganda_dan_angka'): ?>
+                                        <span class="badge bg-primary">Ganda + Angka</span>
                                     <?php else: ?>
                                         <span class="badge bg-secondary">Input Angka</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <?php if ($row['tipe'] === 'pilihan_ganda'): ?>
+                                    <?php if ($row['tipe'] === 'pilihan_ganda' || $row['tipe'] === 'ganda_dan_angka'): ?>
                                         <ul class="list-unstyled mb-0 small">
-                                            <?php foreach ($opsi as $op): ?>
+                                            <?php 
+                                            $listOpsi = ($row['tipe'] === 'ganda_dan_angka') ? ($opsi['pilihan'] ?? []) : $opsi;
+                                            foreach ($listOpsi as $op): ?>
                                                 <li>
                                                     - <?= htmlspecialchars($op['label']) ?> 
                                                     <span class="text-success">(Poin: <?= $op['poin'] ?>)</span>
                                                     <?php if(!empty($op['require_ket'])): ?>
                                                         <span class="badge bg-warning text-dark" style="font-size:0.6rem">Wajib Ket</span>
                                                     <?php endif; ?>
+                                                    <?php if(!empty($op['require_angka'])): ?>
+                                                        <span class="badge bg-primary" style="font-size:0.6rem">Wajib Angka</span>
+                                                    <?php endif; ?>
                                                 </li>
                                             <?php endforeach; ?>
                                         </ul>
+                                        <?php if ($row['tipe'] === 'ganda_dan_angka'): ?>
+                                            <div class="small mt-1 pt-1 border-top border-light">
+                                                <span class="text-muted"><i class="bi bi-123"></i> Angka:</span> 
+                                                <?= $opsi['angka']['poin_per_angka'] ?? 0 ?> poin/<?= htmlspecialchars($opsi['angka']['satuan'] ?? 'satuan') ?>
+                                            </div>
+                                        <?php endif; ?>
                                     <?php else: ?>
                                         <div class="small">
                                             Poin per angka: <strong><?= $opsi['poin_per_angka'] ?? 0 ?></strong><br>
