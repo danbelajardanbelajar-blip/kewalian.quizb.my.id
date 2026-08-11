@@ -18,7 +18,7 @@ $siswaData = $dataTanggal['siswa'] ?? [];
             </p>
         </div>
         <div class="d-flex gap-2 flex-wrap">
-            <a href="<?= BASE_URL ?>/absen?wali=<?= urlencode($usernameWali) ?>" target="_blank" class="btn btn-outline-primary btn-sm">
+            <a href="<?= BASE_URL ?>/absen?wali=<?= $idWali ?>" target="_blank" class="btn btn-outline-primary btn-sm">
                 <i class="bi bi-box-arrow-up-right me-1"></i> Buka Form Siswa
             </a>
             <?php if (!empty($siswaData)): ?>
@@ -221,7 +221,7 @@ $siswaData = $dataTanggal['siswa'] ?? [];
             <p class="text-muted small">Bagikan link berikut ke siswa:</p>
             <div class="input-group mx-auto" style="max-width:400px">
                 <input type="text" class="form-control form-control-sm" id="linkAbsen"
-                       value="<?= BASE_URL ?>/absen?wali=<?= urlencode($usernameWali) ?>" readonly>
+                       value="<?= BASE_URL ?>/absen?wali=<?= $idWali ?>" readonly>
                 <button class="btn btn-outline-primary btn-sm" onclick="navigator.clipboard.writeText(document.getElementById('linkAbsen').value); this.textContent='Tersalin!'">
                     <i class="bi bi-clipboard"></i>
                 </button>

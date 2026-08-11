@@ -27,11 +27,11 @@ class AbsenController extends Controller
      */
     public function index(): void
     {
-        $usernameWali = $_GET['wali'] ?? '';
+        $idWali = $_GET['wali'] ?? '';
         
         $db = new Database();
-        if (empty($usernameWali)) {
-            $db->query("SELECT username, nama_lengkap, kelas FROM users ORDER BY kelas ASC");
+        if (empty($idWali)) {
+            $db->query("SELECT id, username, nama_lengkap, kelas FROM users ORDER BY kelas ASC");
             $listWali = $db->resultSet();
             
             $this->view('absen/pilih_wali', [
@@ -41,8 +41,8 @@ class AbsenController extends Controller
             return;
         }
 
-        $db->query("SELECT id, kelas FROM users WHERE username = :username");
-        $db->bind(':username', $usernameWali);
+        $db->query("SELECT id, kelas FROM users WHERE id = :id");
+        $db->bind(':id', $idWali);
         $userWali = $db->single();
 
         if (!$userWali) {
@@ -67,7 +67,7 @@ class AbsenController extends Controller
             'kelas'    => $kelas,
             'tanggal'  => $tanggal,
             'sudahIsi' => $sudahIsi,
-            'usernameWali' => $usernameWali
+            'idWali' => $idWali
         ], false);
     }
 
@@ -76,8 +76,8 @@ class AbsenController extends Controller
      */
     public function isi(string $idStr = ''): void
     {
-        $usernameWali = $_GET['wali'] ?? '';
-        if (empty($idStr) || empty($usernameWali)) {
+        $idWali = $_GET['wali'] ?? '';
+        if (empty($idStr) || empty($idWali)) {
             $this->redirect('absen');
         }
 
@@ -85,8 +85,8 @@ class AbsenController extends Controller
         $tanggal = $_GET['tanggal'] ?? date('Y-m-d');
         
         $db = new Database();
-        $db->query("SELECT id, kelas FROM users WHERE username = :username");
-        $db->bind(':username', $usernameWali);
+        $db->query("SELECT id, kelas FROM users WHERE id = :idWali");
+        $db->bind(':idWali', $idWali);
         $userWali = $db->single();
         
         if (!$userWali) {
@@ -101,7 +101,7 @@ class AbsenController extends Controller
         $daftarId = array_column($siswa, 'id');
         if (!in_array($id, $daftarId)) {
             Flash::set('error', 'Data siswa tidak ditemukan.');
-            $this->redirect('absen?wali=' . urlencode($usernameWali));
+            $this->redirect('absen?wali=' . $idWali);
         }
 
         $nama = '';
@@ -124,7 +124,7 @@ class AbsenController extends Controller
             'existing' => $existing,
             'isEdit'   => !empty($existing),
             'pertanyaan' => $pertanyaan,
-            'usernameWali' => $usernameWali
+            'idWali' => $idWali
         ], false);
     }
 
@@ -152,20 +152,17 @@ class AbsenController extends Controller
             $this->redirect('absen');
         }
 
-        $usernameWali = $_POST['usernameWali'] ?? '';
+        $idWali = $_POST['idWali'] ?? '';
         
         $db = new Database();
-        $db->query("SELECT id FROM users WHERE username = :username");
-        $db->bind(':username', $usernameWali);
+        $db->query("SELECT id FROM users WHERE id = :id");
+        $db->bind(':id', $idWali);
         $userWali = $db->single();
         $userId = $userWali ? $userWali['id'] : null;
 
-        // Validasi ID ada di daftar siswa milik wali ini
-        $daftarSiswa = $this->konfig->getSiswa($userId);
-        $daftarId = array_column($daftarSiswa, 'id');
-        if (!in_array($id, $daftarId)) {
-            Flash::set('error', 'Siswa tidak ditemukan.');
-            $this->redirect('absen?wali=' . urlencode($usernameWali));
+        if (!$userWali) {
+            Flash::set('error', 'Wali kelas tidak valid.');
+            $this->redirect('absen?wali=' . $idWali);
         }
 
         // Bangun data absen dinamis
@@ -232,10 +229,10 @@ class AbsenController extends Controller
         $isEdit = $this->absenModel->sudahIsi($tanggal, $id);
 
         if ($this->absenModel->simpanSiswa($tanggal, $id, $nama, $data)) {
-            $this->redirect('absen/selesai?id=' . $id . '&nama=' . rawurlencode($nama) . '&tanggal=' . $tanggal . '&edit=' . ($isEdit ? '1' : '0') . '&wali=' . urlencode($usernameWali));
+            $this->redirect('absen/selesai?id=' . $id . '&nama=' . rawurlencode($nama) . '&tanggal=' . $tanggal . '&edit=' . ($isEdit ? '1' : '0') . '&wali=' . $idWali);
         } else {
             Flash::set('error', 'Gagal menyimpan. Silakan coba lagi.');
-            $this->redirect('absen/isi/' . $id . '?tanggal=' . $tanggal . '&wali=' . urlencode($usernameWali));
+            $this->redirect('absen/isi/' . $id . '?tanggal=' . $tanggal . '&wali=' . $idWali);
         }
     }
 
@@ -248,11 +245,11 @@ class AbsenController extends Controller
         $nama    = urldecode($_GET['nama'] ?? '');
         $tanggal = $_GET['tanggal'] ?? date('Y-m-d');
         $isEdit  = ($_GET['edit'] ?? '0') === '1';
-        $usernameWali = $_GET['wali'] ?? '';
+        $idWali  = $_GET['wali'] ?? '';
         
         $db = new Database();
-        $db->query("SELECT kelas FROM users WHERE username = :username");
-        $db->bind(':username', $usernameWali);
+        $db->query("SELECT kelas FROM users WHERE id = :id");
+        $db->bind(':id', $idWali);
         $userWali = $db->single();
         $kelas = $userWali ? $userWali['kelas'] : '';
 
@@ -263,7 +260,7 @@ class AbsenController extends Controller
             'tanggal' => $tanggal,
             'isEdit'  => $isEdit,
             'kelas'   => $kelas,
-            'usernameWali' => $usernameWali
+            'idWali' => $idWali
         ], false);
     }
 
@@ -283,7 +280,7 @@ class AbsenController extends Controller
         $statistik   = $this->absenModel->getStatistik($tanggal, $siswa, $userId);
         $allDates    = $this->absenModel->getAllDates($userId);
         $pertanyaan  = $this->pertanyaanModel->getActive($userId);
-        $usernameWali = Session::get('username') ?? '';
+        $idWali      = Session::get('user_id');
 
         $this->view('absen/rekap', [
             'title'       => 'Rekap Absen Mandiri — ' . date('d F Y', strtotime($tanggal)),
@@ -294,7 +291,7 @@ class AbsenController extends Controller
             'statistik'   => $statistik,
             'allDates'    => $allDates,
             'pertanyaan'  => $pertanyaan,
-            'usernameWali'=> $usernameWali,
+            'idWali'      => $idWali,
         ]);
     }
 

@@ -85,7 +85,7 @@
             </div>
         <?php else: ?>
             <?php foreach ($listWali as $w): ?>
-                <a href="<?= BASE_URL ?>/absen?wali=<?= urlencode($w['username']) ?>" class="wali-card">
+                <a href="<?= BASE_URL ?>/absen?wali=<?= $w['id'] ?>" class="wali-card">
                     <div class="wali-icon">
                         <i class="bi bi-door-open"></i>
                     </div>

@@ -26,7 +26,7 @@ if ($totalStep === 0) {
 
 <!-- Progress bar atas -->
 <div class="wizard-topbar">
-    <a href="<?= BASE_URL ?>/absen?tanggal=<?= $tanggal ?>&wali=<?= urlencode($usernameWali) ?>" class="wizard-back-btn">
+    <a href="<?= BASE_URL ?>/absen?tanggal=<?= $tanggal ?>&wali=<?= $idWali ?>" class="wizard-back-btn">
         <i class="bi bi-arrow-left"></i>
     </a>
     <div class="wizard-progress-wrap flex-grow-1">
@@ -54,7 +54,7 @@ if ($totalStep === 0) {
     <input type="hidden" name="id" value="<?= $id ?>">
     <input type="hidden" name="nama" value="<?= htmlspecialchars($nama) ?>">
     <input type="hidden" name="tanggal" value="<?= $tanggal ?>">
-    <input type="hidden" name="usernameWali" value="<?= htmlspecialchars($usernameWali) ?>">
+    <input type="hidden" name="idWali" value="<?= $idWali ?>">
 
     <div class="wizard-container" id="wizardContainer">
 
