@@ -217,9 +217,10 @@ $labelKat  = [
                                         $status = strtolower($data['status'] ?? '');
                                         if ($status === 'izin') {
                                             $ket = $data['keterangan'] ?? '';
-                                            return $ket ? "$nama (Izin: $ket)" : "$nama (Izin)";
+                                            return $ket ? "$nama (karena saya kemarin izin \"$ket\")" : "$nama (karena saya kemarin izin)";
                                         } elseif ($status === 'sakit') {
-                                            return "$nama (Sakit)";
+                                            $ket = $data['keterangan'] ?? '';
+                                            return $ket ? "$nama (karena saya kemarin sakit \"$ket\")" : "$nama (karena saya kemarin sakit)";
                                         }
                                         return $nama;
                                     };
@@ -241,9 +242,9 @@ $labelKat  = [
                                     if (!empty($qType) && $qJumlah > 0) {
                                         $labelQType = $qType === 'juz' ? 'Juz' : ($qType === 'setengah_juz' ? 'Setengah Juz' : 'Halaman');
                                         if ($qType === 'setengah_juz') {
-                                            $hadirKegiatan[] = "Membaca Al-Qur'an (Setengah Juz)";
+                                            $hadirKegiatan[] = "Membaca Al-Qur'an sebanyak Setengah Juz";
                                         } else {
-                                            $hadirKegiatan[] = "Membaca Al-Qur'an ($qJumlah $labelQType)";
+                                            $hadirKegiatan[] = "Membaca Al-Qur'an sebanyak $qJumlah $labelQType";
                                         }
                                     } else {
                                         $absenKegiatan[] = "Membaca Al-Qur'an";
@@ -256,7 +257,7 @@ $labelKat  = [
                                     
                                     if (strtolower($s['baca_buku']['status'] ?? '') === 'iya') {
                                         $bbJumlah = (int)($s['baca_buku']['jumlah'] ?? 0);
-                                        $hadirKegiatan[] = "Membaca Buku ($bbJumlah Halaman)";
+                                        $hadirKegiatan[] = "Membaca Buku sebanyak $bbJumlah Halaman";
                                     } else {
                                         $absenKegiatan[] = 'Membaca Buku';
                                     }
@@ -280,7 +281,7 @@ $labelKat  = [
                                     };
 
                                     $namaSiswaProper = ucwords(strtolower(trim($namaSiswa)));
-                                    $pesanWa = "Salam Ayah dan Ibu. Ini kulo, ananda *" . $namaSiswaProper . "*.\n";
+                                    $pesanWa = "Salam Ayah dan Ibu.\nIni kulo, ananda *" . $namaSiswaProper . "*.\n";
                                     $pesanWa .= "Semoga Ayah dan Ibu sekeluarga senantiasa sehat dan dijaga oleh Allah.\n\n";
 
                                     if (!empty($hadirKegiatan)) {
