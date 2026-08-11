@@ -20,6 +20,14 @@ class AbsenController extends Controller
         $this->absenModel = new AbsenModel();
         $this->konfig     = new KonfigurasiModel();
         $this->pertanyaanModel = new PertanyaanModel();
+
+        // Track semua kunjungan ke halaman absen (GET request saja agar tidak double dengan POST)
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET') {
+            require_once APP_PATH . '/models/KunjunganModel.php';
+            $kunjungan = new KunjunganModel();
+            $idWali = $_GET['wali'] ?? '';
+            $kunjungan->record($_SERVER['REQUEST_URI'] ?? '/absen', empty($idWali) ? null : (int)$idWali);
+        }
     }
 
     /**
@@ -28,9 +36,6 @@ class AbsenController extends Controller
     public function index(): void
     {
         $idWali = $_GET['wali'] ?? '';
-        
-        $kunjungan = new KunjunganModel();
-        $kunjungan->record('/absen' . (!empty($idWali) ? "?wali=$idWali" : ""), empty($idWali) ? null : (int)$idWali);
 
         $db = new Database();
         if (empty($idWali)) {
@@ -83,9 +88,6 @@ class AbsenController extends Controller
         if (empty($idStr) || empty($idWali)) {
             $this->redirect('absen');
         }
-
-        $kunjungan = new KunjunganModel();
-        $kunjungan->record('/absen/isi/' . $idStr . "?wali=$idWali", (int)$idWali);
 
         $id      = (int)$idStr;
         $tanggal = $_GET['tanggal'] ?? date('Y-m-d');
