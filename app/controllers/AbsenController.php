@@ -283,7 +283,7 @@ class AbsenController extends Controller
         $statistik   = $this->absenModel->getStatistik($tanggal, $siswa, $userId);
         $allDates    = $this->absenModel->getAllDates($userId);
         $pertanyaan  = $this->pertanyaanModel->getActive($userId);
-        $usernameWali = Session::get('user')['username'] ?? '';
+        $usernameWali = Session::get('username') ?? '';
 
         $this->view('absen/rekap', [
             'title'       => 'Rekap Absen Mandiri — ' . date('d F Y', strtotime($tanggal)),
