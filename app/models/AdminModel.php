@@ -6,7 +6,7 @@ class AdminModel extends Model
     // Get all users with stats
     public function getAllUsers(): array
     {
-        $this->db->query("SELECT u.*, (SELECT COUNT(*) FROM santri s WHERE s.user_id = u.id) as total_santri FROM users u ORDER BY u.id DESC");
+        $this->db->query("SELECT u.*, (SELECT COUNT(*) FROM siswa s WHERE s.user_id = u.id) as total_siswa FROM users u ORDER BY u.id DESC");
         return $this->db->resultSet();
     }
 
