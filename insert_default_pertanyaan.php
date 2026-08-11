@@ -1,4 +1,5 @@
 <?php
+define('APP_PATH', __DIR__ . '/app');
 require_once 'app/config/config.php';
 require_once 'app/core/Database.php';
 require_once 'app/core/Model.php';
