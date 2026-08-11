@@ -81,6 +81,12 @@ try {
     $messages[] = "Created 'pertanyaan_default' table if it did not exist.";
 
     // 6. INSERT default questions
+    if (isset($_GET['force']) && $_GET['force'] == '1') {
+        $db->query("TRUNCATE TABLE pertanyaan_default");
+        $db->execute();
+        $messages[] = "Truncated 'pertanyaan_default' table via force flag.";
+    }
+
     $db->query("SELECT COUNT(*) as count FROM pertanyaan_default");
     $result = $db->single();
     if ($result['count'] == 0) {
