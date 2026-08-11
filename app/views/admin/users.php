@@ -33,8 +33,8 @@ require_once APP_PATH . '/views/admin/layout_admin.php';
                                     <td>
                                         <div class="fw-bold">@<?= htmlspecialchars($user['username']) ?></div>
                                     </td>
-                                    <td><?= htmlspecialchars($user['nama_lengkap']) ?></td>
-                                    <td><?= htmlspecialchars($user['kelas']) ?></td>
+                                    <td><?= htmlspecialchars($user['nama_lengkap'] ?? '') ?></td>
+                                    <td><?= htmlspecialchars($user['kelas'] ?? '') ?></td>
                                     <td>
                                         <?php if($user['is_admin'] == 1): ?>
                                             <span class="badge bg-danger rounded-pill badge-admin"><i class="bi bi-shield-lock"></i> Admin</span>
@@ -53,16 +53,16 @@ require_once APP_PATH . '/views/admin/layout_admin.php';
                                     </td>
                                     <td class="pe-4 text-end">
                                         <div class="d-flex justify-content-end gap-1">
-                                            <a href="<?= BASEURL ?>/admin/editUser/<?= $user['id'] ?>" class="btn btn-sm btn-outline-primary btn-admin-edit" title="Edit User">
+                                            <a href="<?= BASE_URL ?>/admin/editUser/<?= $user['id'] ?>" class="btn btn-sm btn-outline-primary btn-admin-edit" title="Edit User">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
-                                            <form action="<?= BASEURL ?>/admin/toggleAdmin" method="POST" class="d-inline">
+                                            <form action="<?= BASE_URL ?>/admin/toggleAdmin" method="POST" class="d-inline">
                                                 <input type="hidden" name="id" value="<?= $user['id'] ?>">
                                                 <button type="submit" class="btn btn-sm <?= $user['is_admin'] == 1 ? 'btn-warning' : 'btn-outline-warning' ?>" title="Toggle Admin Status" onclick="return confirm('Yakin ingin mengubah status admin user ini?');">
                                                     <i class="bi bi-shield-fill-exclamation"></i>
                                                 </button>
                                             </form>
-                                            <form action="<?= BASEURL ?>/admin/deleteUser" method="POST" class="d-inline">
+                                            <form action="<?= BASE_URL ?>/admin/hapusUser" method="POST" class="d-inline" onsubmit="return confirm('Hapus user ini?')">
                                                 <input type="hidden" name="id" value="<?= $user['id'] ?>">
                                                 <button type="submit" class="btn btn-sm btn-outline-danger btn-admin-danger" title="Hapus User" onclick="return confirm('Yakin ingin menghapus user ini secara permanen?');">
                                                     <i class="bi bi-trash"></i>
