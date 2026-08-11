@@ -297,7 +297,7 @@ $labelKat  = [
                                             $pesanWa .= "Mohon doanya Ayah dan Ibu agar saya bisa hadir/melaksanakan: " . $joinWithDan($absenKegiatan) . ".\n";
                                         }
                                         if (!empty($belumAmalan)) {
-                                            $pesanWa .= "Mohon doanya pula agar hari ini saya bisa " . $joinWithDan($belumAmalan) . ".\n";
+                                            $pesanWa .= "Mohon doanya pula agar hari ini saya terbiasa " . $joinWithDan($belumAmalan) . ".\n";
                                         }
                                     }
 
