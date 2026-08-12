@@ -190,6 +190,22 @@ class AbsenModel extends Model
         return $stats;
     }
 
+    public function deleteSiswa(string $tanggal, int $idSiswa, int $userId = null): bool
+    {
+        $userId = $userId ?? Session::get('user_id');
+        if (!$userId) return false;
+        
+        $this->db->query("
+            DELETE h FROM absen_header h
+            JOIN siswa s ON h.id_siswa = s.id
+            WHERE h.tanggal = :tanggal AND h.id_siswa = :id_siswa AND s.user_id = :user_id
+        ");
+        $this->db->bind(':tanggal', $tanggal);
+        $this->db->bind(':id_siswa', $idSiswa);
+        $this->db->bind(':user_id', $userId);
+        return $this->db->execute();
+    }
+
     public function deleteTanggal(string $tanggal, int $userId = null): bool
     {
         $userId = $userId ?? Session::get('user_id');
