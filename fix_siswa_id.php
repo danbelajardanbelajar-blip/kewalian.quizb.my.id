@@ -1,60 +1,65 @@
 <?php
 /**
- * fix_siswa_id.php
- * Mengubah kolom id pada tabel siswa agar memiliki atribut AUTO_INCREMENT.
- * Jalankan file ini SEKALI dari browser lalu hapus.
+ * fix_siswa_id.php - Versi 2 (Lebih Kuat)
+ * Mengatasi error "Duplicate entry '0' for key 'PRIMARY'"
  */
 define('ROOT_PATH', dirname(__FILE__));
 define('APP_PATH', ROOT_PATH . '/app');
 require_once APP_PATH . '/config/config.php';
 require_once APP_PATH . '/core/Database.php';
 
-echo "<h2>Fix Tabel Siswa</h2>";
+echo "<h2>Fix Tabel Siswa (Versi Paksa)</h2>";
 
 try {
     $db = new Database();
 
-    // Pastikan tabel siswa sudah ada
-    $db->query("SHOW TABLES LIKE 'siswa'");
-    if ($db->single()) {
-        // Cek struktur kolom id
-        $db->query("SHOW COLUMNS FROM siswa LIKE 'id'");
-        $col = $db->single();
-        
-        if ($col) {
-            if (strpos(strtolower($col['Extra']), 'auto_increment') === false) {
-                // Hapus data dengan id = 0 jika ada karena akan bermasalah saat alter table
-                // $db->query("DELETE FROM siswa WHERE id = 0");
-                // $db->execute();
-                
-                // Coba untuk mengubah tabel
-                // MySQL tidak mengizinkan mengubah ke AUTO_INCREMENT jika masih ada constraint/masalah di datanya
-                // Cara paling aman jika tabel ini adalah foreign key di tabel lain (seperti absen_header):
-                // Jika error, kita harus handle errornya.
-                
-                $db->query("ALTER TABLE siswa MODIFY COLUMN id INT AUTO_INCREMENT");
-                try {
-                    $db->execute();
-                    echo "<p style='color:green;'>✅ Kolom <code>id</code> berhasil diubah menjadi AUTO_INCREMENT.</p>";
-                } catch (PDOException $e) {
-                    echo "<p style='color:red;'>❌ Gagal mengubah ke AUTO_INCREMENT: " . htmlspecialchars($e->getMessage()) . "</p>";
-                    echo "<p>Coba jalankan query ini secara manual di phpMyAdmin:</p>";
-                    echo "<code>ALTER TABLE siswa MODIFY COLUMN id INT AUTO_INCREMENT;</code>";
-                }
-            } else {
-                echo "<p style='color:gray;'>ℹ️ Kolom <code>id</code> sudah memiliki atribut AUTO_INCREMENT.</p>";
-            }
-        } else {
-            echo "<p style='color:red;'>❌ Kolom <code>id</code> tidak ditemukan di tabel siswa.</p>";
-        }
-    } else {
-        echo "<p style='color:red;'>❌ Tabel <code>siswa</code> tidak ditemukan.</p>";
+    // Matikan Foreign Key check agar alter table tidak terblokir
+    $db->query("SET FOREIGN_KEY_CHECKS=0");
+    $db->execute();
+
+    // 1. Cek apakah ada data dengan id = 0
+    $db->query("SELECT * FROM siswa WHERE id = 0");
+    $hasZeroId = $db->single();
+
+    if ($hasZeroId) {
+        // Cari ID terbesar
+        $db->query("SELECT MAX(id) as max_id FROM siswa");
+        $maxId = (int)$db->single()['max_id'];
+        $newId = $maxId > 0 ? $maxId + 1 : 1;
+
+        // Update ID 0 menjadi ID baru di tabel siswa
+        $db->query("UPDATE siswa SET id = :new_id WHERE id = 0");
+        $db->bind(':new_id', $newId);
+        $db->execute();
+
+        // Update juga di tabel absen_header jika ada yang mengikat ke 0
+        $db->query("UPDATE absen_header SET id_siswa = :new_id WHERE id_siswa = 0");
+        $db->bind(':new_id', $newId);
+        $db->execute();
+
+        echo "<p style='color:orange;'>⚠️ Ditemukan siswa dengan ID 0. Berhasil dipindah ke ID {$newId} agar tidak bentrok.</p>";
     }
 
-    echo "<h2 style='color:green;'>Selesai!</h2>";
-    echo "<p style='color:red;'><strong>⚠️ Segera hapus file ini dari server setelah selesai!</strong></p>";
+    // 2. Paksa alter tabel jadi AUTO_INCREMENT
+    $db->query("ALTER TABLE siswa MODIFY COLUMN id INT NOT NULL AUTO_INCREMENT");
+    $db->execute();
+    echo "<p style='color:green;'>✅ Kolom <code>id</code> berhasil dipaksa menjadi AUTO_INCREMENT!</p>";
+
+    // Nyalakan kembali Foreign Key check
+    $db->query("SET FOREIGN_KEY_CHECKS=1");
+    $db->execute();
+
+    echo "<h2 style='color:green;'>Selesai! Sistem siap digunakan.</h2>";
+    echo "<p style='color:red;'><strong>⚠️ Hapus file ini setelah selesai.</strong></p>";
+    echo "<a href='" . BASE_URL . "/siswa'>→ Pergi ke Halaman Siswa</a>";
 
 } catch (PDOException $e) {
-    echo "<h2 style='color:red;'>❌ Error: " . htmlspecialchars($e->getMessage()) . "</h2>";
+    // Pastikan FK check nyala lagi meski error
+    $db = new Database();
+    $db->query("SET FOREIGN_KEY_CHECKS=1");
+    $db->execute();
+
+    echo "<h2 style='color:red;'>❌ Error Database:</h2>";
+    echo "<p><code>" . htmlspecialchars($e->getMessage()) . "</code></p>";
 }
 ?>
