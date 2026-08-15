@@ -18,10 +18,11 @@
 <div class="card card-main shadow-sm">
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+            <table class="table table-hover align-middle mb-0" id="tablePertanyaan">
                 <thead class="table-light">
                     <tr>
-                        <th class="px-4 py-3" style="width: 50px;">No</th>
+                        <th class="px-3 py-3" style="width: 40px;"></th>
+                        <th class="px-3 py-3" style="width: 50px;">No</th>
                         <th class="py-3">Judul Pertanyaan</th>
                         <th class="py-3">Tipe</th>
                         <th class="py-3">Detail Opsi / Poin</th>
@@ -32,7 +33,7 @@
                 <tbody>
                     <?php if (empty($pertanyaan)): ?>
                         <tr>
-                            <td colspan="6" class="text-center py-5 text-muted">
+                            <td colspan="7" class="text-center py-5 text-muted">
                                 <i class="bi bi-inbox fs-1 d-block mb-3"></i>
                                 Belum ada pertanyaan yang dikonfigurasi.<br>
                                 <a href="<?= BASE_URL ?>/pertanyaan/tambah" class="btn btn-outline-primary mt-2">Buat Pertanyaan Pertama</a>
@@ -41,8 +42,11 @@
                     <?php else: ?>
                         <?php $no = 1; foreach ($pertanyaan as $row): ?>
                             <?php $opsi = json_decode($row['opsi'], true); ?>
-                            <tr>
-                                <td class="px-4 fw-bold text-muted"><?= $no++ ?></td>
+                            <tr data-id="<?= $row['id'] ?>">
+                                <td class="px-3 text-muted drag-handle" style="cursor: grab;">
+                                    <i class="bi bi-grip-vertical fs-5"></i>
+                                </td>
+                                <td class="px-3 fw-bold text-muted nomor-urut"><?= $no++ ?></td>
                                 <td class="fw-semibold"><?= htmlspecialchars($row['judul']) ?></td>
                                 <td>
                                     <?php if ($row['tipe'] === 'pilihan_ganda'): ?>
@@ -119,3 +123,45 @@
         </div>
     </div>
 </div>
+
+<!-- SortableJS -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tbody = document.querySelector('#tablePertanyaan tbody');
+    if (tbody && tbody.querySelector('.drag-handle')) {
+        new Sortable(tbody, {
+            handle: '.drag-handle',
+            animation: 150,
+            ghostClass: 'bg-light',
+            onEnd: function () {
+                const rows = tbody.querySelectorAll('tr[data-id]');
+                const newOrder = [];
+                rows.forEach((row, index) => {
+                    newOrder.push(row.dataset.id);
+                    // Update nomor urut di tampilan
+                    row.querySelector('.nomor-urut').textContent = index + 1;
+                });
+                
+                fetch('<?= BASE_URL ?>/pertanyaan/urut', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ urutan: newOrder })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.success) {
+                        alert('Gagal menyimpan urutan pertanyaan.');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Terjadi kesalahan saat menyimpan urutan.');
+                });
+            }
+        });
+    }
+});
+</script>

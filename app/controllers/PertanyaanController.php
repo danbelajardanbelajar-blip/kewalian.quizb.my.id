@@ -220,4 +220,35 @@ class PertanyaanController extends Controller
         }
         $this->redirect('pertanyaan');
     }
+
+    public function urut()
+    {
+        $this->requireAuth();
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->json(['success' => false, 'message' => 'Method not allowed'], 405);
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        $urutan = $input['urutan'] ?? [];
+
+        if (empty($urutan)) {
+            $this->json(['success' => false, 'message' => 'Data urutan kosong'], 400);
+        }
+
+        $userId = Session::get('user_id');
+        $success = true;
+
+        foreach ($urutan as $index => $id) {
+            if (!$this->pertanyaanModel->updateUrutan((int)$id, $index + 1, $userId)) {
+                $success = false;
+            }
+        }
+
+        if ($success) {
+            $this->json(['success' => true, 'message' => 'Urutan berhasil disimpan']);
+        } else {
+            $this->json(['success' => false, 'message' => 'Gagal menyimpan beberapa urutan'], 500);
+        }
+    }
 }
