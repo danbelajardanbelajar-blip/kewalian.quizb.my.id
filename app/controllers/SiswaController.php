@@ -270,6 +270,50 @@ class SiswaController extends Controller
     }
 
     /**
+     * GET /siswa/template — Download template Excel
+     */
+    public function template(): void
+    {
+        $this->requireAuth();
+
+        $autoloadPath = ROOT_PATH . '/../../vendor/autoload.php';
+        if (!file_exists($autoloadPath)) {
+            Flash::set('error', 'Library PhpSpreadsheet tidak ditemukan.');
+            $this->redirect('siswa');
+        }
+
+        require_once $autoloadPath;
+
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        // Header
+        $sheet->setCellValue('A1', 'Nama Lengkap');
+        $sheet->setCellValue('B1', 'No WhatsApp');
+        $sheet->setCellValue('C1', 'Alamat');
+        
+        // Contoh Data
+        $sheet->setCellValue('A2', 'AHMAD FADHIL ELFAJRI');
+        $sheet->setCellValue('B2', '6281234567890');
+        $sheet->setCellValue('C2', 'Jl. Sudirman No. 123');
+
+        // Styling dan Autosize
+        $sheet->getStyle('A1:C1')->getFont()->setBold(true);
+        $sheet->getColumnDimension('A')->setAutoSize(true);
+        $sheet->getColumnDimension('B')->setAutoSize(true);
+        $sheet->getColumnDimension('C')->setAutoSize(true);
+
+        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+        
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="Template_Import_Siswa.xlsx"');
+        header('Cache-Control: max-age=0');
+        
+        $writer->save('php://output');
+        exit;
+    }
+
+    /**
      * POST /siswa/import — Import siswa dari Excel
      */
     public function import(): void

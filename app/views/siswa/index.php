@@ -67,6 +67,11 @@
                 <i class="bi bi-file-earmark-excel me-2"></i> Import dari Excel
             </div>
             <div class="card-body">
+                <div class="mb-3">
+                    <a href="<?= BASE_URL ?>/siswa/template" class="btn btn-sm btn-outline-secondary w-100">
+                        <i class="bi bi-download me-1"></i> Download Template Excel
+                    </a>
+                </div>
                 <form action="<?= BASE_URL ?>/siswa/import" method="POST" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label for="fileExcel" class="form-label fw-semibold">File Excel (.xlsx / .xls)</label>
