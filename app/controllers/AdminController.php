@@ -219,6 +219,38 @@ class AdminController extends Controller
         $this->redirect('admin/users');
     }
 
+    /**
+     * POST /admin/masukSebagai
+     */
+    public function masukSebagai(): void
+    {
+        $this->requireAdmin();
+        if (!$this->isPost()) $this->redirect('admin/users');
+
+        $id = (int)($_POST['id'] ?? 0);
+        $user = $this->adminModel->getUserById($id);
+
+        if (!$user) {
+            Flash::set('error', 'User tidak ditemukan.');
+            $this->redirect('admin/users');
+        }
+
+        // Setup session impersonate
+        Session::set('logged_in', true);
+        Session::set('username', $user['username']);
+        Session::set('user_id', $user['id']);
+        Session::set('nama_lengkap', $user['nama_lengkap'] ?? $user['username']);
+        Session::set('is_admin', !empty($user['is_admin']) && (int)$user['is_admin'] === 1);
+        if (!empty($user['google_avatar'])) {
+            Session::set('google_avatar', $user['google_avatar']);
+        } else {
+            Session::set('google_avatar', null);
+        }
+        
+        Flash::set('success', 'Berhasil masuk sebagai ' . htmlspecialchars($user['nama_lengkap'] ?? $user['username']));
+        $this->redirect('dashboard');
+    }
+
     // ── Soal Default ──────────────────────────────────────────
 
     /**

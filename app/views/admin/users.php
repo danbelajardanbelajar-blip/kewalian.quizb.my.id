@@ -53,6 +53,12 @@ require_once APP_PATH . '/views/admin/layout_admin.php';
                                     </td>
                                     <td class="pe-4 text-end">
                                         <div class="d-flex justify-content-end gap-1">
+                                            <form action="<?= BASE_URL ?>/admin/masukSebagai" method="POST" class="d-inline">
+                                                <input type="hidden" name="id" value="<?= $user['id'] ?>">
+                                                <button type="submit" class="btn btn-sm btn-outline-info" title="Masuk sebagai" onclick="return confirm('Anda akan masuk sebagai <?= htmlspecialchars($user['nama_lengkap'] ?? $user['username']) ?>. Anda akan keluar dari sesi admin Anda. Lanjutkan?');">
+                                                    <i class="bi bi-box-arrow-in-right"></i>
+                                                </button>
+                                            </form>
                                             <a href="<?= BASE_URL ?>/admin/editUser/<?= $user['id'] ?>" class="btn btn-sm btn-outline-primary btn-admin-edit" title="Edit User">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
