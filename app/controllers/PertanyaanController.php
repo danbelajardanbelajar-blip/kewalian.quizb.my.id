@@ -191,4 +191,33 @@ class PertanyaanController extends Controller
         }
         $this->redirect('pertanyaan');
     }
+
+    public function duplikat($id)
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $userId = Session::get('user_id');
+            $data = $this->pertanyaanModel->getById((int)$id, $userId);
+            
+            if ($data) {
+                // Duplicate data
+                $newData = [
+                    'user_id' => $userId,
+                    'judul' => $data['judul'] . ' (Copy)',
+                    'tipe' => $data['tipe'],
+                    'opsi' => $data['opsi'],
+                    'urutan' => (int)$data['urutan'] + 1,
+                    'is_active' => (int)$data['is_active']
+                ];
+                
+                if ($this->pertanyaanModel->insert($newData)) {
+                    Flash::set('success', 'Pertanyaan berhasil diduplikat.');
+                } else {
+                    Flash::set('error', 'Gagal menduplikat pertanyaan.');
+                }
+            } else {
+                Flash::set('error', 'Data tidak ditemukan.');
+            }
+        }
+        $this->redirect('pertanyaan');
+    }
 }

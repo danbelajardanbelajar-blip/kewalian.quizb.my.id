@@ -99,6 +99,11 @@
                                         <a href="<?= BASE_URL ?>/pertanyaan/edit/<?= $row['id'] ?>" class="btn btn-sm btn-outline-secondary" title="Edit">
                                             <i class="bi bi-pencil"></i>
                                         </a>
+                                        <form action="<?= BASE_URL ?>/pertanyaan/duplikat/<?= $row['id'] ?>" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menduplikat pertanyaan ini?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-info" title="Duplikat">
+                                                <i class="bi bi-files"></i>
+                                            </button>
+                                        </form>
                                         <form action="<?= BASE_URL ?>/pertanyaan/hapus/<?= $row['id'] ?>" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus pertanyaan ini? Data laporan yang berkaitan dengan pertanyaan ini mungkin terpengaruh.');">
                                             <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus">
                                                 <i class="bi bi-trash"></i>
