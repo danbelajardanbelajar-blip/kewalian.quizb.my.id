@@ -114,6 +114,20 @@ $pageTitle = $title ?? 'Dashboard Wali Kelas';
 
             <!-- User Info + Logout -->
             <div class="d-flex align-items-center gap-3">
+                <?php if (Session::get('impersonator_id')): ?>
+                    <form action="<?= BASE_URL ?>/auth/kembaliAdmin" method="POST" class="m-0">
+                        <button type="submit" class="btn btn-sm btn-warning fw-bold d-flex align-items-center gap-1 shadow-sm" style="animation: pulse 2s infinite;">
+                            <i class="bi bi-shield-fill-exclamation"></i> Kembali ke Admin
+                        </button>
+                    </form>
+                    <style>
+                        @keyframes pulse {
+                            0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7); }
+                            70% { box-shadow: 0 0 0 6px rgba(255, 193, 7, 0); }
+                            100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
+                        }
+                    </style>
+                <?php endif; ?>
                 <div class="d-flex align-items-center gap-2 text-white-50">
                     <div class="user-avatar">
                         <i class="bi bi-person-fill"></i>

@@ -235,7 +235,11 @@ class AdminController extends Controller
             $this->redirect('admin/users');
         }
 
+        // Simpan ID admin yang melakukan impersonasi
+        $adminId = Session::get('user_id');
+
         // Setup session impersonate
+        Session::set('impersonator_id', $adminId);
         Session::set('logged_in', true);
         Session::set('username', $user['username']);
         Session::set('user_id', $user['id']);

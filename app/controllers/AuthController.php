@@ -115,6 +115,42 @@ class AuthController extends Controller
         $this->redirect('auth/login');
     }
 
+    /**
+     * POST /auth/kembaliAdmin — Kembali ke akun Admin setelah masukSebagai
+     */
+    public function kembaliAdmin(): void
+    {
+        $adminId = Session::get('impersonator_id');
+        if (!$adminId) {
+            $this->redirect('dashboard');
+        }
+
+        $db = new Database();
+        $db->query("SELECT * FROM users WHERE id = :id");
+        $db->bind(':id', $adminId);
+        $adminUser = $db->single();
+
+        if ($adminUser) {
+            Session::set('logged_in', true);
+            Session::set('username', $adminUser['username']);
+            Session::set('user_id', $adminUser['id']);
+            Session::set('nama_lengkap', $adminUser['nama_lengkap'] ?? $adminUser['username']);
+            Session::set('is_admin', !empty($adminUser['is_admin']) && (int)$adminUser['is_admin'] === 1);
+            if (!empty($adminUser['google_avatar'])) {
+                Session::set('google_avatar', $adminUser['google_avatar']);
+            } else {
+                Session::set('google_avatar', null);
+            }
+            Session::set('impersonator_id', null);
+            
+            Flash::set('success', 'Berhasil kembali ke akun Admin.');
+            $this->redirect('admin/users');
+        } else {
+            $this->authModel->logout();
+            $this->redirect('auth/login');
+        }
+    }
+
     // ── Google OAuth ─────────────────────────────────────────
 
     /**
