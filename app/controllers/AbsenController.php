@@ -114,6 +114,14 @@ class AbsenController extends Controller
         
         // Ambil daftar pertanyaan aktif untuk kelas ini
         $pertanyaan = $this->pertanyaanModel->getActive($userId);
+        
+        // Ambil setting acak
+        $settings = $this->pertanyaanModel->getUserSettings($userId);
+        
+        // Acak pertanyaan jika diset
+        if (!empty($settings['acak_pertanyaan'])) {
+            shuffle($pertanyaan);
+        }
 
         $this->view('absen/form', [
             'title'    => 'Absen Harian — ' . htmlspecialchars($nama),
@@ -124,6 +132,7 @@ class AbsenController extends Controller
             'existing' => $existing,
             'isEdit'   => !empty($existing),
             'pertanyaan' => $pertanyaan,
+            'settings' => $settings,
             'idWali' => $idWali
         ], false);
     }

@@ -15,10 +15,12 @@ class PertanyaanController extends Controller
     {
         $userId = Session::get('user_id');
         $pertanyaan = $this->pertanyaanModel->getAll($userId);
+        $settings = $this->pertanyaanModel->getUserSettings($userId);
 
         $this->view('pertanyaan/index', [
             'title' => 'Manajemen Pertanyaan Absen',
-            'pertanyaan' => $pertanyaan
+            'pertanyaan' => $pertanyaan,
+            'settings' => $settings
         ]);
     }
 
@@ -249,6 +251,27 @@ class PertanyaanController extends Controller
             $this->json(['success' => true, 'message' => 'Urutan berhasil disimpan']);
         } else {
             $this->json(['success' => false, 'message' => 'Gagal menyimpan beberapa urutan'], 500);
+        }
+    }
+
+    public function update_settings()
+    {
+        $this->requireAuth();
+        
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->json(['success' => false, 'message' => 'Method not allowed'], 405);
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        $acakPertanyaan = isset($input['acak_pertanyaan']) && $input['acak_pertanyaan'] ? 1 : 0;
+        $acakJawaban = isset($input['acak_jawaban']) && $input['acak_jawaban'] ? 1 : 0;
+
+        $userId = Session::get('user_id');
+        
+        if ($this->pertanyaanModel->updateSettings($userId, $acakPertanyaan, $acakJawaban)) {
+            $this->json(['success' => true, 'message' => 'Pengaturan berhasil disimpan']);
+        } else {
+            $this->json(['success' => false, 'message' => 'Gagal menyimpan pengaturan'], 500);
         }
     }
 }

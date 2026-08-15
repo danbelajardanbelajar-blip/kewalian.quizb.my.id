@@ -27,6 +27,31 @@ class PertanyaanModel extends Model
         return $this->db->resultSet();
     }
 
+    public function getUserSettings(int $userId): array
+    {
+        try {
+            $this->db->query("SELECT acak_pertanyaan, acak_jawaban FROM users WHERE id = :id");
+            $this->db->bind(':id', $userId);
+            $result = $this->db->single();
+            return $result ?: ['acak_pertanyaan' => 0, 'acak_jawaban' => 0];
+        } catch (Exception $e) {
+            return ['acak_pertanyaan' => 0, 'acak_jawaban' => 0];
+        }
+    }
+
+    public function updateSettings(int $userId, int $acakPertanyaan, int $acakJawaban): bool
+    {
+        try {
+            $this->db->query("UPDATE users SET acak_pertanyaan = :ap, acak_jawaban = :aj WHERE id = :id");
+            $this->db->bind(':ap', $acakPertanyaan);
+            $this->db->bind(':aj', $acakJawaban);
+            $this->db->bind(':id', $userId);
+            return $this->db->execute();
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
     /**
      * Ambil detail satu pertanyaan
      */

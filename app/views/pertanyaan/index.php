@@ -15,6 +15,20 @@
 
 <?= Flash::render() ?>
 
+<div class="card card-main shadow-sm mb-4">
+    <div class="card-body py-3 d-flex flex-wrap gap-4 align-items-center">
+        <div class="form-check form-switch">
+            <input class="form-check-input setting-toggle" type="checkbox" role="switch" id="switchAcakPertanyaan" data-setting="acak_pertanyaan" <?= (!empty($settings['acak_pertanyaan']) ? 'checked' : '') ?>>
+            <label class="form-check-label fw-semibold" for="switchAcakPertanyaan">Acak Urutan Pertanyaan</label>
+        </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input setting-toggle" type="checkbox" role="switch" id="switchAcakJawaban" data-setting="acak_jawaban" <?= (!empty($settings['acak_jawaban']) ? 'checked' : '') ?>>
+            <label class="form-check-label fw-semibold" for="switchAcakJawaban">Acak Urutan Jawaban</label>
+        </div>
+        <span class="text-muted small ms-auto d-none d-md-inline"><i class="bi bi-info-circle"></i> Berlaku pada tampilan absen siswa</span>
+    </div>
+</div>
+
 <div class="card card-main shadow-sm">
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -163,5 +177,34 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Toggle settings
+    document.querySelectorAll('.setting-toggle').forEach(toggle => {
+        toggle.addEventListener('change', function() {
+            const acakPertanyaan = document.getElementById('switchAcakPertanyaan').checked;
+            const acakJawaban = document.getElementById('switchAcakJawaban').checked;
+
+            fetch('<?= BASE_URL ?>/pertanyaan/update_settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    acak_pertanyaan: acakPertanyaan,
+                    acak_jawaban: acakJawaban
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) {
+                    alert('Gagal menyimpan pengaturan.');
+                    this.checked = !this.checked; // Revert
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Terjadi kesalahan saat menyimpan pengaturan.');
+                this.checked = !this.checked; // Revert
+            });
+        });
+    });
 });
 </script>

@@ -88,6 +88,11 @@ if ($totalStep === 0) {
                 $pilihanGandaList = $opsi;
             }
 
+            // Acak urutan jawaban jika diset
+            if (!empty($settings['acak_jawaban']) && !empty($pilihanGandaList)) {
+                shuffle($pilihanGandaList);
+            }
+
             // Icon dan emoji dinamis sederhana berdasarkan judul
             $emoji = '📝';
             if (stripos($p['judul'], 'sekolah') !== false) $emoji = '🏫';
