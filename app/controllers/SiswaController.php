@@ -268,4 +268,81 @@ class SiswaController extends Controller
             $this->json(['success' => false, 'message' => 'Gagal menyimpan urutan'], 500);
         }
     }
+
+    /**
+     * POST /siswa/import — Import siswa dari Excel
+     */
+    public function import(): void
+    {
+        $this->requireAuth();
+
+        if (!$this->isPost()) {
+            $this->redirect('siswa');
+        }
+
+        if (!isset($_FILES['file_excel']) || $_FILES['file_excel']['error'] !== UPLOAD_ERR_OK) {
+            Flash::set('error', 'Silakan pilih file Excel yang valid.');
+            $this->redirect('siswa');
+        }
+
+        $autoloadPath = ROOT_PATH . '/../../vendor/autoload.php';
+        if (!file_exists($autoloadPath)) {
+            Flash::set('error', 'Library PhpSpreadsheet tidak ditemukan. Pastikan vendor/autoload.php tersedia.');
+            $this->redirect('siswa');
+        }
+
+        require_once $autoloadPath;
+
+        $fileTmp = $_FILES['file_excel']['tmp_name'];
+        
+        try {
+            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($fileTmp);
+            $worksheet = $spreadsheet->getActiveSheet();
+            $rows = $worksheet->toArray();
+            
+            $userId = Session::get('user_id');
+            $db = new Database();
+            
+            $berhasil = 0;
+            $gagal = 0;
+            
+            foreach ($rows as $index => $row) {
+                if ($index === 0) continue; // Skip header
+                
+                $nama = strtoupper(trim((string)($row[0] ?? '')));
+                if (empty($nama)) continue;
+                
+                $noHp = preg_replace('/[^0-9]/', '', (string)($row[1] ?? ''));
+                $alamat = trim((string)($row[2] ?? ''));
+                
+                // Cek duplikasi
+                $db->query("SELECT id FROM siswa WHERE user_id = :uid AND nama = :nama");
+                $db->bind(':uid', $userId);
+                $db->bind(':nama', $nama);
+                if ($db->single()) {
+                    $gagal++;
+                    continue;
+                }
+                
+                $db->query("INSERT INTO siswa (user_id, nama, no_hp, alamat) VALUES (:uid, :nama, :no_hp, :alamat)");
+                $db->bind(':uid', $userId);
+                $db->bind(':nama', $nama);
+                $db->bind(':no_hp', $noHp);
+                $db->bind(':alamat', $alamat ?: null);
+                
+                if ($db->execute()) {
+                    $berhasil++;
+                } else {
+                    $gagal++;
+                }
+            }
+            
+            Flash::set('success', "Import selesai: $berhasil berhasil ditambahkan, $gagal dilewati (duplikat/gagal).");
+            
+        } catch (\Exception $e) {
+            Flash::set('error', 'Gagal memproses file Excel: ' . $e->getMessage());
+        }
+
+        $this->redirect('siswa');
+    }
 }

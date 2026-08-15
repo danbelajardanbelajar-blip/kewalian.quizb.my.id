@@ -19,9 +19,9 @@
 </div>
 
 <div class="row g-4">
-    <!-- Form Tambah Siswa -->
+    <!-- Form Tambah Siswa & Import -->
     <div class="col-12 col-md-4">
-        <div class="card card-main shadow-sm h-100">
+        <div class="card card-main shadow-sm mb-4">
             <div class="card-header-custom">
                 <i class="bi bi-person-plus me-2"></i> Tambah Siswa Baru
             </div>
@@ -56,6 +56,28 @@
                     </div>
                     <button type="submit" class="btn btn-primary-custom w-100">
                         <i class="bi bi-person-plus me-1"></i> Tambah Siswa
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Form Import Excel -->
+        <div class="card card-main shadow-sm">
+            <div class="card-header-custom">
+                <i class="bi bi-file-earmark-excel me-2"></i> Import dari Excel
+            </div>
+            <div class="card-body">
+                <form action="<?= BASE_URL ?>/siswa/import" method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="fileExcel" class="form-label fw-semibold">File Excel (.xlsx / .xls)</label>
+                        <input type="file" class="form-control" id="fileExcel" name="file_excel" accept=".xlsx, .xls, .csv" required>
+                        <div class="form-text text-muted">
+                            Format kolom: <b>A</b>=Nama, <b>B</b>=No HP, <b>C</b>=Alamat.<br>
+                            Baris pertama (header) akan diabaikan.
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="bi bi-upload me-1"></i> Import Data
                     </button>
                 </form>
             </div>
