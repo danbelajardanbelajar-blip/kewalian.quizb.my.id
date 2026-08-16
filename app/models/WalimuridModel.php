@@ -55,11 +55,35 @@ class WalimuridModel extends Model
         $results = $this->db->resultSet();
         $rankings = [];
         $rank = 1;
+        
+        // Hitung rata-rata kelas
+        $totalSemuaPoin = 0;
         foreach ($results as $row) {
+            $totalSemuaPoin += (int)($row["total_poin"] ?? 0);
+        }
+        $jumlahSiswa = count($results);
+        $avgPoin = $jumlahSiswa > 0 ? $totalSemuaPoin / $jumlahSiswa : 0;
+
+        foreach ($results as $row) {
+            $poin = (int)($row["total_poin"] ?? 0);
+            
+            // Rating 1-5 berdasarkan rata-rata kelas
+            if ($avgPoin > 0) {
+                $ratio = $poin / $avgPoin;
+                // ratio 0 = rating 1, ratio 1 (rata-rata) = rating 3, ratio 2 = rating 5
+                $rating = (int)round(1 + ($ratio * 2));
+                if ($rating < 1) $rating = 1;
+                if ($rating > 5) $rating = 5;
+            } else {
+                $rating = 0; // Jika kelas belum ada nilai sama sekali
+            }
+
             $rankings[$row["id"]] = [
                 "rank" => $rank,
+                "rating" => $rating,
                 "nama" => $row["nama"],
-                "total_poin" => $row["total_poin"] ?? 0
+                "total_poin" => $poin,
+                "avg_kelas" => round($avgPoin, 1)
             ];
             $rank++;
         }

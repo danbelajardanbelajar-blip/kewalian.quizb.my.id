@@ -54,14 +54,26 @@ function simplifyQuestion($text) {
         <div class="row mb-4">
             <div class="col-md-4 mb-3">
                 <div class="stat-card">
-                    <h3><?= htmlspecialchars($myRank["rank"] ?? "-") ?></h3>
-                    <p>Peringkat Kelas</p>
+                    <h3 class="mb-1 text-warning">
+                        <?php 
+                        $rating = $myRank["rating"] ?? 0;
+                        for ($i = 1; $i <= 5; $i++) {
+                            if ($i <= $rating) {
+                                echo '<i class="bi bi-star-fill"></i>';
+                            } else {
+                                echo '<i class="bi bi-star text-light"></i>';
+                            }
+                        }
+                        ?>
+                    </h3>
+                    <p>Rating Performa Kelas</p>
                 </div>
             </div>
             <div class="col-md-4 mb-3">
                 <div class="stat-card">
-                    <h3><?= number_format($myRank["total_poin"] ?? 0) ?></h3>
-                    <p>Total Poin</p>
+                    <h3 class="mb-0"><?= number_format($myRank["total_poin"] ?? 0) ?></h3>
+                    <p class="mb-1">Total Poin</p>
+                    <small class="text-muted d-block" style="font-size:0.75rem; margin-top:-4px;">Rata-rata kelas: <?= number_format($myRank["avg_kelas"] ?? 0) ?></small>
                 </div>
             </div>
             <div class="col-md-4 mb-3">
