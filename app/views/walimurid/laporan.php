@@ -92,17 +92,43 @@
                                     <div id="collapse<?= $i ?>" class="accordion-collapse collapse <?= $isFirst ? 'show' : '' ?>" aria-labelledby="heading<?= $i ?>" data-bs-parent="#accordionRiwayat">
                                         <div class="accordion-body bg-light">
                                             <ul class="list-group list-group-flush">
-                                                <?php foreach ($data['detail'] as $det): ?>
-                                                    <li class="list-group-item bg-transparent px-0 border-bottom-dashed">
-                                                        <div class="d-flex w-100 justify-content-between mb-1">
-                                                            <div class="text-secondary small fw-bold"><?= htmlspecialchars($det['pertanyaan']) ?></div>
-                                                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill">+<?= $det['poin'] ?></span>
+                                                <?php foreach ($data['detail'] as $det): 
+                                                    $isPositive = ((int)$det['poin'] > 0);
+                                                    $badgeClass = $isPositive ? 'bg-success' : 'bg-danger';
+                                                    $textClass = $isPositive ? 'text-success' : 'text-danger';
+                                                    $icon = $isPositive ? 'bi-check-circle-fill' : 'bi-x-circle-fill';
+                                                    
+                                                    // Deteksi tipe jawaban dari teks
+                                                    $ansLower = strtolower($det['jawaban']);
+                                                    if (strpos($ansLower, 'sudah') !== false || strpos($ansLower, 'hadir') !== false || strpos($ansLower, 'ya') !== false) {
+                                                        $icon = 'bi-check-circle-fill';
+                                                        $badgeClass = 'bg-success';
+                                                        $textClass = 'text-success';
+                                                    } elseif (strpos($ansLower, 'belum') !== false || strpos($ansLower, 'tidak') !== false || strpos($ansLower, 'alpa') !== false) {
+                                                        $icon = 'bi-x-circle-fill';
+                                                        $badgeClass = 'bg-danger';
+                                                        $textClass = 'text-danger';
+                                                    } elseif (strpos($ansLower, 'sakit') !== false || strpos($ansLower, 'izin') !== false) {
+                                                        $icon = 'bi-exclamation-circle-fill';
+                                                        $badgeClass = 'bg-warning text-dark';
+                                                        $textClass = 'text-warning';
+                                                    }
+                                                ?>
+                                                    <li class="list-group-item bg-transparent px-0 py-3 border-bottom-dashed">
+                                                        <div class="text-muted small mb-1" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                                                            <?= htmlspecialchars($det['pertanyaan']) ?>
                                                         </div>
-                                                        <div class="text-dark fw-medium ms-2">
-                                                            <i class="bi bi-arrow-return-right me-1 text-muted"></i> <?= htmlspecialchars($det['jawaban']) ?>
+                                                        <div class="d-flex w-100 justify-content-between align-items-center">
+                                                            <div class="fw-bold <?= $textClass ?> d-flex align-items-center gap-2" style="font-size: 1.15rem;">
+                                                                <i class="bi <?= $icon ?> fs-4"></i>
+                                                                <?= htmlspecialchars($det['jawaban']) ?>
+                                                            </div>
+                                                            <span class="badge <?= $badgeClass ?> rounded-pill px-3 py-2 fs-6">+<?= $det['poin'] ?></span>
                                                         </div>
                                                         <?php if (!empty($det['keterangan'])): ?>
-                                                            <div class="text-muted small fst-italic ms-4 mt-1"><i class="bi bi-info-circle me-1"></i><?= htmlspecialchars($det['keterangan']) ?></div>
+                                                            <div class="text-secondary small fst-italic mt-2 p-2 bg-light rounded border-start border-3 <?= str_replace('text-', 'border-', $textClass) ?>">
+                                                                <i class="bi bi-chat-text me-1"></i> <?= htmlspecialchars($det['keterangan']) ?>
+                                                            </div>
                                                         <?php endif; ?>
                                                     </li>
                                                 <?php endforeach; ?>

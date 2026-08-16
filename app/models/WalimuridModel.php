@@ -70,7 +70,7 @@ class WalimuridModel extends Model
         $this->db->query("
             SELECT h.tanggal, h.waktu_isi,
                    d.jawaban, d.keterangan, d.poin,
-                   p.judul as pertanyaan, p.urutan
+                   p.judul as pertanyaan, p.urutan, p.tipe
             FROM absen_header h
             JOIN absen_detail d ON h.id = d.id_absen
             LEFT JOIN pertanyaan p ON d.id_pertanyaan = p.id
@@ -96,7 +96,8 @@ class WalimuridModel extends Model
                 'pertanyaan' => $row['pertanyaan'] ?? 'Pertanyaan Dihapus',
                 'jawaban' => $row['jawaban'],
                 'keterangan' => $row['keterangan'],
-                'poin' => $row['poin']
+                'poin' => $row['poin'],
+                'tipe' => $row['tipe'] ?? 'unknown'
             ];
         }
         return $riwayat;
