@@ -142,7 +142,7 @@ if ($totalStep === 0) {
                                            name="jawaban[<?= $pId ?>]"
                                            value="<?= htmlspecialchars($op['value']) ?>"
                                            <?= $checked ?>
-                                           class="d-none option-radio"
+                                           class="visually-hidden option-radio"
                                            data-field="<?= $pId ?>"
                                            data-reqket="<?= !empty($op['require_ket']) ? '1' : '0' ?>"
                                            data-reqangka="<?= !empty($op['require_angka']) ? '1' : '0' ?>">
