@@ -5,6 +5,7 @@ require_once APP_PATH . '/models/KonfigurasiModel.php';
 require_once APP_PATH . '/models/PertanyaanModel.php';
 require_once APP_PATH . '/models/KunjunganModel.php';
 require_once APP_PATH . '/models/WalimuridModel.php';
+require_once APP_PATH . '/models/WaTemplateModel.php';
 /**
  * AbsenController.php
  * Absen Mandiri Siswa — TIDAK memerlukan login
@@ -250,34 +251,44 @@ class AbsenController extends Controller
                 $namaSiswa = ucwords(strtolower($siswaRow['nama']));
                 $aksi = $isEdit ? "diperbarui" : "disubmit";
                 
-                $pesan = "Salam Bapak/Ibu, Semoga senantiasa diberi kesehatan.\nIzin menghaturkan rekap kegiatan ananda *" . $namaSiswa . "* selama sehari di tanggal *" . date('d F Y', strtotime($tanggal)) . "*.\n\n";
-                $pesan .= "*--- RINCIAN LAPORAN ---*\n";
+                $waModel = new WaTemplateModel();
+                $template = $waModel->getTemplate((int)$userId);
+                
+                if (empty($template)) {
+                    $template = "Salam Bapak/Ibu, Semoga senantiasa diberi kesehatan.\nIzin menghaturkan rekap kegiatan ananda *{nama_siswa}* selama sehari di tanggal *{tanggal}*.\n\n*--- RINCIAN LAPORAN ---*\n\n{rincian}\n*Rating Harian:* {rating}/5\n\nUntuk melihat statistik dan riwayat lengkap ananda, silakan klik tautan berikut:\n{link_laporan}";
+                }
                 
                 $walimuridModel = new WalimuridModel();
                 $riwayat = $walimuridModel->getRiwayatDetail($id);
                 $hariIni = $riwayat[$tanggal] ?? null;
                 
+                $rincian = "";
                 if ($hariIni && !empty($hariIni['detail'])) {
                     foreach ($hariIni['detail'] as $det) {
-                        
                         // Simplify question text like in laporan, make it Proper Case
                         $qText = strtolower(trim($det['pertanyaan']));
                         $qText = str_replace(['apakah ', 'kemarin ', 'pagi ', 'sore ', 'malam ', 'siang ', 'hari ini', 'tadi ', 'ananda ', '{{nama}}', 'berapa ', 'kapan ', 'sudahkah ', 'telahkah ', 'tolong '], '', $qText);
                         $qText = str_replace(['?', ':', '!', '.', ','], '', $qText);
                         $qText = trim(preg_replace('/\s+/', ' ', $qText));
-                        $qText = ucwords($qText); // Proper Case
-
-                        $pesan .= "\n*" . $qText . "*\n";
-                        $pesan .= $det['jawaban'] . "\n";
+                        $qText = ucwords($qText);
+                        
+                        $rincian .= "*" . $qText . "*\n";
+                        $rincian .= $det['jawaban'] . "\n";
                         if (!empty($det['keterangan'])) {
-                            $pesan .= "_Catatan: " . $det['keterangan'] . "_\n";
+                            $rincian .= "_Catatan: " . $det['keterangan'] . "_\n";
                         }
+                        $rincian .= "\n";
                     }
-                    $pesan .= "\n*Rating Harian:* " . ($hariIni['rating'] ?? 0) . "/5\n";
                 }
                 
                 $link = "https://wali.quizb.my.id/walimurid?id=" . $id . "&no_hp=" . urlencode($noHp);
-                $pesan .= "\n\nUntuk melihat statistik dan riwayat lengkap ananda, silakan klik tautan berikut:\n" . $link;
+                $tanggalIndo = date('d F Y', strtotime($tanggal));
+                
+                $pesan = str_replace(
+                    ['{nama_siswa}', '{tanggal}', '{rincian}', '{rating}', '{link_laporan}'],
+                    [$namaSiswa, $tanggalIndo, trim($rincian), ($hariIni['rating'] ?? 0), $link],
+                    $template
+                );
                 
                 $waData = [
                     'phone_number' => $noHp,

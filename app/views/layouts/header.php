@@ -98,6 +98,12 @@ $pageTitle = $title ?? 'Dashboard Wali Kelas';
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/watemplate') !== false ? 'active' : '' ?>"
+                       href="<?= BASE_URL ?>/watemplate">
+                        <i class="bi bi-whatsapp me-1"></i> Template WA
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/feedback') !== false ? 'active' : '' ?>"
                        href="<?= BASE_URL ?>/feedback">
                         <i class="bi bi-chat-heart me-1"></i> Kirim Feedback
