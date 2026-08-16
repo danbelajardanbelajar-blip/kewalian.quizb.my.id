@@ -63,6 +63,15 @@ class WalimuridController extends Controller
             die("Data siswa tidak ditemukan.");
         }
 
+        // Auto login via GET parameter no_hp
+        $noHpGet = $_GET["no_hp"] ?? "";
+        if (!empty($noHpGet)) {
+            if ($this->walimuridModel->verifyNoHp($id, $noHpGet)) {
+                Session::set("walimurid_logged_in_" . $id, true);
+                Session::set("walimurid_hp_" . $id, $noHpGet);
+            }
+        }
+
         // Cek apakah sudah login sebagai wali murid
         $sessionKey = "walimurid_logged_in_" . $id;
         if (!Session::get($sessionKey)) {

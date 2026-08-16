@@ -4,6 +4,7 @@ require_once APP_PATH . '/models/AbsenModel.php';
 require_once APP_PATH . '/models/KonfigurasiModel.php';
 require_once APP_PATH . '/models/PertanyaanModel.php';
 require_once APP_PATH . '/models/KunjunganModel.php';
+require_once APP_PATH . '/models/WalimuridModel.php';
 /**
  * AbsenController.php
  * Absen Mandiri Siswa — TIDAK memerlukan login
@@ -249,7 +250,47 @@ class AbsenController extends Controller
                 $namaSiswa = $siswaRow['nama'];
                 $aksi = $isEdit ? "diperbarui" : "disubmit";
                 
-                $pesan = "Halo Bapak/Ibu, laporan kegiatan dan absen untuk ananda *" . $namaSiswa . "* pada tanggal *" . date('d F Y', strtotime($tanggal)) . "* telah berhasil " . $aksi . ". Terima kasih.";
+                $pesan = "Halo Bapak/Ibu, laporan kegiatan dan absen untuk ananda *" . $namaSiswa . "* pada tanggal *" . date('d F Y', strtotime($tanggal)) . "* telah berhasil " . $aksi . ".\n\n";
+                $pesan .= "*--- RINCIAN LAPORAN ---*\n";
+                
+                $walimuridModel = new WalimuridModel();
+                $riwayat = $walimuridModel->getRiwayatDetail($id);
+                $hariIni = $riwayat[$tanggal] ?? null;
+                
+                if ($hariIni && !empty($hariIni['detail'])) {
+                    foreach ($hariIni['detail'] as $det) {
+                        $isPositive = ((int)$det['poin'] > 0);
+                        $ansLower = strtolower($det['jawaban']);
+                        
+                        $icon = $isPositive ? '✅' : '❌';
+                        if (strpos($ansLower, 'sudah') !== false || strpos($ansLower, 'hadir') !== false || strpos($ansLower, 'ya') !== false) {
+                            $icon = '✅';
+                        } elseif (strpos($ansLower, 'belum') !== false || strpos($ansLower, 'tidak') !== false || strpos($ansLower, 'alpa') !== false) {
+                            $icon = '❌';
+                        } elseif (strpos($ansLower, 'sakit') !== false || strpos($ansLower, 'izin') !== false) {
+                            $icon = '⚠️';
+                        }
+                        
+                        // Simplify question text like in laporan
+                        $qText = strtolower(trim($det['pertanyaan']));
+                        $qText = str_replace(['apakah ', 'kemarin ', 'pagi ', 'sore ', 'malam ', 'siang ', 'hari ini', 'tadi ', 'ananda ', '{{nama}}', 'berapa ', 'kapan ', 'sudahkah ', 'telahkah ', 'tolong '], '', $qText);
+                        $qText = str_replace(['?', ':', '!', '.', ','], '', $qText);
+                        $qText = trim(preg_replace('/\s+/', ' ', $qText));
+                        $qText = mb_strtoupper($qText);
+
+                        $pesan .= "\n*" . $qText . "*\n";
+                        $pesan .= $icon . " " . $det['jawaban'] . " (+".$det['poin'].")\n";
+                        if (!empty($det['keterangan'])) {
+                            $pesan .= "_Catatan: " . $det['keterangan'] . "_\n";
+                        }
+                    }
+                    $pesan .= "\n*Total Poin:* " . $hariIni['total_poin'];
+                    $pesan .= "\n*Rating Harian:* " . ($hariIni['rating'] ?? 0) . "/5";
+                    $pesan .= "\n*Rata-rata Kelas:* " . ($hariIni['avg_kelas'] ?? 0) . "\n";
+                }
+                
+                $link = "https://wali.quizb.my.id/walimurid?id=" . $id . "&no_hp=" . urlencode($noHp);
+                $pesan .= "\n\nUntuk melihat statistik dan riwayat lengkap ananda, silakan klik tautan berikut:\n" . $link;
                 
                 $waData = [
                     'phone_number' => $noHp,
