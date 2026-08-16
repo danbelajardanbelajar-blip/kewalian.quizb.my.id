@@ -66,8 +66,10 @@ require_once APP_PATH . '/views/admin/layout_admin.php';
                                         $pct = $max > 0 ? ($hal['jumlah'] / $max) * 100 : 0;
                                     ?>
                                     <tr>
-                                        <td class="ps-4 text-truncate" style="max-width: 150px;" title="<?= htmlspecialchars($hal['halaman'] ?? '') ?>">
-                                            <span class="badge bg-light text-dark border"><?= htmlspecialchars($hal['halaman'] ?? '') ?></span>
+                                        <td class="ps-4" style="max-width: 200px;" title="<?= htmlspecialchars($hal['halaman'] ?? '') ?>">
+                                            <span class="badge bg-light text-dark border text-wrap text-start text-break" style="line-height: 1.4; word-break: break-word;">
+                                                <?= htmlspecialchars($hal['halaman'] ?? '') ?>
+                                            </span>
                                         </td>
                                         <td class="text-end fw-bold"><?= number_format($hal['jumlah']) ?></td>
                                         <td class="pe-4">
@@ -118,7 +120,11 @@ require_once APP_PATH . '/views/admin/layout_admin.php';
                                             <div class="small text-muted"><?= date('H:i:s', strtotime($log['created_at'])) ?></div>
                                         </td>
                                         <td><span class="font-monospace small"><?= htmlspecialchars($log['ip'] ?? '') ?></span></td>
-                                        <td><span class="badge bg-light text-primary border"><?= htmlspecialchars($log['halaman'] ?? '') ?></span></td>
+                                        <td style="max-width: 200px;">
+                                            <span class="badge bg-light text-primary border text-wrap text-start text-break" style="line-height: 1.4; word-break: break-word;">
+                                                <?= htmlspecialchars($log['halaman'] ?? '') ?>
+                                            </span>
+                                        </td>
                                         <td>
                                             <?php if(!empty($log['nama_wali'])): ?>
                                                 <div class="small text-primary"><i class="bi bi-person-badge"></i> <?= htmlspecialchars($log['nama_wali']) ?></div>
