@@ -70,7 +70,7 @@ class WalimuridModel extends Model
         $this->db->query("
             SELECT h.tanggal, h.waktu_isi,
                    d.jawaban, d.keterangan, d.poin,
-                   p.judul as pertanyaan, p.urutan, p.tipe
+                   p.judul as pertanyaan, p.urutan, p.tipe, p.opsi
             FROM absen_header h
             JOIN absen_detail d ON h.id = d.id_absen
             LEFT JOIN pertanyaan p ON d.id_pertanyaan = p.id
@@ -91,10 +91,39 @@ class WalimuridModel extends Model
                     'detail' => []
                 ];
             }
+            
+            $jawabanLabel = $row['jawaban'];
+            if (!empty($row['opsi'])) {
+                $opsiArr = json_decode($row['opsi'], true);
+                if ($row['tipe'] === 'pilihan_ganda' && is_array($opsiArr)) {
+                    foreach ($opsiArr as $op) {
+                        if (isset($op['value']) && $op['value'] === $jawabanLabel) {
+                            $jawabanLabel = $op['label'] ?? $jawabanLabel;
+                            break;
+                        }
+                    }
+                } elseif ($row['tipe'] === 'ganda_dan_angka' && is_array($opsiArr) && isset($opsiArr['pilihan'])) {
+                    // ganda_dan_angka saves answer as "value:angka"
+                    $parts = explode(':', $jawabanLabel);
+                    $val = $parts[0] ?? '';
+                    $num = $parts[1] ?? '';
+                    foreach ($opsiArr['pilihan'] as $op) {
+                        if (isset($op['value']) && $op['value'] === $val) {
+                            $jawabanLabel = $op['label'] ?? $val;
+                            if (!empty($num) && $num !== '0') {
+                                $satuan = $opsiArr['angka']['satuan'] ?? '';
+                                $jawabanLabel .= " ($num $satuan)";
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+            
             $riwayat[$tanggal]['total_poin'] += $row['poin'];
             $riwayat[$tanggal]['detail'][] = [
                 'pertanyaan' => $row['pertanyaan'] ?? 'Pertanyaan Dihapus',
-                'jawaban' => $row['jawaban'],
+                'jawaban' => $jawabanLabel,
                 'keterangan' => $row['keterangan'],
                 'poin' => $row['poin'],
                 'tipe' => $row['tipe'] ?? 'unknown'
