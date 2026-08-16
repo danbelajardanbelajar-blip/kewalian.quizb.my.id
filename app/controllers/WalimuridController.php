@@ -75,15 +75,25 @@ class WalimuridController extends Controller
 
         // Kalau sudah login, tampilkan laporan
         $progress = $this->walimuridModel->getProgress($id);
-        $rankings = $this->walimuridModel->getRanking($siswa["user_id"]);
-        $myRank = $rankings[$id] ?? ["rank" => "-", "total_poin" => 0];
+        
+        $rankMingguan = $this->walimuridModel->getRanking($siswa["user_id"], 7);
+        $rankBulanan  = $this->walimuridModel->getRanking($siswa["user_id"], 30);
+        $rankTahunan  = $this->walimuridModel->getRanking($siswa["user_id"], 365);
+        $rankSemua    = $this->walimuridModel->getRanking($siswa["user_id"]);
+        
+        $myRank = [
+            'mingguan' => $rankMingguan[$id] ?? ["rating" => 0, "total_poin" => 0, "avg_kelas" => 0],
+            'bulanan'  => $rankBulanan[$id] ?? ["rating" => 0, "total_poin" => 0, "avg_kelas" => 0],
+            'tahunan'  => $rankTahunan[$id] ?? ["rating" => 0, "total_poin" => 0, "avg_kelas" => 0],
+            'semua'    => $rankSemua[$id] ?? ["rating" => 0, "total_poin" => 0, "avg_kelas" => 0]
+        ];
+
         $riwayatDetail = $this->walimuridModel->getRiwayatDetail($id);
         
         $this->view("walimurid/laporan", [
             "title" => "Laporan Siswa - " . htmlspecialchars($siswa["nama"]),
             "siswa" => $siswa,
             "progress" => $progress,
-            "rankings" => $rankings,
             "myRank" => $myRank,
             "riwayatDetail" => $riwayatDetail
         ], false);

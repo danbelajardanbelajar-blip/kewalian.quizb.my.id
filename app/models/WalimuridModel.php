@@ -38,19 +38,27 @@ class WalimuridModel extends Model
         return $this->db->resultSet();
     }
 
-    public function getRanking(int $user_id): array
+    public function getRanking(int $user_id, ?int $days = null): array
     {
+        $dateFilter = "";
+        if ($days !== null) {
+            $dateFilter = "AND h.tanggal >= :start_date";
+        }
+
         // Get total poin for all students in the same class (user_id)
         $this->db->query("
             SELECT s.id, s.nama, COALESCE(SUM(d.poin), 0) as total_poin
             FROM siswa s
-            LEFT JOIN absen_header h ON s.id = h.id_siswa
+            LEFT JOIN absen_header h ON s.id = h.id_siswa $dateFilter
             LEFT JOIN absen_detail d ON h.id = d.id_absen
             WHERE s.user_id = :user_id
             GROUP BY s.id, s.nama
             ORDER BY total_poin DESC
         ");
         $this->db->bind(":user_id", $user_id);
+        if ($days !== null) {
+            $this->db->bind(":start_date", date('Y-m-d', strtotime("-$days days")));
+        }
         
         $results = $this->db->resultSet();
         $rankings = [];
@@ -153,7 +161,45 @@ class WalimuridModel extends Model
                 'tipe' => $row['tipe'] ?? 'unknown'
             ];
         }
+
+        // Get user_id to calculate daily class average
+        $this->db->query("SELECT user_id FROM siswa WHERE id = :id");
+        $this->db->bind(":id", $id_siswa);
+        $user_id = $this->db->single()['user_id'] ?? 0;
+
+        $avgPerDay = [];
+        if ($user_id) {
+            $this->db->query("
+                SELECT h.tanggal, COUNT(DISTINCT h.id_siswa) as jml_siswa, COALESCE(SUM(d.poin), 0) as total_poin
+                FROM absen_header h
+                JOIN absen_detail d ON h.id = d.id_absen
+                JOIN siswa s ON h.id_siswa = s.id
+                WHERE s.user_id = :user_id
+                GROUP BY h.tanggal
+            ");
+            $this->db->bind(":user_id", $user_id);
+            $avgResults = $this->db->resultSet();
+            foreach ($avgResults as $avgRow) {
+                $jml = (int)$avgRow['jml_siswa'];
+                $avgPerDay[$avgRow['tanggal']] = $jml > 0 ? (int)$avgRow['total_poin'] / $jml : 0;
+            }
+        }
+
+        // Hitung rating harian
+        foreach ($riwayat as $tgl => &$r) {
+            $avg = $avgPerDay[$tgl] ?? 0;
+            $r['avg_kelas'] = round($avg, 1);
+            if ($avg > 0) {
+                $ratio = $r['total_poin'] / $avg;
+                $rating = (int)round(1 + ($ratio * 2));
+                if ($rating < 1) $rating = 1;
+                if ($rating > 5) $rating = 5;
+                $r['rating'] = $rating;
+            } else {
+                $r['rating'] = 0; // fallback if somehow avg is 0
+            }
+        }
+
         return $riwayat;
     }
 }
-

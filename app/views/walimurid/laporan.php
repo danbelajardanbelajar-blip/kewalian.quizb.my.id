@@ -52,36 +52,35 @@ function simplifyQuestion($text) {
         </div>
 
         <div class="row mb-4">
+            <?php
+            $periods = [
+                ['title' => 'Performa Mingguan', 'key' => 'mingguan', 'subtitle' => '7 Hari Terakhir'],
+                ['title' => 'Performa Bulanan', 'key' => 'bulanan', 'subtitle' => '30 Hari Terakhir'],
+                ['title' => 'Performa Tahunan', 'key' => 'tahunan', 'subtitle' => '1 Tahun Terakhir']
+            ];
+            foreach ($periods as $p):
+                $r = $myRank[$p['key']]['rating'];
+                $pt = $myRank[$p['key']]['total_poin'];
+                $avg = $myRank[$p['key']]['avg_kelas'];
+            ?>
             <div class="col-md-4 mb-3">
-                <div class="stat-card">
+                <div class="stat-card py-3">
                     <h3 class="mb-1 text-warning">
                         <?php 
-                        $rating = $myRank["rating"] ?? 0;
                         for ($i = 1; $i <= 5; $i++) {
-                            if ($i <= $rating) {
-                                echo '<i class="bi bi-star-fill"></i>';
-                            } else {
-                                echo '<i class="bi bi-star text-light"></i>';
-                            }
+                            echo ($i <= $r) ? '<i class="bi bi-star-fill"></i>' : '<i class="bi bi-star text-light"></i>';
                         }
                         ?>
                     </h3>
-                    <p>Rating Performa Kelas</p>
+                    <p class="mb-0 fw-bold"><?= $p['title'] ?></p>
+                    <small class="text-muted d-block mb-2" style="font-size:0.75rem;"><?= $p['subtitle'] ?></small>
+                    <div class="d-flex justify-content-center gap-3 text-muted" style="font-size:0.8rem;">
+                        <span><i class="bi bi-award text-primary me-1"></i> <?= number_format($pt) ?> Poin</span>
+                        <span><i class="bi bi-people me-1"></i> Rata-rata: <?= number_format($avg, 1) ?></span>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-4 mb-3">
-                <div class="stat-card">
-                    <h3 class="mb-0"><?= number_format($myRank["total_poin"] ?? 0) ?></h3>
-                    <p class="mb-1">Total Poin</p>
-                    <small class="text-muted d-block" style="font-size:0.75rem; margin-top:-4px;">Rata-rata kelas: <?= number_format($myRank["avg_kelas"] ?? 0) ?></small>
-                </div>
-            </div>
-            <div class="col-md-4 mb-3">
-                <div class="stat-card">
-                    <h3><?= count($progress) ?></h3>
-                    <p>Hari Kehadiran</p>
-                </div>
-            </div>
+            <?php endforeach; ?>
         </div>
 
         <div class="card card-main mb-4">
@@ -109,9 +108,26 @@ function simplifyQuestion($text) {
                                 <div class="accordion-item border mb-2 rounded shadow-sm">
                                     <h2 class="accordion-header" id="heading<?= $i ?>">
                                         <button class="accordion-button <?= $isFirst ? '' : 'collapsed' ?> rounded" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<?= $i ?>" aria-expanded="<?= $isFirst ? 'true' : 'false' ?>" aria-controls="collapse<?= $i ?>">
-                                            <div class="d-flex justify-content-between w-100 pe-3 align-items-center">
-                                                <span class="fw-bold"><i class="bi bi-calendar-check me-2 text-primary"></i><?= date("d F Y", strtotime($tanggal)) ?></span>
-                                                <span class="badge bg-primary rounded-pill px-3 py-2"><?= number_format($data['total_poin']) ?> Poin</span>
+                                            <div class="d-flex flex-column w-100 pe-3">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <span class="fw-bold"><i class="bi bi-calendar-check me-2 text-primary"></i><?= date("d F Y", strtotime($tanggal)) ?></span>
+                                                    <span class="badge bg-primary rounded-pill px-3 py-2"><?= number_format($data['total_poin']) ?> Poin</span>
+                                                </div>
+                                                <div class="d-flex justify-content-between align-items-center text-muted" style="font-size: 0.8rem;">
+                                                    <span>
+                                                        <?php 
+                                                        $dailyRating = $data['rating'] ?? 0;
+                                                        for ($r = 1; $r <= 5; $r++) {
+                                                            if ($r <= $dailyRating) {
+                                                                echo '<i class="bi bi-star-fill text-warning"></i>';
+                                                            } else {
+                                                                echo '<i class="bi bi-star text-light"></i>';
+                                                            }
+                                                        }
+                                                        ?>
+                                                    </span>
+                                                    <span>Rata-rata kelas: <?= number_format($data['avg_kelas'] ?? 0, 1) ?></span>
+                                                </div>
                                             </div>
                                         </button>
                                     </h2>
