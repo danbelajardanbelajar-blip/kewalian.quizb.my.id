@@ -2,7 +2,7 @@
 require_once APP_PATH . "/core/Controller.php";
 require_once APP_PATH . "/models/WaTemplateModel.php";
 
-class WaTemplateController extends Controller
+class WatemplateController extends Controller
 {
     private WaTemplateModel $waModel;
 
