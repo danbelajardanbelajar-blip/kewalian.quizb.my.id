@@ -65,5 +65,41 @@ class WalimuridModel extends Model
         }
         return $rankings;
     }
+    public function getRiwayatDetail(int $id_siswa): array
+    {
+        $this->db->query("
+            SELECT h.tanggal, h.waktu_isi,
+                   d.jawaban, d.keterangan, d.poin,
+                   p.judul as pertanyaan, p.urutan
+            FROM absen_header h
+            JOIN absen_detail d ON h.id = d.id_absen
+            LEFT JOIN pertanyaan p ON d.id_pertanyaan = p.id
+            WHERE h.id_siswa = :id_siswa
+            ORDER BY h.tanggal DESC, p.urutan ASC
+        ");
+        $this->db->bind(":id_siswa", $id_siswa);
+        $results = $this->db->resultSet();
+        
+        $riwayat = [];
+        foreach ($results as $row) {
+            $tanggal = $row['tanggal'];
+            if (!isset($riwayat[$tanggal])) {
+                $riwayat[$tanggal] = [
+                    'tanggal' => $tanggal,
+                    'waktu_isi' => $row['waktu_isi'],
+                    'total_poin' => 0,
+                    'detail' => []
+                ];
+            }
+            $riwayat[$tanggal]['total_poin'] += $row['poin'];
+            $riwayat[$tanggal]['detail'][] = [
+                'pertanyaan' => $row['pertanyaan'] ?? 'Pertanyaan Dihapus',
+                'jawaban' => $row['jawaban'],
+                'keterangan' => $row['keterangan'],
+                'poin' => $row['poin']
+            ];
+        }
+        return $riwayat;
+    }
 }
 

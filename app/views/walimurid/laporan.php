@@ -68,38 +68,69 @@
         <div class="card card-main">
             <div class="card-body p-0">
                 <div class="p-4 border-bottom bg-light rounded-top">
-                    <h5 class="card-title fw-bold mb-0"><i class="bi bi-list-check me-2 text-primary"></i> Riwayat Absensi Terakhir</h5>
+                    <h5 class="card-title fw-bold mb-0"><i class="bi bi-list-check me-2 text-primary"></i> Rincian Absensi & Jawaban Terakhir</h5>
                 </div>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th class="px-4 py-3">Tanggal</th>
-                                <th class="py-3 text-center">Poin Didapat</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (empty($progress)): ?>
-                                <tr>
-                                    <td colspan="2" class="text-center py-4 text-muted">Belum ada data absensi.</td>
-                                </tr>
-                            <?php else: ?>
-                                <?php 
-                                $reversedProgress = array_reverse($progress);
-                                foreach (array_slice($reversedProgress, 0, 10) as $row): 
-                                ?>
-                                    <tr>
-                                        <td class="px-4"><?= date("d F Y", strtotime($row["tanggal"])) ?></td>
-                                        <td class="text-center fw-bold text-primary"><?= number_format($row["total_poin"]) ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
+                <div class="p-4">
+                    <?php if (empty($riwayatDetail)): ?>
+                        <div class="text-center py-4 text-muted">Belum ada data absensi.</div>
+                    <?php else: ?>
+                        <div class="accordion" id="accordionRiwayat">
+                            <?php 
+                            $i = 0;
+                            foreach ($riwayatDetail as $tanggal => $data): 
+                                $isFirst = ($i === 0);
+                            ?>
+                                <div class="accordion-item border mb-2 rounded shadow-sm">
+                                    <h2 class="accordion-header" id="heading<?= $i ?>">
+                                        <button class="accordion-button <?= $isFirst ? '' : 'collapsed' ?> rounded" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<?= $i ?>" aria-expanded="<?= $isFirst ? 'true' : 'false' ?>" aria-controls="collapse<?= $i ?>">
+                                            <div class="d-flex justify-content-between w-100 pe-3 align-items-center">
+                                                <span class="fw-bold"><i class="bi bi-calendar-check me-2 text-primary"></i><?= date("d F Y", strtotime($tanggal)) ?></span>
+                                                <span class="badge bg-primary rounded-pill px-3 py-2"><?= number_format($data['total_poin']) ?> Poin</span>
+                                            </div>
+                                        </button>
+                                    </h2>
+                                    <div id="collapse<?= $i ?>" class="accordion-collapse collapse <?= $isFirst ? 'show' : '' ?>" aria-labelledby="heading<?= $i ?>" data-bs-parent="#accordionRiwayat">
+                                        <div class="accordion-body bg-light">
+                                            <ul class="list-group list-group-flush">
+                                                <?php foreach ($data['detail'] as $det): ?>
+                                                    <li class="list-group-item bg-transparent px-0 border-bottom-dashed">
+                                                        <div class="d-flex w-100 justify-content-between mb-1">
+                                                            <div class="text-secondary small fw-bold"><?= htmlspecialchars($det['pertanyaan']) ?></div>
+                                                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill">+<?= $det['poin'] ?></span>
+                                                        </div>
+                                                        <div class="text-dark fw-medium ms-2">
+                                                            <i class="bi bi-arrow-return-right me-1 text-muted"></i> <?= htmlspecialchars($det['jawaban']) ?>
+                                                        </div>
+                                                        <?php if (!empty($det['keterangan'])): ?>
+                                                            <div class="text-muted small fst-italic ms-4 mt-1"><i class="bi bi-info-circle me-1"></i><?= htmlspecialchars($det['keterangan']) ?></div>
+                                                        <?php endif; ?>
+                                                    </li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php 
+                                $i++;
+                                // Tampilkan max 10 data terakhir
+                                if ($i >= 10) break;
+                            endforeach; 
+                            ?>
+                        </div>
+                        <style>
+                            .accordion-button:not(.collapsed) { background-color: #f8f9fa; color: inherit; box-shadow: none; }
+                            .accordion-item { border-radius: 0.5rem !important; overflow: hidden; }
+                            .accordion-button:focus { box-shadow: none; }
+                            .border-bottom-dashed { border-bottom: 1px dashed #dee2e6 !important; }
+                            .border-bottom-dashed:last-child { border-bottom: none !important; }
+                        </style>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
     </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {

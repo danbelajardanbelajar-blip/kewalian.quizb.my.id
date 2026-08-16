@@ -39,13 +39,15 @@ class WalimuridController extends Controller
         $progress = $this->walimuridModel->getProgress($id);
         $rankings = $this->walimuridModel->getRanking($siswa["user_id"]);
         $myRank = $rankings[$id] ?? ["rank" => "-", "total_poin" => 0];
+        $riwayatDetail = $this->walimuridModel->getRiwayatDetail($id);
         
         $this->view("walimurid/laporan", [
             "title" => "Laporan Siswa - " . htmlspecialchars($siswa["nama"]),
             "siswa" => $siswa,
             "progress" => $progress,
             "rankings" => $rankings,
-            "myRank" => $myRank
+            "myRank" => $myRank,
+            "riwayatDetail" => $riwayatDetail
         ], false);
     }
 
