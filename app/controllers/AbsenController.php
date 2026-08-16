@@ -247,10 +247,10 @@ class AbsenController extends Controller
             
             if ($siswaRow && !empty($siswaRow['no_hp'])) {
                 $noHp = $siswaRow['no_hp'];
-                $namaSiswa = $siswaRow['nama'];
+                $namaSiswa = ucwords(strtolower($siswaRow['nama']));
                 $aksi = $isEdit ? "diperbarui" : "disubmit";
                 
-                $pesan = "Salam Bapak/Ibu, Semoga senantiasa sehat. Izin menghaturkan rekap kegiatan ananda *" . $namaSiswa . "* selama sehari di tanggal *" . date('d F Y', strtotime($tanggal)) . "*.\n\n";
+                $pesan = "Salam Bapak/Ibu, Semoga senantiasa diberi kesehatan.\nIzin menghaturkan rekap kegiatan ananda *" . $namaSiswa . "* selama sehari di tanggal *" . date('d F Y', strtotime($tanggal)) . "*.\n\n";
                 $pesan .= "*--- RINCIAN LAPORAN ---*\n";
                 
                 $walimuridModel = new WalimuridModel();
@@ -259,17 +259,6 @@ class AbsenController extends Controller
                 
                 if ($hariIni && !empty($hariIni['detail'])) {
                     foreach ($hariIni['detail'] as $det) {
-                        $isPositive = ((int)$det['poin'] > 0);
-                        $ansLower = strtolower($det['jawaban']);
-                        
-                        $icon = $isPositive ? '✅' : '❌';
-                        if (strpos($ansLower, 'sudah') !== false || strpos($ansLower, 'hadir') !== false || strpos($ansLower, 'ya') !== false) {
-                            $icon = '✅';
-                        } elseif (strpos($ansLower, 'belum') !== false || strpos($ansLower, 'tidak') !== false || strpos($ansLower, 'alpa') !== false) {
-                            $icon = '❌';
-                        } elseif (strpos($ansLower, 'sakit') !== false || strpos($ansLower, 'izin') !== false) {
-                            $icon = '⚠️';
-                        }
                         
                         // Simplify question text like in laporan, make it Proper Case
                         $qText = strtolower(trim($det['pertanyaan']));
@@ -279,7 +268,7 @@ class AbsenController extends Controller
                         $qText = ucwords($qText); // Proper Case
 
                         $pesan .= "\n*" . $qText . "*\n";
-                        $pesan .= $icon . " " . $det['jawaban'] . "\n";
+                        $pesan .= $det['jawaban'] . "\n";
                         if (!empty($det['keterangan'])) {
                             $pesan .= "_Catatan: " . $det['keterangan'] . "_\n";
                         }
