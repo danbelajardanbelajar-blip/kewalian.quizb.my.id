@@ -94,7 +94,14 @@ class AdminModel extends Model
     public function getKunjungan(int $page = 1, int $perPage = 50): array
     {
         $offset = ($page - 1) * $perPage;
-        $this->db->query("SELECT k.*, u.nama_lengkap FROM kunjungan k LEFT JOIN users u ON k.wali_id = u.id ORDER BY k.created_at DESC LIMIT :limit OFFSET :offset");
+        $this->db->query("
+            SELECT k.*, u.nama_lengkap as nama_wali, s.nama as nama_siswa 
+            FROM kunjungan k 
+            LEFT JOIN users u ON k.wali_id = u.id 
+            LEFT JOIN siswa s ON k.id_siswa = s.id
+            ORDER BY k.created_at DESC 
+            LIMIT :limit OFFSET :offset
+        ");
         $this->db->bind(':limit', $perPage);
         $this->db->bind(':offset', $offset);
         return $this->db->resultSet();

@@ -73,6 +73,12 @@ class WalimuridController extends Controller
             return;
         }
 
+        // Catat kunjungan
+        $noHp = Session::get("walimurid_hp_" . $id) ?: '';
+        require_once APP_PATH . "/models/KunjunganModel.php";
+        $kModel = new KunjunganModel();
+        $kModel->record("Laporan Walimurid", $siswa['user_id'] ?? null, $id, $noHp);
+
         // Kalau sudah login, tampilkan laporan
         $progress = $this->walimuridModel->getProgress($id);
         
@@ -115,6 +121,7 @@ class WalimuridController extends Controller
 
         if ($this->walimuridModel->verifyNoHp($id, $noHp)) {
             Session::set("walimurid_logged_in_" . $id, true);
+            Session::set("walimurid_hp_" . $id, $noHp);
             $this->redirect("walimurid?id=" . $id);
         } else {
             Flash::set("error", "Nomor WhatsApp tidak cocok dengan data kami.");
@@ -126,6 +133,7 @@ class WalimuridController extends Controller
     {
         $id = (int)($_GET["id"] ?? 0);
         Session::set("walimurid_logged_in_" . $id, false);
+        Session::set("walimurid_hp_" . $id, null);
         $this->redirect("walimurid?id=" . $id);
     }
 }

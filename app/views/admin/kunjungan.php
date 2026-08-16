@@ -104,6 +104,8 @@ require_once APP_PATH . '/views/admin/layout_admin.php';
                                     <th class="ps-4">Waktu</th>
                                     <th>IP</th>
                                     <th>Halaman</th>
+                                    <th>Wali / Siswa</th>
+                                    <th>No. HP</th>
                                     <th class="pe-4">User Agent</th>
                                 </tr>
                             </thead>
@@ -117,13 +119,26 @@ require_once APP_PATH . '/views/admin/layout_admin.php';
                                         </td>
                                         <td><span class="font-monospace small"><?= htmlspecialchars($log['ip'] ?? '') ?></span></td>
                                         <td><span class="badge bg-light text-primary border"><?= htmlspecialchars($log['halaman'] ?? '') ?></span></td>
+                                        <td>
+                                            <?php if(!empty($log['nama_wali'])): ?>
+                                                <div class="small text-primary"><i class="bi bi-person-badge"></i> <?= htmlspecialchars($log['nama_wali']) ?></div>
+                                            <?php endif; ?>
+                                            <?php if(!empty($log['nama_siswa'])): ?>
+                                                <div class="small text-success"><i class="bi bi-person"></i> <?= htmlspecialchars($log['nama_siswa']) ?> (ID: <?= $log['id_siswa'] ?>)</div>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <?php if(!empty($log['no_hp_walimurid'])): ?>
+                                                <span class="badge bg-success-subtle text-success border"><i class="bi bi-whatsapp"></i> <?= htmlspecialchars($log['no_hp_walimurid']) ?></span>
+                                            <?php endif; ?>
+                                        </td>
                                         <td class="pe-4 text-truncate small" style="max-width: 150px;" title="<?= htmlspecialchars($log['user_agent'] ?? '') ?>">
                                             <?= htmlspecialchars($log['user_agent'] ?? '') ?>
                                         </td>
                                     </tr>
                                     <?php endforeach; ?>
                                 <?php else: ?>
-                                    <tr><td colspan="4" class="text-center text-muted py-3">Tidak ada data</td></tr>
+                                    <tr><td colspan="6" class="text-center text-muted py-3">Tidak ada data</td></tr>
                                 <?php endif; ?>
                             </tbody>
                         </table>
