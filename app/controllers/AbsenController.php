@@ -238,6 +238,38 @@ class AbsenController extends Controller
         $isEdit = $this->absenModel->sudahIsi($tanggal, $id);
 
         if ($this->absenModel->simpanSiswa($tanggal, $id, $data)) {
+            // Mengirim notifikasi WA ke orang tua
+            $dbSiswa = new Database();
+            $dbSiswa->query("SELECT nama, no_hp FROM siswa WHERE id = :id");
+            $dbSiswa->bind(':id', $id);
+            $siswaRow = $dbSiswa->single();
+            
+            if ($siswaRow && !empty($siswaRow['no_hp'])) {
+                $noHp = $siswaRow['no_hp'];
+                $namaSiswa = $siswaRow['nama'];
+                $aksi = $isEdit ? "diperbarui" : "disubmit";
+                
+                $pesan = "Halo Bapak/Ibu, laporan kegiatan dan absen untuk ananda *" . $namaSiswa . "* pada tanggal *" . date('d F Y', strtotime($tanggal)) . "* telah berhasil " . $aksi . ". Terima kasih.";
+                
+                $waData = [
+                    'phone_number' => $noHp,
+                    'message' => $pesan,
+                    'scheduled_time' => date('Y-m-d\TH:i', strtotime('+1 minute'))
+                ];
+                
+                $ch = curl_init("https://wa.quizb.my.id/api/send.php");
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($waData));
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    "Content-Type: application/json",
+                    "x-api-key: wa-key-923332d62d67d2511393e0c6d8ff5e59"
+                ]);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 5); 
+                curl_exec($ch);
+                curl_close($ch);
+            }
+
             $this->redirect('absen/selesai?id=' . $id . '&nama=' . rawurlencode($nama) . '&tanggal=' . $tanggal . '&edit=' . ($isEdit ? '1' : '0') . '&wali=' . $idWali);
         } else {
             Flash::set('error', 'Gagal menyimpan. Silakan coba lagi.');
