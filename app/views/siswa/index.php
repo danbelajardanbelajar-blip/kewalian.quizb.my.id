@@ -15,6 +15,11 @@
                 <strong><?= count($siswa) ?></strong> siswa terdaftar
             </p>
         </div>
+        <div>
+            <button type="button" class="btn btn-outline-success" onclick="navigator.clipboard.writeText('<?= BASE_URL ?>/walimurid?wali=<?= Session::get('user_id') ?>').then(()=>alert('Berhasil menyalin link Portal Wali Murid kelas Anda!'))">
+                <i class="bi bi-link-45deg me-1"></i> Salin Link Portal Kelas
+            </button>
+        </div>
     </div>
 </div>
 
