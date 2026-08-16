@@ -1,3 +1,17 @@
+<?php
+function simplifyQuestion($text) {
+    $text = strtolower(trim($text));
+    $removeWords = [
+        'apakah ', 'kemarin ', 'pagi ', 'sore ', 'malam ', 'siang ', 'hari ini', 'tadi ', 'ananda ', '{{nama}}', 'berapa ', 'kapan ', 'sudahkah ', 'telahkah ', 'tolong '
+    ];
+    foreach ($removeWords as $word) {
+        $text = str_replace($word, '', $text);
+    }
+    $text = str_replace(['?', ':', '!', '.', ','], '', $text);
+    $text = trim(preg_replace('/\s+/', ' ', $text));
+    return ucwords($text);
+}
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -115,8 +129,8 @@
                                                     }
                                                 ?>
                                                     <li class="list-group-item bg-transparent px-0 py-3 border-bottom-dashed">
-                                                        <div class="text-muted small mb-1" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">
-                                                            <?= htmlspecialchars(str_ireplace(['{{nama}}', '{{NAMA}}'], ucwords(strtolower($siswa['nama'])), $det['pertanyaan'])) ?>
+                                                        <div class="text-muted small mb-1 fw-bold" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                                                            <?= htmlspecialchars(simplifyQuestion($det['pertanyaan'])) ?>
                                                         </div>
                                                         <div class="d-flex w-100 justify-content-between align-items-center">
                                                             <div class="fw-bold <?= $textClass ?> d-flex align-items-center gap-2" style="font-size: 1.15rem;">
