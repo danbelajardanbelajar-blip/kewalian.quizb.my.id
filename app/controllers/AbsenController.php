@@ -250,7 +250,7 @@ class AbsenController extends Controller
                 $namaSiswa = $siswaRow['nama'];
                 $aksi = $isEdit ? "diperbarui" : "disubmit";
                 
-                $pesan = "Halo Bapak/Ibu, laporan kegiatan dan absen untuk ananda *" . $namaSiswa . "* pada tanggal *" . date('d F Y', strtotime($tanggal)) . "* telah berhasil " . $aksi . ".\n\n";
+                $pesan = "Salam Bapak/Ibu, Semoga senantiasa sehat. Izin menghaturkan rekap kegiatan ananda *" . $namaSiswa . "* selama sehari di tanggal *" . date('d F Y', strtotime($tanggal)) . "*.\n\n";
                 $pesan .= "*--- RINCIAN LAPORAN ---*\n";
                 
                 $walimuridModel = new WalimuridModel();
@@ -271,22 +271,20 @@ class AbsenController extends Controller
                             $icon = '⚠️';
                         }
                         
-                        // Simplify question text like in laporan
+                        // Simplify question text like in laporan, make it Proper Case
                         $qText = strtolower(trim($det['pertanyaan']));
                         $qText = str_replace(['apakah ', 'kemarin ', 'pagi ', 'sore ', 'malam ', 'siang ', 'hari ini', 'tadi ', 'ananda ', '{{nama}}', 'berapa ', 'kapan ', 'sudahkah ', 'telahkah ', 'tolong '], '', $qText);
                         $qText = str_replace(['?', ':', '!', '.', ','], '', $qText);
                         $qText = trim(preg_replace('/\s+/', ' ', $qText));
-                        $qText = mb_strtoupper($qText);
+                        $qText = ucwords($qText); // Proper Case
 
                         $pesan .= "\n*" . $qText . "*\n";
-                        $pesan .= $icon . " " . $det['jawaban'] . " (+".$det['poin'].")\n";
+                        $pesan .= $icon . " " . $det['jawaban'] . "\n";
                         if (!empty($det['keterangan'])) {
                             $pesan .= "_Catatan: " . $det['keterangan'] . "_\n";
                         }
                     }
-                    $pesan .= "\n*Total Poin:* " . $hariIni['total_poin'];
-                    $pesan .= "\n*Rating Harian:* " . ($hariIni['rating'] ?? 0) . "/5";
-                    $pesan .= "\n*Rata-rata Kelas:* " . ($hariIni['avg_kelas'] ?? 0) . "\n";
+                    $pesan .= "\n*Rating Harian:* " . ($hariIni['rating'] ?? 0) . "/5\n";
                 }
                 
                 $link = "https://wali.quizb.my.id/walimurid?id=" . $id . "&no_hp=" . urlencode($noHp);
