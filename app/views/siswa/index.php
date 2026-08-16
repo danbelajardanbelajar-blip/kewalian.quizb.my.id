@@ -133,6 +133,11 @@
                                     </div>
                                 </div>
                                 <div class="text-nowrap">
+                                    <button type="button" class="btn btn-sm btn-outline-success me-1 btn-copy-link"
+                                            data-link="<?= BASE_URL ?>/walimurid?id=<?= $s['id'] ?>"
+                                            title="Salin Link Laporan Wali Murid">
+                                        <i class="bi bi-link-45deg"></i>
+                                    </button>
                                     <button type="button" class="btn btn-sm btn-outline-primary me-1 btn-edit-siswa"
                                             data-id="<?= $s['id'] ?>"
                                             data-nama="<?= htmlspecialchars($s['nama'], ENT_QUOTES) ?>"
@@ -220,6 +225,18 @@ document.addEventListener('DOMContentLoaded', function() {
             const nama = this.dataset.nama;
             const pesan = 'Hapus siswa ' + nama + '?\nSiswa yang dihapus tidak akan muncul di form presensi.\nData laporan yang sudah ada tidak terpengaruh.';
             if (!confirm(pesan)) e.preventDefault();
+        });
+    });
+
+    // Salin link laporan wali murid
+    document.querySelectorAll('.btn-copy-link').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const link = this.dataset.link;
+            navigator.clipboard.writeText(link).then(() => {
+                alert('Berhasil menyalin link laporan wali murid:\n' + link);
+            }).catch(err => {
+                alert('Gagal menyalin link. Silakan salin manual:\n' + link);
+            });
         });
     });
 
