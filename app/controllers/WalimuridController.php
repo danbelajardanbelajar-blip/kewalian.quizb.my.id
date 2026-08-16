@@ -15,11 +15,49 @@ class WalimuridController extends Controller
     public function index(): void
     {
         $idStr = $_GET["id"] ?? "";
-        if (empty($idStr)) {
-            die("ID Siswa tidak valid.");
+        if (!empty($idStr)) {
+            $this->showLaporan((int)$idStr);
+            return;
         }
-        $id = (int)$idStr;
 
+        $idWali = $_GET["wali"] ?? "";
+        $db = new Database();
+
+        if (empty($idWali)) {
+            // Tampilkan daftar kelas
+            $db->query("SELECT id, username, nama_lengkap, kelas FROM users ORDER BY kelas ASC");
+            $listWali = $db->resultSet();
+            
+            $this->view('walimurid/pilih_kelas', [
+                'title' => 'Pilih Kelas - Laporan Wali Murid',
+                'listWali' => $listWali
+            ], false);
+            return;
+        }
+
+        // Tampilkan daftar siswa dalam kelas tersebut
+        $db->query("SELECT id, kelas FROM users WHERE id = :id");
+        $db->bind(':id', $idWali);
+        $userWali = $db->single();
+
+        if (!$userWali) {
+            die("Wali kelas tidak ditemukan. Silakan cek kembali link Anda.");
+        }
+
+        $db->query("SELECT id, nama, no_hp, foto FROM siswa WHERE user_id = :user_id ORDER BY nama ASC");
+        $db->bind(':user_id', $userWali['id']);
+        $siswa = $db->resultSet();
+
+        $this->view('walimurid/pilih_siswa', [
+            'title' => 'Pilih Siswa - Kelas ' . htmlspecialchars($userWali['kelas']),
+            'kelas' => $userWali['kelas'],
+            'siswa' => $siswa,
+            'idWali' => $idWali
+        ], false);
+    }
+
+    private function showLaporan(int $id): void
+    {
         $siswa = $this->walimuridModel->getSiswaById($id);
         if (!$siswa) {
             die("Data siswa tidak ditemukan.");
