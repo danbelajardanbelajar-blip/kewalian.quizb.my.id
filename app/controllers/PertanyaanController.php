@@ -55,6 +55,7 @@ class PertanyaanController extends Controller
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $userId = Session::get('user_id');
             $judul = trim($_POST['judul'] ?? '');
+            $labelSingkat = trim($_POST['label_singkat'] ?? '');
             $tipe = $_POST['tipe'] ?? 'pilihan_ganda';
             $isActive = isset($_POST['is_active']) ? 1 : 0;
 
@@ -100,6 +101,7 @@ class PertanyaanController extends Controller
             $data = [
                 'user_id' => $userId,
                 'judul' => $judul,
+                'label_singkat' => $labelSingkat,
                 'tipe' => $tipe,
                 'opsi' => json_encode($opsiArray),
                 'urutan' => 0, // bisa diperbaiki nanti untuk auto increment max urutan
@@ -121,6 +123,7 @@ class PertanyaanController extends Controller
             $userId = Session::get('user_id');
             $id = (int)$_POST['id'];
             $judul = trim($_POST['judul'] ?? '');
+            $labelSingkat = trim($_POST['label_singkat'] ?? '');
             $tipe = $_POST['tipe'] ?? 'pilihan_ganda';
             $isActive = isset($_POST['is_active']) ? 1 : 0;
 
@@ -167,6 +170,7 @@ class PertanyaanController extends Controller
                 'id' => $id,
                 'user_id' => $userId,
                 'judul' => $judul,
+                'label_singkat' => $labelSingkat,
                 'tipe' => $tipe,
                 'opsi' => json_encode($opsiArray),
                 'is_active' => $isActive

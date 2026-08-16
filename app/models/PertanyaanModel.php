@@ -7,6 +7,15 @@ require_once APP_PATH . '/core/Model.php';
  */
 class PertanyaanModel extends Model
 {
+    public function __construct()
+    {
+        parent::__construct();
+        try {
+            $this->db->query("ALTER TABLE pertanyaan ADD COLUMN label_singkat VARCHAR(255) DEFAULT NULL AFTER judul");
+            $this->db->execute();
+        } catch (Exception $e) {}
+    }
+
     /**
      * Ambil semua pertanyaan milik user tertentu
      */
@@ -69,11 +78,12 @@ class PertanyaanModel extends Model
      */
     public function insert(array $data): bool
     {
-        $this->db->query("INSERT INTO pertanyaan (user_id, judul, tipe, opsi, urutan, is_active) 
-                          VALUES (:user_id, :judul, :tipe, :opsi, :urutan, :is_active)");
+        $this->db->query("INSERT INTO pertanyaan (user_id, judul, label_singkat, tipe, opsi, urutan, is_active) 
+                          VALUES (:user_id, :judul, :label_singkat, :tipe, :opsi, :urutan, :is_active)");
         
         $this->db->bind(':user_id', $data['user_id']);
         $this->db->bind(':judul', $data['judul']);
+        $this->db->bind(':label_singkat', $data['label_singkat'] ?? null);
         $this->db->bind(':tipe', $data['tipe']); // 'pilihan_ganda' atau 'angka'
         $this->db->bind(':opsi', $data['opsi']); // JSON string
         $this->db->bind(':urutan', $data['urutan'] ?? 0);
@@ -89,6 +99,7 @@ class PertanyaanModel extends Model
     {
         $this->db->query("UPDATE pertanyaan SET 
                             judul = :judul, 
+                            label_singkat = :label_singkat,
                             tipe = :tipe, 
                             opsi = :opsi, 
                             is_active = :is_active 
@@ -97,9 +108,11 @@ class PertanyaanModel extends Model
         $this->db->bind(':id', $data['id']);
         $this->db->bind(':user_id', $data['user_id']);
         $this->db->bind(':judul', $data['judul']);
+        $this->db->bind(':label_singkat', $data['label_singkat'] ?? null);
         $this->db->bind(':tipe', $data['tipe']);
         $this->db->bind(':opsi', $data['opsi']);
         $this->db->bind(':is_active', $data['is_active']);
+
         
         return $this->db->execute();
     }

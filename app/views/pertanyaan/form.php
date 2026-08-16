@@ -26,6 +26,14 @@
                        placeholder="Misal: Apakah Anda membaca buku hari ini?">
             </div>
 
+            <div class="mb-3">
+                <label class="form-label fw-bold">Label Singkat <span class="badge bg-secondary ms-1">Opsional</span></label>
+                <input type="text" name="label_singkat" class="form-control" 
+                       value="<?= $data ? htmlspecialchars($data['label_singkat'] ?? '') : '' ?>"
+                       placeholder="Misal: Membaca Buku">
+                <div class="form-text">Jika dikosongkan, label untuk laporan WA akan dibuat otomatis dari judul pertanyaan.</div>
+            </div>
+
             <div class="mb-4">
                 <label class="form-label fw-bold">Tipe Jawaban</label>
                 <select name="tipe" id="tipeSelect" class="form-select">

@@ -157,8 +157,8 @@ function simplifyQuestion($text) {
                                                     }
                                                 ?>
                                                     <li class="list-group-item bg-transparent px-0 py-3 border-bottom-dashed">
-                                                        <div class="text-muted small mb-1 fw-bold" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">
-                                                            <?= htmlspecialchars(simplifyQuestion($det['pertanyaan'])) ?>
+                                                        <div class="text-muted small fw-medium mb-1 text-uppercase tracking-wider">
+                                                            <?= !empty($det['label_singkat']) ? htmlspecialchars(trim($det['label_singkat'])) : htmlspecialchars(simplifyQuestion($det['pertanyaan'])) ?>
                                                         </div>
                                                         <div class="d-flex w-100 justify-content-between align-items-center">
                                                             <div class="fw-bold <?= $textClass ?> d-flex align-items-center gap-2" style="font-size: 1.15rem;">

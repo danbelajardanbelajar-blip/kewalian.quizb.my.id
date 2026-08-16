@@ -102,7 +102,7 @@ class WalimuridModel extends Model
         $this->db->query("
             SELECT h.tanggal, h.waktu_isi,
                    d.jawaban, d.keterangan, d.poin,
-                   p.judul as pertanyaan, p.urutan, p.tipe, p.opsi
+                   p.judul as pertanyaan, p.label_singkat, p.urutan, p.tipe, p.opsi
             FROM absen_header h
             JOIN absen_detail d ON h.id = d.id_absen
             LEFT JOIN pertanyaan p ON d.id_pertanyaan = p.id
@@ -152,9 +152,10 @@ class WalimuridModel extends Model
                 }
             }
             
-            $riwayat[$tanggal]['total_poin'] += $row['poin'];
+            $riwayat[$tanggal]['total_poin'] += (float)$row['poin'];
             $riwayat[$tanggal]['detail'][] = [
                 'pertanyaan' => $row['pertanyaan'] ?? 'Pertanyaan Dihapus',
+                'label_singkat' => $row['label_singkat'] ?? null,
                 'jawaban' => $jawabanLabel,
                 'keterangan' => $row['keterangan'],
                 'poin' => $row['poin'],

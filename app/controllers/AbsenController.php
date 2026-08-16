@@ -265,12 +265,16 @@ class AbsenController extends Controller
                 $rincian = "";
                 if ($hariIni && !empty($hariIni['detail'])) {
                     foreach ($hariIni['detail'] as $det) {
-                        // Simplify question text like in laporan, make it Proper Case
-                        $qText = strtolower(trim($det['pertanyaan']));
-                        $qText = str_replace(['apakah ', 'kemarin ', 'pagi ', 'sore ', 'malam ', 'siang ', 'hari ini', 'tadi ', 'ananda ', '{{nama}}', 'berapa ', 'kapan ', 'sudahkah ', 'telahkah ', 'tolong '], '', $qText);
-                        $qText = str_replace(['?', ':', '!', '.', ','], '', $qText);
-                        $qText = trim(preg_replace('/\s+/', ' ', $qText));
-                        $qText = ucwords($qText);
+                        if (!empty($det['label_singkat'])) {
+                            $qText = trim($det['label_singkat']);
+                        } else {
+                            // Fallback: Simplify question text like in laporan, make it Proper Case
+                            $qText = strtolower(trim($det['pertanyaan']));
+                            $qText = str_replace(['apakah ', 'kemarin ', 'pagi ', 'sore ', 'malam ', 'siang ', 'hari ini', 'tadi ', 'ananda ', '{{nama}}', 'berapa ', 'kapan ', 'sudahkah ', 'telahkah ', 'tolong '], '', $qText);
+                            $qText = str_replace(['?', ':', '!', '.', ','], '', $qText);
+                            $qText = trim(preg_replace('/\s+/', ' ', $qText));
+                            $qText = ucwords($qText);
+                        }
                         
                         $rincian .= "*" . $qText . "*\n";
                         $rincian .= $det['jawaban'] . "\n";
