@@ -102,6 +102,156 @@ $siswaData = $dataTanggal['siswa'] ?? [];
     </div>
 <?php endif; ?>
 
+<?php
+// Anomali / Kejanggalan Calculation
+$anomalies = [];
+$totalSiswa = count($siswaData);
+
+if ($totalSiswa > 0) {
+    // 1. Total Poin Tertinggi dan Terendah
+    $poinMax = ['val' => -9999, 'siswa' => []];
+    $poinMin = ['val' => 99999, 'siswa' => []];
+    
+    foreach ($siswaData as $sId => $s) {
+        $pt = (float)$s['total_poin'];
+        if ($pt > $poinMax['val']) {
+            $poinMax = ['val' => $pt, 'siswa' => [$s['nama']]];
+        } elseif ($pt == $poinMax['val']) {
+            $poinMax['siswa'][] = $s['nama'];
+        }
+        
+        if ($pt < $poinMin['val']) {
+            $poinMin = ['val' => $pt, 'siswa' => [$s['nama']]];
+        } elseif ($pt == $poinMin['val']) {
+            $poinMin['siswa'][] = $s['nama'];
+        }
+    }
+    
+    if ($poinMax['val'] != $poinMin['val']) {
+        if ($poinMax['val'] !== -9999) {
+            $anomalies[] = [
+                'type' => 'success',
+                'title' => 'Total Poin Tertinggi (' . $poinMax['val'] . ')',
+                'desc' => implode(', ', $poinMax['siswa'])
+            ];
+        }
+        if ($poinMin['val'] !== 99999) {
+            $anomalies[] = [
+                'type' => 'danger',
+                'title' => 'Total Poin Terendah (' . $poinMin['val'] . ')',
+                'desc' => implode(', ', $poinMin['siswa'])
+            ];
+        }
+    }
+
+    // 2. Anomali per pertanyaan
+    foreach ($pertanyaan as $p) {
+        $pId = $p['id'];
+        $judul = trim($p['label_singkat'] ?? $p['judul']);
+        
+        if ($p['tipe'] === 'angka' || $p['tipe'] === 'ganda_dan_angka') {
+            $max = ['val' => -9999, 'siswa' => []];
+            $min = ['val' => 99999, 'siswa' => []];
+            
+            foreach ($siswaData as $sId => $s) {
+                if (isset($s['jawaban'][$pId])) {
+                    $ans = $s['jawaban'][$pId]['jawaban'];
+                    $val = null;
+                    if ($p['tipe'] === 'angka') {
+                        $val = (float)$ans;
+                    } elseif ($p['tipe'] === 'ganda_dan_angka') {
+                        $parts = explode(':', $ans);
+                        if (isset($parts[1])) $val = (float)$parts[1];
+                    }
+                    
+                    if ($val !== null) {
+                        if ($val > $max['val']) {
+                            $max = ['val' => $val, 'siswa' => [$s['nama']]];
+                        } elseif ($val == $max['val']) {
+                            $max['siswa'][] = $s['nama'];
+                        }
+                        if ($val < $min['val']) {
+                            $min = ['val' => $val, 'siswa' => [$s['nama']]];
+                        } elseif ($val == $min['val']) {
+                            $min['siswa'][] = $s['nama'];
+                        }
+                    }
+                }
+            }
+            if ($max['val'] !== -9999 && $max['val'] != $min['val']) {
+                $anomalies[] = [
+                    'type' => 'primary',
+                    'title' => $judul . ' - Nilai Tertinggi (' . $max['val'] . ')',
+                    'desc' => implode(', ', $max['siswa'])
+                ];
+                $anomalies[] = [
+                    'type' => 'warning',
+                    'title' => $judul . ' - Nilai Terendah (' . $min['val'] . ')',
+                    'desc' => implode(', ', $min['siswa'])
+                ];
+            }
+        } elseif ($p['tipe'] === 'pilihan_ganda') {
+            $freq = [];
+            foreach ($siswaData as $sId => $s) {
+                if (isset($s['jawaban'][$pId])) {
+                    $val = $s['jawaban'][$pId]['jawaban'];
+                    if (!isset($freq[$val])) $freq[$val] = [];
+                    $freq[$val][] = $s['nama'];
+                }
+            }
+            // Minoritas: <= 20% dari yang isi
+            $jmlIsi = 0;
+            foreach ($freq as $ans => $names) $jmlIsi += count($names);
+            
+            foreach ($freq as $ans => $names) {
+                if (count($names) > 0 && count($names) <= ceil($jmlIsi * 0.20) && count($freq) > 1) {
+                    $label = $ans;
+                    $opsi = json_decode($p['opsi'], true);
+                    if (is_array($opsi)) {
+                        foreach ($opsi as $op) {
+                            if (isset($op['value']) && $op['value'] == $ans) {
+                                $label = $op['label'];
+                                break;
+                            }
+                        }
+                    }
+                    $anomalies[] = [
+                        'type' => 'secondary',
+                        'title' => $judul . ' - Menjawab "' . $label . '" (Minoritas)',
+                        'desc' => implode(', ', $names)
+                    ];
+                }
+            }
+        }
+    }
+}
+?>
+
+<?php if (!empty($anomalies)): ?>
+<div class="card shadow-sm mb-4 border-info">
+    <div class="card-header bg-info text-white fw-bold">
+        <i class="bi bi-stars me-2"></i> Sorotan & Kejanggalan Hari Ini
+    </div>
+    <div class="card-body py-3">
+        <div class="row g-3">
+            <?php foreach ($anomalies as $anom): ?>
+            <div class="col-12 col-md-6">
+                <div class="d-flex align-items-start border rounded p-2 bg-light h-100 border-<?= $anom['type'] ?>">
+                    <div class="me-3 mt-1 text-<?= $anom['type'] ?>">
+                        <i class="bi bi-info-circle-fill fs-5"></i>
+                    </div>
+                    <div>
+                        <strong class="d-block text-dark"><?= htmlspecialchars($anom['title']) ?></strong>
+                        <small class="text-muted"><?= htmlspecialchars($anom['desc']) ?></small>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
 <!-- Tabel detail -->
 <?php if (!empty($siswaData)): ?>
     <div class="card card-main shadow-sm">
