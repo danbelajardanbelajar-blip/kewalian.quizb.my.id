@@ -99,6 +99,12 @@ class AbsenController extends Controller
         $kelas  = $userWali['kelas'];
         $siswa   = $this->konfig->getSiswa($userId);
 
+        // Validate access code authorization
+        if (empty($_SESSION['auth_siswa_' . $id]) || $_SESSION['auth_siswa_' . $id] !== true) {
+            Flash::set('error', 'Akses ditolak! Anda belum memasukkan kode akses.');
+            $this->redirect('absen?tanggal=' . urlencode($tanggal) . '&wali=' . urlencode($idWali));
+        }
+
         // Validasi: ID harus ada di daftar
         $daftarId = array_column($siswa, 'id');
         if (!in_array($id, $daftarId)) {
@@ -431,5 +437,69 @@ class AbsenController extends Controller
         }
 
         $this->redirect('absen/rekap?tanggal=' . $tanggal);
+    }
+
+    /**
+     * POST /absen/set_kode
+     */
+    public function set_kode(): void
+    {
+        if (!$this->isPost()) {
+            $this->json(['success' => false, 'message' => 'Invalid method']);
+            return;
+        }
+
+        $id = (int)($_POST['siswa_id'] ?? 0);
+        $kode = trim($_POST['kode_akses'] ?? '');
+
+        if ($id <= 0 || strlen($kode) < 3 || preg_match('/\d/', $kode)) {
+            $this->json(['success' => false, 'message' => 'Kode akses minimal 3 huruf dan tidak boleh mengandung angka.']);
+            return;
+        }
+
+        // Update to DB
+        $db = new Database();
+        $db->query("UPDATE siswa SET kode_akses = :kode WHERE id = :id");
+        $db->bind(':kode', strtoupper($kode));
+        $db->bind(':id', $id);
+        
+        if ($db->execute()) {
+            $_SESSION['auth_siswa_' . $id] = true;
+            $this->json(['success' => true]);
+        } else {
+            $this->json(['success' => false, 'message' => 'Gagal menyimpan kode akses.']);
+        }
+    }
+
+    /**
+     * POST /absen/verify_kode
+     */
+    public function verify_kode(): void
+    {
+        if (!$this->isPost()) {
+            $this->json(['success' => false, 'message' => 'Invalid method']);
+            return;
+        }
+
+        $id = (int)($_POST['siswa_id'] ?? 0);
+        $kode = trim($_POST['kode_akses'] ?? '');
+
+        if ($id <= 0 || empty($kode)) {
+            $this->json(['success' => false, 'message' => 'Data tidak valid.']);
+            return;
+        }
+
+        // Check DB
+        $db = new Database();
+        $db->query("SELECT kode_akses FROM siswa WHERE id = :id");
+        $db->bind(':id', $id);
+        $row = $db->single();
+
+        if ($row && strtoupper($row['kode_akses']) === strtoupper($kode)) {
+            $_SESSION['auth_siswa_' . $id] = true;
+            $this->json(['success' => true]);
+        } else {
+            $this->json(['success' => false, 'message' => 'Kode akses salah.']);
+        }
     }
 }

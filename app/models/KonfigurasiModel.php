@@ -7,6 +7,14 @@ require_once APP_PATH . '/core/Model.php';
  */
 class KonfigurasiModel extends Model
 {
+    public function __construct()
+    {
+        parent::__construct();
+        try {
+            $this->db->query("ALTER TABLE siswa ADD COLUMN kode_akses VARCHAR(50) DEFAULT NULL AFTER no_hp");
+            $this->db->execute();
+        } catch (Exception $e) {}
+    }
     /**
      * Ambil nama kelas
      */
