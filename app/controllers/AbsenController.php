@@ -386,8 +386,33 @@ class AbsenController extends Controller
     }
 
     /**
-     * DELETE LAMA buildAbsenData
+     * GET /absen/sorotan — Sorotan dan Kejanggalan
      */
+    public function sorotan(): void
+    {
+        $this->requireAuth();
+
+        $userId = Session::get('user_id');
+        $tanggal = $_GET['tanggal'] ?? date('Y-m-d');
+        $siswa   = $this->konfig->getSiswa($userId);
+        $kelas   = $this->konfig->getKelas($userId);
+
+        $dataTanggal = $this->absenModel->getByTanggal($tanggal, $userId);
+        $allDates    = $this->absenModel->getAllDates($userId);
+        $pertanyaan  = $this->pertanyaanModel->getActive($userId);
+        $idWali      = Session::get('user_id');
+
+        $this->view('absen/sorotan', [
+            'title'       => 'Sorotan & Kejanggalan — ' . date('d F Y', strtotime($tanggal)),
+            'tanggal'     => $tanggal,
+            'kelas'       => $kelas,
+            'dataTanggal' => $dataTanggal,
+            'siswa'       => $siswa,
+            'allDates'    => $allDates,
+            'pertanyaan'  => $pertanyaan,
+            'idWali'      => $idWali,
+        ]);
+    }
 
     /**
      * POST /absen/hapus — Hapus data absen satu hari penuh
