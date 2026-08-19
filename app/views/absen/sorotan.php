@@ -170,6 +170,68 @@ if ($totalSiswa > 0) {
             }
         }
     }
+
+    // 3. Anomali Udzur (Haid) pada shalat
+    // Cari pertanyaan mana saja yang berhubungan dengan shalat (punya opsi 'udzur')
+    $shalatQIds = [];
+    foreach ($pertanyaan as $p) {
+        if (stripos($p['opsi'], 'udzur') !== false) {
+            $shalatQIds[] = $p['id'];
+        }
+    }
+    
+    if (count($shalatQIds) > 0) {
+        foreach ($siswaData as $sId => $s) {
+            $udzurAnswers = [];
+            $totalShalatAnswered = 0;
+            $udzurCount = 0;
+            
+            // Periksa jawaban shalat sesuai urutan pertanyaan
+            foreach ($shalatQIds as $pId) {
+                if (isset($s['jawaban'][$pId])) {
+                    $ans = strtolower($s['jawaban'][$pId]['jawaban']);
+                    $totalShalatAnswered++;
+                    
+                    $isUdzur = (strpos($ans, 'udzur') !== false);
+                    $udzurAnswers[] = $isUdzur;
+                    if ($isUdzur) $udzurCount++;
+                }
+            }
+            
+            // Jika ada yang dijawab udzur, tapi tidak semua, atau berseling
+            if ($totalShalatAnswered > 0 && $udzurCount > 0 && $udzurCount < $totalShalatAnswered) {
+                // Hitung blok / kelompok berurutan dari jawaban udzur
+                $blocks = 0;
+                $inBlock = false;
+                foreach ($udzurAnswers as $isU) {
+                    if ($isU && !$inBlock) {
+                        $blocks++;
+                        $inBlock = true;
+                    } elseif (!$isU && $inBlock) {
+                        $inBlock = false;
+                    }
+                }
+                
+                $isBerseling = ($blocks > 1);
+                
+                if ($isBerseling) {
+                    $alasan = 'Udzur berseling-seling (tidak berurutan / terputus)';
+                    $anomalies[] = [
+                        'type' => 'danger',
+                        'title' => 'Pola Udzur Tidak Wajar - ' . htmlspecialchars($s['nama']),
+                        'desc' => $alasan . '. Menjawab udzur pada ' . $udzurCount . ' dari ' . $totalShalatAnswered . ' pertanyaan shalat.'
+                    ];
+                } else {
+                    $alasan = 'Hanya udzur pada sebagian shalat (kemungkinan transisi haid)';
+                    $anomalies[] = [
+                        'type' => 'warning',
+                        'title' => 'Pola Udzur Sebagian - ' . htmlspecialchars($s['nama']),
+                        'desc' => $alasan . '. Menjawab udzur pada ' . $udzurCount . ' dari ' . $totalShalatAnswered . ' pertanyaan shalat.'
+                    ];
+                }
+            }
+        }
+    }
 }
 ?>
 
