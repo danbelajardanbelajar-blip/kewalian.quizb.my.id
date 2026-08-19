@@ -58,7 +58,7 @@ class KunjunganModel extends Model
                 AND k.halaman LIKE '%laporan%'
             WHERE s.user_id = :user_id
             GROUP BY s.id, s.nama, s.no_hp
-            ORDER BY s.nama ASC
+            ORDER BY kunjungan_terakhir DESC, s.nama ASC
         ");
         $this->db->bind(':user_id', $userId);
         return $this->db->resultSet();
