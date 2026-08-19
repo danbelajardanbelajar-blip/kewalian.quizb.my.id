@@ -69,7 +69,11 @@
                         ?>
                         <tr>
                             <td class="text-center text-muted"><?= $no++ ?></td>
-                            <td class="fw-medium"><?= htmlspecialchars($nama) ?></td>
+                            <td class="fw-medium">
+                                <a href="<?= BASE_URL ?>/laporan/siswa/<?= $data['id_siswa'] ?>" class="text-decoration-none text-dark" title="Lihat Performa">
+                                    <?= htmlspecialchars($nama) ?>
+                                </a>
+                            </td>
                             <td class="text-center fw-semibold"><?= $totalHari ?> hari</td>
                             <td class="text-center fw-bold text-success fs-5"><?= $totalPoin ?></td>
                             <td class="text-center fw-semibold text-primary"><?= $rataRata ?></td>

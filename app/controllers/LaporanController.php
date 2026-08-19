@@ -183,4 +183,59 @@ class LaporanController extends Controller
         fclose($output);
         exit;
     }
+
+    /**
+     * GET /laporan/siswa/{id} — Performa per siswa (untuk wali kelas)
+     */
+    public function siswa(string $idStr = ''): void
+    {
+        $this->requireAuth();
+
+        $userId = Session::get('user_id');
+        $id = (int)$idStr;
+
+        if ($id <= 0) {
+            $this->redirect('laporan');
+            return;
+        }
+
+        require_once APP_PATH . '/models/WalimuridModel.php';
+        $walimuridModel = new WalimuridModel();
+
+        // Pastikan siswa ini milik wali kelas yang sedang login
+        $db = new Database();
+        $db->query("SELECT * FROM siswa WHERE id = :id AND user_id = :user_id");
+        $db->bind(':id', $id);
+        $db->bind(':user_id', $userId);
+        $siswa = $db->single();
+
+        if (!$siswa) {
+            Flash::set('error', 'Siswa tidak ditemukan atau tidak dalam kelas Anda.');
+            $this->redirect('laporan');
+            return;
+        }
+
+        $progress      = $walimuridModel->getProgress($id);
+        $rankMingguan  = $walimuridModel->getRanking($userId, 7);
+        $rankBulanan   = $walimuridModel->getRanking($userId, 30);
+        $rankTahunan   = $walimuridModel->getRanking($userId, 365);
+        $rankSemua     = $walimuridModel->getRanking($userId);
+
+        $myRank = [
+            'mingguan' => $rankMingguan[$id] ?? ['rating' => 0, 'total_poin' => 0, 'avg_kelas' => 0],
+            'bulanan'  => $rankBulanan[$id]  ?? ['rating' => 0, 'total_poin' => 0, 'avg_kelas' => 0],
+            'tahunan'  => $rankTahunan[$id]  ?? ['rating' => 0, 'total_poin' => 0, 'avg_kelas' => 0],
+            'semua'    => $rankSemua[$id]    ?? ['rating' => 0, 'total_poin' => 0, 'avg_kelas' => 0],
+        ];
+
+        $riwayatDetail = $walimuridModel->getRiwayatDetail($id);
+
+        $this->view('laporan/siswa', [
+            'title'         => 'Performa Siswa — ' . htmlspecialchars($siswa['nama']),
+            'siswa'         => $siswa,
+            'progress'      => $progress,
+            'myRank'        => $myRank,
+            'riwayatDetail' => $riwayatDetail,
+        ]);
+    }
 }

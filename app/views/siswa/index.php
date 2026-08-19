@@ -138,6 +138,11 @@
                                     </div>
                                 </div>
                                 <div class="text-nowrap">
+                                    <a href="<?= BASE_URL ?>/laporan/siswa/<?= $s['id'] ?>"
+                                       class="btn btn-sm btn-outline-info me-1"
+                                       title="Lihat Performa Siswa">
+                                        <i class="bi bi-graph-up"></i>
+                                    </a>
                                     <button type="button" class="btn btn-sm btn-outline-success me-1 btn-copy-link"
                                             data-link="<?= BASE_URL ?>/walimurid?id=<?= $s['id'] ?>"
                                             title="Salin Link Laporan Wali Murid">

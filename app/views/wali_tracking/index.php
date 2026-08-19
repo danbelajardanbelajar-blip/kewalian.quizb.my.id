@@ -123,7 +123,11 @@ $total = count($data);
                     ?>
                     <tr>
                         <td class="text-muted"><?= $i + 1 ?></td>
-                        <td><strong><?= htmlspecialchars($row['nama']) ?></strong></td>
+                        <td>
+                            <a href="<?= BASE_URL ?>/laporan/siswa/<?= $row['id'] ?>" class="text-decoration-none fw-bold text-primary" title="Lihat Performa Siswa">
+                                <?= htmlspecialchars($row['nama']) ?>
+                            </a>
+                        </td>
                         <td class="text-center">
                             <?php if ($punyaHp): ?>
                                 <span class="badge bg-success-subtle text-success border border-success">
