@@ -67,64 +67,95 @@ $pageTitle = $title ?? 'Dashboard Wali Kelas';
                         <i class="bi bi-house-door me-1"></i> Dashboard
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/absen/rekap') !== false ? 'active' : '' ?>"
-                       href="<?= BASE_URL ?>/absen/rekap">
-                        <i class="bi bi-person-check me-1"></i> Absen Mandiri
+                <!-- Dropdown Absensi -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle <?= (strpos($_SERVER['REQUEST_URI'], '/absen/rekap') !== false || strpos($_SERVER['REQUEST_URI'], '/laporan') !== false) ? 'active' : '' ?>"
+                       href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-check me-1"></i> Absensi
                     </a>
+                    <ul class="dropdown-menu border-0 shadow-sm">
+                        <li>
+                            <a class="dropdown-item <?= strpos($_SERVER['REQUEST_URI'], '/absen/rekap') !== false ? 'active' : '' ?>" href="<?= BASE_URL ?>/absen/rekap">
+                                <i class="bi bi-person-bounding-box me-2 text-primary"></i> Absen Mandiri
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item <?= (strpos($_SERVER['REQUEST_URI'], '/laporan') !== false && strpos($_SERVER['REQUEST_URI'], '/laporan/rekap') === false) ? 'active' : '' ?>" href="<?= BASE_URL ?>/laporan">
+                                <i class="bi bi-journal-text me-2 text-primary"></i> Riwayat Harian
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item <?= strpos($_SERVER['REQUEST_URI'], '/laporan/rekap') !== false ? 'active' : '' ?>" href="<?= BASE_URL ?>/laporan/rekap">
+                                <i class="bi bi-bar-chart-line me-2 text-primary"></i> Rekap Kumulatif
+                            </a>
+                        </li>
+                    </ul>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link <?= (strpos($_SERVER['REQUEST_URI'], '/absen/sorotan') !== false && strpos($_SERVER['REQUEST_URI'], '/absen/sorotan_mingguan') === false) ? 'active' : '' ?>"
-                       href="<?= BASE_URL ?>/absen/sorotan">
-                        <i class="bi bi-stars me-1"></i> Sorotan Harian
+
+                <!-- Dropdown Sorotan -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle <?= (strpos($_SERVER['REQUEST_URI'], '/absen/sorotan') !== false) ? 'active' : '' ?>"
+                       href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-stars me-1"></i> Sorotan
                     </a>
+                    <ul class="dropdown-menu border-0 shadow-sm">
+                        <li>
+                            <a class="dropdown-item <?= (strpos($_SERVER['REQUEST_URI'], '/absen/sorotan') !== false && strpos($_SERVER['REQUEST_URI'], '/absen/sorotan_mingguan') === false) ? 'active' : '' ?>" href="<?= BASE_URL ?>/absen/sorotan">
+                                <i class="bi bi-calendar-event me-2 text-warning"></i> Sorotan Harian
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item <?= strpos($_SERVER['REQUEST_URI'], '/absen/sorotan_mingguan') !== false ? 'active' : '' ?>" href="<?= BASE_URL ?>/absen/sorotan_mingguan">
+                                <i class="bi bi-calendar-week me-2 text-warning"></i> Sorotan Mingguan
+                            </a>
+                        </li>
+                    </ul>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/absen/sorotan_mingguan') !== false ? 'active' : '' ?>"
-                       href="<?= BASE_URL ?>/absen/sorotan_mingguan">
-                        <i class="bi bi-calendar-week me-1"></i> Sorotan Mingguan
+
+                <!-- Dropdown Siswa & Wali -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle <?= (strpos($_SERVER['REQUEST_URI'], '/siswa') !== false || strpos($_SERVER['REQUEST_URI'], '/wali_tracking') !== false) ? 'active' : '' ?>"
+                       href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-people me-1"></i> Siswa
                     </a>
+                    <ul class="dropdown-menu border-0 shadow-sm">
+                        <li>
+                            <a class="dropdown-item <?= strpos($_SERVER['REQUEST_URI'], '/siswa') !== false ? 'active' : '' ?>" href="<?= BASE_URL ?>/siswa">
+                                <i class="bi bi-person-vcard me-2 text-success"></i> Data Siswa
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item <?= strpos($_SERVER['REQUEST_URI'], '/wali_tracking') !== false ? 'active' : '' ?>" href="<?= BASE_URL ?>/wali_tracking">
+                                <i class="bi bi-person-lines-fill me-2 text-success"></i> Wali Murid Tracking
+                            </a>
+                        </li>
+                    </ul>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link <?= (strpos($_SERVER['REQUEST_URI'], '/laporan') !== false && strpos($_SERVER['REQUEST_URI'], '/rekap') === false) ? 'active' : '' ?>"
-                       href="<?= BASE_URL ?>/laporan">
-                        <i class="bi bi-journal-text me-1"></i> Riwayat
+
+                <!-- Dropdown Pengaturan -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle <?= (strpos($_SERVER['REQUEST_URI'], '/pertanyaan') !== false || strpos($_SERVER['REQUEST_URI'], '/watemplate') !== false) ? 'active' : '' ?>"
+                       href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-gear me-1"></i> Setelan
                     </a>
+                    <ul class="dropdown-menu border-0 shadow-sm">
+                        <li>
+                            <a class="dropdown-item <?= strpos($_SERVER['REQUEST_URI'], '/pertanyaan') !== false ? 'active' : '' ?>" href="<?= BASE_URL ?>/pertanyaan">
+                                <i class="bi bi-ui-checks me-2 text-secondary"></i> Pertanyaan
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item <?= strpos($_SERVER['REQUEST_URI'], '/watemplate') !== false ? 'active' : '' ?>" href="<?= BASE_URL ?>/watemplate">
+                                <i class="bi bi-whatsapp me-2 text-success"></i> Template WA
+                            </a>
+                        </li>
+                    </ul>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/laporan/rekap') !== false ? 'active' : '' ?>"
-                       href="<?= BASE_URL ?>/laporan/rekap">
-                        <i class="bi bi-bar-chart-line me-1"></i> Rekap
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/siswa') !== false ? 'active' : '' ?>"
-                       href="<?= BASE_URL ?>/siswa">
-                        <i class="bi bi-people me-1"></i> Data Siswa
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/wali_tracking') !== false ? 'active' : '' ?>"
-                       href="<?= BASE_URL ?>/wali_tracking">
-                        <i class="bi bi-person-lines-fill me-1"></i> Wali Murid Tracking
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/pertanyaan') !== false ? 'active' : '' ?>"
-                       href="<?= BASE_URL ?>/pertanyaan">
-                        <i class="bi bi-ui-checks me-1"></i> Pertanyaan
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/watemplate') !== false ? 'active' : '' ?>"
-                       href="<?= BASE_URL ?>/watemplate">
-                        <i class="bi bi-whatsapp me-1"></i> Template WA
-                    </a>
-                </li>
+
                 <li class="nav-item">
                     <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/feedback') !== false ? 'active' : '' ?>"
                        href="<?= BASE_URL ?>/feedback">
-                        <i class="bi bi-chat-heart me-1"></i> Kirim Feedback
+                        <i class="bi bi-chat-heart me-1"></i> Feedback
                     </a>
                 </li>
                 <?php if (Session::get('is_admin')): ?>
