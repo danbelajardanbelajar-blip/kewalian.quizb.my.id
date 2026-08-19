@@ -37,4 +37,30 @@ class KunjunganModel extends Model
         $ips = explode(',', $ip);
         return substr(trim($ips[0]), 0, 45);
     }
+
+    /**
+     * Ambil data tracking wali murid per siswa:
+     * - apakah no_hp sudah diisi di tabel siswa
+     * - jumlah kunjungan ke halaman laporan
+     * - tanggal kunjungan terakhir
+     */
+    public function getWalimuridTracking(int $userId): array
+    {
+        $this->db->query("
+            SELECT
+                s.id,
+                s.nama,
+                s.no_hp,
+                COUNT(k.id)             AS total_kunjungan,
+                MAX(k.created_at)       AS kunjungan_terakhir
+            FROM siswa s
+            LEFT JOIN kunjungan k ON k.id_siswa = s.id
+                AND k.halaman LIKE '%laporan%'
+            WHERE s.user_id = :user_id
+            GROUP BY s.id, s.nama, s.no_hp
+            ORDER BY s.nama ASC
+        ");
+        $this->db->bind(':user_id', $userId);
+        return $this->db->resultSet();
+    }
 }

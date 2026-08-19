@@ -104,6 +104,12 @@ $pageTitle = $title ?? 'Dashboard Wali Kelas';
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/wali_tracking') !== false ? 'active' : '' ?>"
+                       href="<?= BASE_URL ?>/wali_tracking">
+                        <i class="bi bi-person-lines-fill me-1"></i> Wali Murid Tracking
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/pertanyaan') !== false ? 'active' : '' ?>"
                        href="<?= BASE_URL ?>/pertanyaan">
                         <i class="bi bi-ui-checks me-1"></i> Pertanyaan
