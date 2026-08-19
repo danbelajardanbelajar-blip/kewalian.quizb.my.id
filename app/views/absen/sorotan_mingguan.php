@@ -78,10 +78,13 @@ foreach ($siswa as $sObj) {
                     $ans = strtolower(trim($dayData['jawaban'][$qid]['jawaban']));
                     // Anggap dia ikut kalau jawabannya BUKAN negatif
                     if ($ans !== 'tidak' && $ans !== 'alpha' && $ans !== 'sakit' && $ans !== 'izin' && $ans !== 'udzur' && $ans !== 'tidak hadir') {
+                        $tglKlaim = isset($dayData['waktu_isi'])
+                            ? date('d M Y', strtotime($dayData['waktu_isi']))
+                            : '-';
                         $anomalies[] = [
                             'type' => 'danger',
                             'title' => 'Indikasi Berbohong Ngaji Pagi - ' . htmlspecialchars($nama),
-                            'desc' => 'Mengklaim ikut ngaji pagi untuk tanggal <strong>' . date('d M', strtotime($d)) . '</strong>. Namun record menunjukkan bahwa pada tanggal tersebut ananda baru mengisi form pukul <strong>' . $jamLate . '</strong> (setelah jam 07:00 pagi).'
+                            'desc' => 'Pada tanggal <strong>' . $tglKlaim . '</strong> ananda mengklaim ikut ngaji pagi untuk tanggal <strong>' . date('d M Y', strtotime($d)) . '</strong>. Namun record menunjukkan bahwa pada tanggal tersebut ananda baru mengisi form pukul <strong>' . $jamLate . '</strong> (setelah jam 07:00 pagi).'
                         ];
                         break; // Hentikan loop agar tidak duplikat jika ada 2 pertanyaan ngaji
                     }
