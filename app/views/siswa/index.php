@@ -143,6 +143,14 @@
                                        title="Lihat Performa Siswa">
                                         <i class="bi bi-graph-up"></i>
                                     </a>
+                                    <form action="<?= BASE_URL ?>/siswa/reset_kode" method="POST"
+                                          class="d-inline form-reset-kode"
+                                          data-nama="<?= htmlspecialchars($s['nama'], ENT_QUOTES) ?>">
+                                        <input type="hidden" name="id" value="<?= $s['id'] ?>">
+                                        <button type="submit" class="btn btn-sm btn-outline-warning me-1" title="Reset Kode Akses">
+                                            <i class="bi bi-key"></i>
+                                        </button>
+                                    </form>
                                     <button type="button" class="btn btn-sm btn-outline-success me-1 btn-copy-link"
                                             data-link="<?= BASE_URL ?>/walimurid?id=<?= $s['id'] ?>"
                                             title="Salin Link Laporan Wali Murid">
@@ -229,12 +237,25 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Konfirmasi hapus siswa — pakai data-nama agar aman dari apostrof
+    // Konfirmasi hapus siswa
     document.querySelectorAll('.form-hapus-siswa').forEach(form => {
-        form.addEventListener('submit', function (e) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
             const nama = this.dataset.nama;
-            const pesan = 'Hapus siswa ' + nama + '?\nSiswa yang dihapus tidak akan muncul di form presensi.\nData laporan yang sudah ada tidak terpengaruh.';
-            if (!confirm(pesan)) e.preventDefault();
+            if (confirm(`Yakin ingin menghapus data siswa "${nama}"?\nSemua histori absensi terkait akan ikut terhapus.`)) {
+                this.submit();
+            }
+        });
+    });
+
+    // Konfirmasi reset kode akses
+    document.querySelectorAll('.form-reset-kode').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nama = this.dataset.nama;
+            if (confirm(`Yakin ingin MERESET kode akses untuk siswa "${nama}"?\nSiswa harus membuat kode baru saat login berikutnya.`)) {
+                this.submit();
+            }
         });
     });
 
