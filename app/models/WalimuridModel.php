@@ -3,6 +3,15 @@ require_once APP_PATH . "/core/Model.php";
 
 class WalimuridModel extends Model
 {
+    public function __construct()
+    {
+        parent::__construct();
+        try {
+            $this->db->query("ALTER TABLE siswa ADD COLUMN kode_akses_wali VARCHAR(50) DEFAULT NULL AFTER kode_akses");
+            $this->db->execute();
+        } catch (Exception $e) {}
+    }
+
     public function getSiswaById(int $id)
     {
         $this->db->query("SELECT * FROM siswa WHERE id = :id");
@@ -21,6 +30,26 @@ class WalimuridModel extends Model
 
         if (empty($dbHp) || empty($inputHp)) return false;
         return $dbHp === $inputHp;
+    }
+
+    public function verifyKodeAksesWali(int $id, string $kodeAkses): bool
+    {
+        $siswa = $this->getSiswaById($id);
+        if (!$siswa) return false;
+        
+        $dbKode = strtolower(trim($siswa["kode_akses_wali"] ?? ""));
+        $inputKode = strtolower(trim($kodeAkses));
+
+        if (empty($dbKode) || empty($inputKode)) return false;
+        return $dbKode === $inputKode;
+    }
+
+    public function setKodeAksesWali(int $id, string $kodeAkses): bool
+    {
+        $this->db->query("UPDATE siswa SET kode_akses_wali = :kode WHERE id = :id");
+        $this->db->bind(":kode", strtolower(trim($kodeAkses)));
+        $this->db->bind(":id", $id);
+        return $this->db->execute();
     }
 
     public function getProgress(int $id_siswa): array

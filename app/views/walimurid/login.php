@@ -21,19 +21,46 @@
                 <h4 class="mt-2">Akses Laporan Siswa</h4>
                 <p class="text-muted small">Melihat laporan ananda <strong><?= htmlspecialchars($siswa["nama"]) ?></strong></p>
             </div>
+            
             <form action="<?= BASE_URL ?>/walimurid/verify" method="POST">
                 <input type="hidden" name="id" value="<?= $siswa["id"] ?>">
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">Nomor WhatsApp Terdaftar</label>
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-whatsapp"></i></span>
-                        <input type="text" name="no_hp" class="form-control" placeholder="Contoh: 62812345678" required autocomplete="off">
+                
+                <?php if (!$isSet): ?>
+                    <input type="hidden" name="action" value="set">
+                    <div class="alert alert-info small rounded-4 shadow-sm border-0 mb-4">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        Ini adalah kunjungan pertama Anda. Silakan buat **Kode Akses** untuk masuk.
                     </div>
-                    <div class="form-text text-muted small">Masukkan nomor yang didaftarkan oleh wali kelas.</div>
-                </div>
-                <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill mt-3 fw-bold">
-                    Buka Laporan
-                </button>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Buat Kode Akses (Kata Sandi)</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-key"></i></span>
+                            <input type="text" name="kode_akses" class="form-control" placeholder="Contoh: ibubudi" required autocomplete="off" pattern="[a-zA-Z\s]+" title="Hanya boleh berisi huruf dan spasi, tanpa angka">
+                        </div>
+                        <div class="form-text text-danger small fw-medium mt-2">
+                            <i class="bi bi-exclamation-triangle-fill"></i> PENTING: Kode akses <strong>TIDAK BOLEH mengandung angka</strong>. Hanya huruf saja. Ingat kode ini untuk kunjungan berikutnya!
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill mt-2 fw-bold">
+                        Simpan & Buka Laporan
+                    </button>
+                    
+                <?php else: ?>
+                    <input type="hidden" name="action" value="verify">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Masukkan Kode Akses</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-key"></i></span>
+                            <input type="text" name="kode_akses" class="form-control" placeholder="Masukkan kode akses Anda" required autocomplete="off">
+                        </div>
+                        <div class="form-text text-muted small mt-2">Masukkan kode akses yang telah Anda buat sebelumnya.</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill mt-3 fw-bold">
+                        Buka Laporan
+                    </button>
+                <?php endif; ?>
+                
             </form>
         </div>
     </div>

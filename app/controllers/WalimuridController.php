@@ -63,30 +63,23 @@ class WalimuridController extends Controller
             die("Data siswa tidak ditemukan.");
         }
 
-        // Auto login via GET parameter no_hp
-        $noHpGet = $_GET["no_hp"] ?? "";
-        if (!empty($noHpGet)) {
-            if ($this->walimuridModel->verifyNoHp($id, $noHpGet)) {
-                Session::set("walimurid_logged_in_" . $id, true);
-                Session::set("walimurid_hp_" . $id, $noHpGet);
-            }
-        }
-
         // Cek apakah sudah login sebagai wali murid
         $sessionKey = "walimurid_logged_in_" . $id;
+        $isSet = !empty($siswa['kode_akses_wali']);
+
         if (!Session::get($sessionKey)) {
             $this->view("walimurid/login", [
-                "title" => "Login Wali Murid - " . htmlspecialchars($siswa["nama"]),
-                "siswa" => $siswa
+                "title" => "Akses Wali Murid - " . htmlspecialchars($siswa["nama"]),
+                "siswa" => $siswa,
+                "isSet" => $isSet
             ], false);
             return;
         }
 
         // Catat kunjungan
-        $noHp = Session::get("walimurid_hp_" . $id) ?: '';
         require_once APP_PATH . "/models/KunjunganModel.php";
         $kModel = new KunjunganModel();
-        $kModel->record("Laporan Walimurid", $siswa['user_id'] ?? null, $id, $noHp);
+        $kModel->record("Laporan Walimurid", $siswa['user_id'] ?? null, $id, "Wali Murid");
 
         // Kalau sudah login, tampilkan laporan
         $progress = $this->walimuridModel->getProgress($id);
@@ -121,20 +114,32 @@ class WalimuridController extends Controller
         }
 
         $id = (int)($_POST["id"] ?? 0);
-        $noHp = $_POST["no_hp"] ?? "";
+        $kodeAkses = trim($_POST["kode_akses"] ?? "");
+        $action = $_POST["action"] ?? "verify"; // "set" or "verify"
 
-        if ($id <= 0 || empty($noHp)) {
-            Flash::set("error", "Harap masukkan nomor WhatsApp yang terdaftar.");
+        if ($id <= 0 || empty($kodeAkses)) {
+            Flash::set("error", "Harap masukkan kode akses.");
             $this->redirect("walimurid?id=" . $id);
         }
 
-        if ($this->walimuridModel->verifyNoHp($id, $noHp)) {
+        if ($action === "set") {
+            // Kode tidak boleh mengandung angka
+            if (preg_match('/\d/', $kodeAkses)) {
+                Flash::set("error", "Kode akses TIDAK BOLEH mengandung angka (hanya huruf).");
+                $this->redirect("walimurid?id=" . $id);
+            }
+            
+            $this->walimuridModel->setKodeAksesWali($id, $kodeAkses);
             Session::set("walimurid_logged_in_" . $id, true);
-            Session::set("walimurid_hp_" . $id, $noHp);
             $this->redirect("walimurid?id=" . $id);
         } else {
-            Flash::set("error", "Nomor WhatsApp tidak cocok dengan data kami.");
-            $this->redirect("walimurid?id=" . $id);
+            if ($this->walimuridModel->verifyKodeAksesWali($id, $kodeAkses)) {
+                Session::set("walimurid_logged_in_" . $id, true);
+                $this->redirect("walimurid?id=" . $id);
+            } else {
+                Flash::set("error", "Kode akses salah.");
+                $this->redirect("walimurid?id=" . $id);
+            }
         }
     }
 
