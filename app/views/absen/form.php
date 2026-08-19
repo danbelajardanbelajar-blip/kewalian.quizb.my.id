@@ -50,7 +50,7 @@ if ($totalStep === 0) {
 </div>
 
 <!-- Form Wizard -->
-<form action="<?= BASE_URL ?>/absen/simpan" method="POST" id="formAbsen">
+<form action="<?= BASE_URL ?>/absen/simpan" method="POST" id="formAbsen" novalidate>
     <input type="hidden" name="id" value="<?= $id ?>">
     <input type="hidden" name="nama" value="<?= htmlspecialchars($nama) ?>">
     <input type="hidden" name="tanggal" value="<?= $tanggal ?>">
@@ -277,34 +277,48 @@ if ($totalStep === 0) {
         const stepEl = document.getElementById('step' + stepIdx);
         if (!stepEl) return true;
 
+        let isValid = true;
+
         // Cek radio button di step ini
         const radios = stepEl.querySelectorAll('.option-radio');
         if (radios.length > 0) {
             let selected = false;
-            let isValid = false;
             radios.forEach(r => {
-                if (r.checked) {
-                    selected = true;
-                    isValid = true;
-                    // Cek textarea keterangan jika required
-                    if (r.getAttribute('data-reqket') === '1') {
-                        const field = r.dataset.field;
-                        const ket = document.getElementById('ket_input_' + field);
-                        if (ket && ket.value.trim() === '') {
-                            isValid = false;
-                            ket.classList.add('is-invalid');
-                        } else if (ket) {
-                            ket.classList.remove('is-invalid');
-                        }
-                    }
-                }
+                if (r.checked) selected = true;
             });
             if (!selected) {
                 return false; // Belum pilih radio
             }
-            return isValid;
         }
-        return true;
+
+        // Cek textarea dan input angka yang required atau min/max pada step ini
+        // Abaikan elemen yang dibungkus di dalam div yang tersembunyi (display: none)
+        stepEl.querySelectorAll('textarea, input[type="number"]').forEach(el => {
+            // Cek apakah elemen ini sedang disembunyikan oleh sistem
+            const isHidden = el.closest('div[style*="display: none"]');
+            if (isHidden) return;
+
+            // Jika element di-set required
+            if (el.hasAttribute('required') && el.value.trim() === '') {
+                isValid = false;
+                el.classList.add('is-invalid');
+            } else {
+                el.classList.remove('is-invalid');
+            }
+
+            // Jika input angka, validasi min/max
+            if (el.type === 'number') {
+                let val = parseInt(el.value);
+                let min = parseInt(el.getAttribute('min'));
+                let max = parseInt(el.getAttribute('max'));
+                if (isNaN(val) || (!isNaN(min) && val < min) || (!isNaN(max) && val > max)) {
+                    isValid = false;
+                    el.classList.add('is-invalid');
+                }
+            }
+        });
+
+        return isValid;
     }
 
     // ── Tombol Lanjut ───────────────────────────────────────
@@ -405,8 +419,12 @@ if ($totalStep === 0) {
         btn.addEventListener('click', function() {
             const targetId = this.getAttribute('data-target');
             const input = document.getElementById(targetId);
-            if (input && parseInt(input.value) > 0) {
-                input.value = parseInt(input.value) - 1;
+            if (input) {
+                let val = parseInt(input.value) || 0;
+                let minVal = parseInt(input.getAttribute('min')) || 0;
+                if (val > minVal) {
+                    input.value = val - 1;
+                }
             }
         });
     });
