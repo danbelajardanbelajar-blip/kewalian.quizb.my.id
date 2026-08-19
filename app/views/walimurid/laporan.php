@@ -136,24 +136,21 @@ function simplifyQuestion($text) {
                                             <ul class="list-group list-group-flush">
                                                 <?php foreach ($data['detail'] as $det): 
                                                     $isPositive = ((int)$det['poin'] > 0);
-                                                    $badgeClass = $isPositive ? 'bg-success' : 'bg-danger';
-                                                    $textClass = $isPositive ? 'text-success' : 'text-danger';
-                                                    $icon = $isPositive ? 'bi-check-circle-fill' : 'bi-x-circle-fill';
+                                                    $ansLower = strtolower(trim($det['jawaban']));
+                                                    $poin = (int)$det['poin'];
                                                     
-                                                    // Deteksi tipe jawaban dari teks
-                                                    $ansLower = strtolower($det['jawaban']);
-                                                    if (strpos($ansLower, 'sudah') !== false || strpos($ansLower, 'hadir') !== false || strpos($ansLower, 'ya') !== false) {
-                                                        $icon = 'bi-check-circle-fill';
-                                                        $badgeClass = 'bg-success';
-                                                        $textClass = 'text-success';
-                                                    } elseif (strpos($ansLower, 'belum') !== false || strpos($ansLower, 'tidak') !== false || strpos($ansLower, 'alpa') !== false) {
-                                                        $icon = 'bi-x-circle-fill';
-                                                        $badgeClass = 'bg-danger';
-                                                        $textClass = 'text-danger';
-                                                    } elseif (strpos($ansLower, 'sakit') !== false || strpos($ansLower, 'izin') !== false) {
+                                                    if (preg_match('/\b(sakit|izin|udzur|haid)\b/i', $ansLower)) {
                                                         $icon = 'bi-exclamation-circle-fill';
                                                         $badgeClass = 'bg-warning text-dark';
                                                         $textClass = 'text-warning';
+                                                    } elseif ($poin > 0) {
+                                                        $icon = 'bi-check-circle-fill';
+                                                        $badgeClass = 'bg-success';
+                                                        $textClass = 'text-success';
+                                                    } else {
+                                                        $icon = 'bi-x-circle-fill';
+                                                        $badgeClass = 'bg-danger';
+                                                        $textClass = 'text-danger';
                                                     }
                                                 ?>
                                                     <li class="list-group-item bg-transparent px-0 py-3 border-bottom-dashed">

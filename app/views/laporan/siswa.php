@@ -114,17 +114,15 @@ function simplifyQuestionWK($text) {
                     <div class="accordion-body bg-light">
                         <ul class="list-group list-group-flush">
                             <?php foreach ($dayData['detail'] as $det):
-                                $ansLower = strtolower($det['jawaban']);
-                                if (strpos($ansLower, 'sudah') !== false || strpos($ansLower, 'hadir') !== false || strpos($ansLower, 'ya') !== false) {
-                                    $icon = 'bi-check-circle-fill'; $tc = 'text-success'; $bc = 'bg-success';
-                                } elseif (strpos($ansLower, 'belum') !== false || strpos($ansLower, 'tidak') !== false || strpos($ansLower, 'alpa') !== false) {
-                                    $icon = 'bi-x-circle-fill'; $tc = 'text-danger'; $bc = 'bg-danger';
-                                } elseif (strpos($ansLower, 'sakit') !== false || strpos($ansLower, 'izin') !== false) {
+                                $ansLower = strtolower(trim($det['jawaban']));
+                                $poin     = (int)$det['poin'];
+
+                                if (preg_match('/\b(sakit|izin|udzur|haid)\b/i', $ansLower)) {
                                     $icon = 'bi-exclamation-circle-fill'; $tc = 'text-warning'; $bc = 'bg-warning text-dark';
+                                } elseif ($poin > 0) {
+                                    $icon = 'bi-check-circle-fill'; $tc = 'text-success'; $bc = 'bg-success';
                                 } else {
-                                    $icon = ((int)$det['poin'] > 0) ? 'bi-check-circle-fill' : 'bi-x-circle-fill';
-                                    $tc   = ((int)$det['poin'] > 0) ? 'text-success' : 'text-danger';
-                                    $bc   = ((int)$det['poin'] > 0) ? 'bg-success' : 'bg-danger';
+                                    $icon = 'bi-x-circle-fill'; $tc = 'text-danger'; $bc = 'bg-danger';
                                 }
                             ?>
                             <li class="list-group-item bg-transparent px-0 py-3 border-bottom-dashed">
