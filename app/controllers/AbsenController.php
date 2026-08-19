@@ -415,6 +415,44 @@ class AbsenController extends Controller
     }
 
     /**
+     * GET /absen/sorotan_mingguan — Sorotan Mingguan
+     */
+    public function sorotan_mingguan(): void
+    {
+        $this->requireAuth();
+
+        $userId = Session::get('user_id');
+        $siswa   = $this->konfig->getSiswa($userId);
+        $kelas   = $this->konfig->getKelas($userId);
+        $pertanyaan = $this->pertanyaanModel->getActive($userId);
+        
+        $week = $_GET['week'] ?? date('Y-\WW'); 
+        
+        $dates = [];
+        $dto = new DateTime();
+        $dto->setISODate(substr($week, 0, 4), substr($week, 6, 2));
+        for ($i = 0; $i < 7; $i++) {
+            $dates[] = $dto->format('Y-m-d');
+            $dto->modify('+1 day');
+        }
+
+        $weeklyData = [];
+        foreach ($dates as $d) {
+            $weeklyData[$d] = $this->absenModel->getByTanggal($d, $userId);
+        }
+
+        $this->view('absen/sorotan_mingguan', [
+            'title'       => 'Sorotan Mingguan — ' . $week,
+            'week'        => $week,
+            'dates'       => $dates,
+            'kelas'       => $kelas,
+            'siswa'       => $siswa,
+            'weeklyData'  => $weeklyData,
+            'pertanyaan'  => $pertanyaan,
+        ]);
+    }
+
+    /**
      * POST /absen/hapus — Hapus data absen satu hari penuh
      */
     public function hapus(): void

@@ -74,9 +74,15 @@ $pageTitle = $title ?? 'Dashboard Wali Kelas';
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/absen/sorotan') !== false ? 'active' : '' ?>"
+                    <a class="nav-link <?= (strpos($_SERVER['REQUEST_URI'], '/absen/sorotan') !== false && strpos($_SERVER['REQUEST_URI'], '/absen/sorotan_mingguan') === false) ? 'active' : '' ?>"
                        href="<?= BASE_URL ?>/absen/sorotan">
-                        <i class="bi bi-stars me-1"></i> Sorotan
+                        <i class="bi bi-stars me-1"></i> Sorotan Harian
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= strpos($_SERVER['REQUEST_URI'], '/absen/sorotan_mingguan') !== false ? 'active' : '' ?>"
+                       href="<?= BASE_URL ?>/absen/sorotan_mingguan">
+                        <i class="bi bi-calendar-week me-1"></i> Sorotan Mingguan
                     </a>
                 </li>
                 <li class="nav-item">
