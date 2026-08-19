@@ -150,6 +150,28 @@ class AbsenModel extends Model
         }
     }
 
+    public function getLateSubmissionsByDate(string $startDate, string $endDate, int $userId): array
+    {
+        $this->db->query("
+            SELECT h.id_siswa, DATE(h.waktu_isi) as tgl_isi
+            FROM absen_header h
+            JOIN siswa s ON h.id_siswa = s.id
+            WHERE s.user_id = :user_id 
+              AND DATE(h.waktu_isi) BETWEEN :start_date AND :end_date
+              AND TIME(h.waktu_isi) > '07:00:00'
+        ");
+        $this->db->bind(':user_id', $userId);
+        $this->db->bind(':start_date', $startDate);
+        $this->db->bind(':end_date', $endDate);
+        
+        $result = $this->db->resultSet();
+        $lateMap = [];
+        foreach ($result as $row) {
+            $lateMap[$row['id_siswa']][$row['tgl_isi']] = true;
+        }
+        return $lateMap;
+    }
+
     public function getAllDates(int $userId = null): array
     {
         $userId = $userId ?? Session::get('user_id');

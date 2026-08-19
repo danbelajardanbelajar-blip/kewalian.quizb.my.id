@@ -67,16 +67,13 @@ foreach ($siswa as $sObj) {
             continue;
         }
         
-        // Cek anomali 1: Ngaji Pagi tapi isi > 07:00
-        $waktuIsi = $dayData['waktu_isi']; // format: Y-m-d H:i:s
-        $waktuObj = new DateTime($waktuIsi);
-        $jamIsi = (int)$waktuObj->format('H');
-        $menitIsi = (int)$waktuObj->format('i');
+        // Cek anomali 1: Ngaji Pagi bohong (berdasarkan waktu pengisian di tanggal $d)
+        // Kita cek apakah pada HARI $d tersebut, siswa men-submit form apapun (form untuk hari sebelumnya) di atas jam 7 pagi
+        $isLateToday = isset($lateMap[$sId][$d]);
         
-        $isLate = ($jamIsi >= 7 && ($jamIsi > 7 || $menitIsi > 0)); // Lebih dari 07:00
-        
-        if ($isLate) {
+        if ($isLateToday) {
             foreach ($ngajiQIds as $qid) {
+                // Apakah pada klaim HARI $d (laporan kegiatannya), dia mengklaim Ikut Ngaji?
                 if (isset($dayData['jawaban'][$qid])) {
                     $ans = strtolower(trim($dayData['jawaban'][$qid]['jawaban']));
                     // Anggap dia ikut kalau jawabannya BUKAN negatif
@@ -84,7 +81,7 @@ foreach ($siswa as $sObj) {
                         $anomalies[] = [
                             'type' => 'danger',
                             'title' => 'Indikasi Berbohong Ngaji Pagi - ' . htmlspecialchars($nama),
-                            'desc' => 'Pada tanggal <strong>' . date('d M', strtotime($d)) . '</strong>, menjawab ikut ngaji pagi tapi form baru diisi jam <strong>' . $waktuObj->format('H:i') . '</strong>.'
+                            'desc' => 'Mengklaim ikut ngaji pagi untuk tanggal <strong>' . date('d M', strtotime($d)) . '</strong>. Namun record menunjukkan bahwa pada tanggal <strong>' . date('d M', strtotime($d)) . '</strong> pagi ia tercatat kesiangan (mengirim/membuka form lewat dari jam 07:00 pagi).'
                         ];
                     }
                 }
