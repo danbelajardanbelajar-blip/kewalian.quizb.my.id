@@ -70,7 +70,7 @@
                         <tr>
                             <td class="text-center text-muted"><?= $no++ ?></td>
                             <td class="fw-medium">
-                                <a href="<?= BASE_URL ?>/laporan/siswa/<?= $data['id_siswa'] ?>" class="text-decoration-none text-dark" title="Lihat Performa">
+                                <a href="<?= BASE_URL ?>/laporan/siswa/<?= $data['id'] ?>" class="text-decoration-none text-dark" title="Lihat Performa">
                                     <?= htmlspecialchars($nama) ?>
                                 </a>
                             </td>
