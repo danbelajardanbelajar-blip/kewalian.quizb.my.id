@@ -83,6 +83,7 @@ foreach ($siswa as $sObj) {
                             'title' => 'Indikasi Berbohong Ngaji Pagi - ' . htmlspecialchars($nama),
                             'desc' => 'Mengklaim ikut ngaji pagi untuk tanggal <strong>' . date('d M', strtotime($d)) . '</strong>. Namun record menunjukkan bahwa pada tanggal <strong>' . date('d M', strtotime($d)) . '</strong> pagi ia tercatat kesiangan (mengirim/membuka form lewat dari jam 07:00 pagi).'
                         ];
+                        break; // Hentikan loop agar tidak duplikat jika ada 2 pertanyaan ngaji
                     }
                 }
             }
