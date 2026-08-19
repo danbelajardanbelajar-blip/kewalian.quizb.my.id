@@ -425,4 +425,40 @@ class SiswaController extends Controller
         }
         $this->redirect('siswa');
     }
+
+    /**
+     * POST /siswa/reset_kode_wali
+     * Mereset kode akses wali murid menjadi NULL (kosong)
+     */
+    public function reset_kode_wali(): void
+    {
+        $this->requireAuth();
+        if (!$this->isPost()) {
+            $this->redirect('siswa');
+            return;
+        }
+
+        $id = (int)($_POST['id'] ?? 0);
+        $userId = Session::get('user_id');
+
+        if ($id > 0) {
+            $db = new Database();
+            // Verifikasi siswa milik wali ini
+            $db->query("SELECT id FROM siswa WHERE id = :id AND user_id = :user_id");
+            $db->bind(':id', $id);
+            $db->bind(':user_id', $userId);
+            if ($db->single()) {
+                $db->query("UPDATE siswa SET kode_akses_wali = NULL WHERE id = :id");
+                $db->bind(':id', $id);
+                if ($db->execute()) {
+                    Flash::set('success', 'Kode Akses Wali Murid berhasil di-reset. Mereka akan diminta membuat kode baru.');
+                } else {
+                    Flash::set('error', 'Gagal mereset kode akses wali murid.');
+                }
+            } else {
+                Flash::set('error', 'Siswa tidak ditemukan atau bukan dari kelas Anda.');
+            }
+        }
+        $this->redirect('siswa');
+    }
 }

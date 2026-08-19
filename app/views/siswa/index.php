@@ -147,8 +147,16 @@
                                           class="d-inline form-reset-kode"
                                           data-nama="<?= htmlspecialchars($s['nama'], ENT_QUOTES) ?>">
                                         <input type="hidden" name="id" value="<?= $s['id'] ?>">
-                                        <button type="submit" class="btn btn-sm btn-outline-warning me-1" title="Reset Kode Akses">
+                                        <button type="submit" class="btn btn-sm btn-outline-warning me-1" title="Reset Kode Akses Siswa">
                                             <i class="bi bi-key"></i>
+                                        </button>
+                                    </form>
+                                    <form action="<?= BASE_URL ?>/siswa/reset_kode_wali" method="POST"
+                                          class="d-inline form-reset-kode-wali"
+                                          data-nama="<?= htmlspecialchars($s['nama'], ENT_QUOTES) ?>">
+                                        <input type="hidden" name="id" value="<?= $s['id'] ?>">
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary me-1" title="Reset Kode Wali Murid">
+                                            <i class="bi bi-shield-lock"></i>
                                         </button>
                                     </form>
                                     <button type="button" class="btn btn-sm btn-outline-success me-1 btn-copy-link"
@@ -253,7 +261,18 @@ document.addEventListener('DOMContentLoaded', function() {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             const nama = this.dataset.nama;
-            if (confirm(`Yakin ingin MERESET kode akses untuk siswa "${nama}"?\nSiswa harus membuat kode baru saat login berikutnya.`)) {
+            if (confirm(`Yakin ingin MERESET kode akses untuk siswa "${nama}"?\nSiswa harus membuat kode baru saat absen berikutnya.`)) {
+                this.submit();
+            }
+        });
+    });
+
+    // Konfirmasi reset kode wali
+    document.querySelectorAll('.form-reset-kode-wali').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nama = this.dataset.nama;
+            if (confirm(`Yakin ingin MERESET KODE WALI MURID untuk ananda "${nama}"?\nWali murid harus membuat kode baru (hanya huruf) saat mengunjungi laporan berikutnya.`)) {
                 this.submit();
             }
         });
