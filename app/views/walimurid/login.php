@@ -39,7 +39,7 @@
                             <input type="text" name="kode_akses" class="form-control" placeholder="Contoh: ibubudi" required autocomplete="off" pattern="[a-zA-Z\s]+" title="Hanya boleh berisi huruf dan spasi, tanpa angka">
                         </div>
                         <div class="form-text text-danger small fw-medium mt-2">
-                            <i class="bi bi-exclamation-triangle-fill"></i> PENTING: Kode akses <strong>TIDAK BOLEH mengandung angka</strong>. Hanya huruf saja. Ingat kode ini untuk kunjungan berikutnya!
+                            <i class="bi bi-exclamation-triangle-fill"></i> PENTING: Kode akses <strong>TIDAK BOLEH mengandung angka</strong>. Hanya huruf saja. <strong>INGAT KODE INI UNTUK KUNJUNGAN BERIKUTNYA!</strong>
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary w-100 py-2 rounded-pill mt-2 fw-bold">
