@@ -82,18 +82,31 @@ $total = count($data);
 <div class="card card-main shadow-sm">
     <div class="card-header-custom">
         <i class="bi bi-table me-2"></i> Detail Per Siswa
+        <small class="ms-2 text-muted fw-normal">— klik header kolom untuk mengurutkan</small>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+            <table class="table table-hover align-middle mb-0" id="tblTracking">
                 <thead class="table-light">
                     <tr>
-                        <th>#</th>
-                        <th>Nama Siswa</th>
-                        <th class="text-center">No HP Wali</th>
-                        <th class="text-center">Kunjungan Laporan</th>
-                        <th class="text-center">Terakhir Kunjung</th>
-                        <th class="text-center">Status Kepedulian</th>
+                        <th class="sortable" data-col="0" style="cursor:pointer;user-select:none;white-space:nowrap">
+                            # <i class="bi bi-arrow-down-up text-muted small"></i>
+                        </th>
+                        <th class="sortable" data-col="1" style="cursor:pointer;user-select:none;white-space:nowrap">
+                            Nama Siswa <i class="bi bi-arrow-down-up text-muted small"></i>
+                        </th>
+                        <th class="sortable text-center" data-col="2" style="cursor:pointer;user-select:none;white-space:nowrap">
+                            No HP Wali <i class="bi bi-arrow-down-up text-muted small"></i>
+                        </th>
+                        <th class="sortable text-center" data-col="3" style="cursor:pointer;user-select:none;white-space:nowrap">
+                            Kunjungan Laporan <i class="bi bi-arrow-down-up text-muted small"></i>
+                        </th>
+                        <th class="sortable text-center" data-col="4" style="cursor:pointer;user-select:none;white-space:nowrap">
+                            Terakhir Kunjung <i class="bi bi-arrow-down-up text-muted small"></i>
+                        </th>
+                        <th class="sortable text-center" data-col="5" style="cursor:pointer;user-select:none;white-space:nowrap">
+                            Status Kepedulian <i class="bi bi-arrow-down-up text-muted small"></i>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -152,3 +165,62 @@ $total = count($data);
         </div>
     </div>
 </div>
+
+<script>
+(function () {
+    const table   = document.getElementById('tblTracking');
+    const tbody   = table.querySelector('tbody');
+    const headers = table.querySelectorAll('th.sortable');
+    let lastCol   = -1;
+    let asc       = true;
+
+    headers.forEach(th => {
+        th.addEventListener('click', () => {
+            const col = parseInt(th.dataset.col);
+            asc = (col === lastCol) ? !asc : true;
+            lastCol = col;
+
+            // Update icon
+            headers.forEach(h => {
+                const ic = h.querySelector('i');
+                ic.className = 'bi bi-arrow-down-up text-muted small';
+            });
+            const icon = th.querySelector('i');
+            icon.className = asc
+                ? 'bi bi-sort-down text-primary small'
+                : 'bi bi-sort-up text-primary small';
+
+            // Sort rows
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            rows.sort((a, b) => {
+                const va = a.cells[col]?.innerText.trim().toLowerCase() ?? '';
+                const vb = b.cells[col]?.innerText.trim().toLowerCase() ?? '';
+
+                // Numeric sort for columns 0 and 3
+                if (col === 0 || col === 3) {
+                    const na = parseFloat(va.replace(/[^\d.]/g, '')) || 0;
+                    const nb = parseFloat(vb.replace(/[^\d.]/g, '')) || 0;
+                    return asc ? na - nb : nb - na;
+                }
+
+                // Date sort for column 4
+                if (col === 4) {
+                    // Convert "dd Mon yyyy hh:mm" ke timestamp sortable
+                    const da = va === '—' ? 0 : new Date(va.replace(/(\d+) (\w+) (\d+)/, '$2 $1 $3')).getTime() || 0;
+                    const db = vb === '—' ? 0 : new Date(vb.replace(/(\d+) (\w+) (\d+)/, '$2 $1 $3')).getTime() || 0;
+                    return asc ? da - db : db - da;
+                }
+
+                // Text sort
+                return asc ? va.localeCompare(vb) : vb.localeCompare(va);
+            });
+
+            // Re-number column 0 after sort
+            rows.forEach((row, idx) => {
+                row.cells[0].textContent = idx + 1;
+                tbody.appendChild(row);
+            });
+        });
+    });
+})();
+</script>
