@@ -291,7 +291,7 @@ class AbsenController extends Controller
                     }
                 }
                 
-                $link = "https://wali.quizb.my.id/walimurid?id=" . $id . "&no_hp=" . urlencode($noHp);
+                $link = "https://wali.quizb.my.id/walimurid?id=" . $id;
                 $tanggalIndo = date('d F Y', strtotime($tanggal));
                 
                 $pesan = str_replace(
