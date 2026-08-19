@@ -54,7 +54,9 @@ class App
 
         // Tentukan Controller dari URL segment pertama
         if (!empty($url[0])) {
-            $name = ucfirst(strtolower($url[0])) . 'Controller';
+            // Convert snake_case (wali_tracking) ke PascalCase (WaliTrackingController)
+            $segments = explode('_', strtolower($url[0]));
+            $name = implode('', array_map('ucfirst', $segments)) . 'Controller';
             $file = APP_PATH . '/controllers/' . $name . '.php';
 
             if (file_exists($file)) {
