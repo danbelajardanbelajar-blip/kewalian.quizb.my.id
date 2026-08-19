@@ -570,4 +570,49 @@ class AbsenController extends Controller
             $this->json(['success' => false, 'message' => 'Kode akses salah.']);
         }
     }
+
+    /**
+     * POST /absen/kirim_wa_manual
+     * Mengirim pesan WA secara manual via API dari halaman rekap
+     */
+    public function kirim_wa_manual(): void
+    {
+        $this->requireAuth();
+        if (!$this->isPost()) {
+            $this->json(['success' => false, 'message' => 'Method not allowed'], 405);
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        $noHp = trim($input['no_hp'] ?? '');
+        $pesan = trim($input['pesan'] ?? '');
+
+        if (empty($noHp) || empty($pesan)) {
+            $this->json(['success' => false, 'message' => 'Nomor HP atau pesan kosong']);
+        }
+
+        $waData = [
+            'phone_number' => $noHp,
+            'message' => $pesan,
+            'scheduled_time' => date('Y-m-d\TH:i', strtotime('+5 seconds'))
+        ];
+        
+        $ch = curl_init("https://wa.quizb.my.id/api/send.php");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($waData));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            "Content-Type: application/json",
+            "x-api-key: wa-key-923332d62d67d2511393e0c6d8ff5e59"
+        ]);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10); 
+        $result = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode >= 200 && $httpCode < 300) {
+            $this->json(['success' => true, 'message' => 'Pesan berhasil dikirim via API']);
+        } else {
+            $this->json(['success' => false, 'message' => 'Gagal mengirim pesan via API']);
+        }
+    }
 }

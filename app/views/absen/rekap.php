@@ -195,8 +195,7 @@ $siswaData = $dataTanggal['siswa'] ?? [];
                                 $noHp = $sObj['no_hp'] ?? '';
                                 if (!empty($noHp)) {
                                     $waMessage .= "\nTotal Poin Harian: " . ($s['total_poin'] ?? 0) . " Poin.\nMohon doanya Ayah dan Ibu. Matur nuwun.";
-                                    $linkWa = "https://wa.me/" . urlencode($noHp) . "?text=" . urlencode($waMessage);
-                                    echo '<a href="' . $linkWa . '" target="_blank" class="btn btn-outline-success btn-sm p-1 me-1" title="Kirim WA ke Wali"><i class="bi bi-whatsapp"></i></a>';
+                                    echo '<button type="button" class="btn btn-outline-success btn-sm p-1 me-1 btn-send-wa" data-nohp="' . htmlspecialchars($noHp) . '" data-pesan="' . htmlspecialchars($waMessage, ENT_QUOTES) . '" title="Kirim WA via API"><i class="bi bi-whatsapp"></i></button>';
                                 }
                                 ?>
                                 <form action="<?= BASE_URL ?>/absen/hapus_siswa" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus data absen <?= htmlspecialchars($namaSiswa) ?> pada tanggal ini?');">
@@ -240,5 +239,51 @@ $siswaData = $dataTanggal['siswa'] ?? [];
 <script>
 document.getElementById('pilihTanggal').addEventListener('change', function () {
     window.location.href = '<?= BASE_URL ?>/absen/rekap?tanggal=' + this.value;
+});
+document.querySelectorAll('.btn-send-wa').forEach(btn => {
+    btn.addEventListener('click', async function() {
+        const noHp = this.dataset.nohp;
+        const pesan = this.dataset.pesan;
+        const originalHtml = this.innerHTML;
+        
+        if (!confirm('Yakin ingin mengirim pesan WA secara manual ke nomor ' + noHp + '?')) return;
+        
+        this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+        this.disabled = true;
+        
+        try {
+            const response = await fetch('<?= BASE_URL ?>/absen/kirim_wa_manual', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    no_hp: noHp,
+                    pesan: pesan
+                })
+            });
+            const res = await response.json();
+            
+            if (res.success) {
+                this.innerHTML = '<i class="bi bi-check-lg"></i>';
+                this.classList.remove('btn-outline-success');
+                this.classList.add('btn-success');
+                setTimeout(() => {
+                    this.innerHTML = originalHtml;
+                    this.classList.add('btn-outline-success');
+                    this.classList.remove('btn-success');
+                    this.disabled = false;
+                }, 2000);
+            } else {
+                alert('Gagal: ' + (res.message || 'Kesalahan tidak diketahui'));
+                this.innerHTML = originalHtml;
+                this.disabled = false;
+            }
+        } catch (error) {
+            alert('Terjadi kesalahan jaringan.');
+            this.innerHTML = originalHtml;
+            this.disabled = false;
+        }
+    });
 });
 </script>
