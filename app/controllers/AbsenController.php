@@ -441,9 +441,9 @@ class AbsenController extends Controller
             $weeklyData[$d] = $this->absenModel->getByTanggal($d, $userId);
         }
         
-        $startDate = $dates[0];
-        $endDate = $dates[6];
-        $lateMap = $this->absenModel->getLateSubmissionsByDate($startDate, $endDate, $userId);
+        $startDate = date('Y-m-d', strtotime($dates[0] . ' -1 day')); // satu hari sebelum Senin
+        $endDate   = $dates[6];
+        $lateMap   = $this->absenModel->getLateSubmissionsByDate($startDate, $endDate, $userId);
 
         $this->view('absen/sorotan_mingguan', [
             'title'       => 'Sorotan Mingguan — ' . $week,

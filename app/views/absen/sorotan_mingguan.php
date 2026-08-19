@@ -67,26 +67,27 @@ foreach ($siswa as $sObj) {
             continue;
         }
         
-        // Cek anomali 1: Ngaji Pagi bohong (berdasarkan waktu pengisian di tanggal $d)
-        // Kita cek apakah pada HARI $d tersebut, siswa men-submit form apapun (form untuk hari sebelumnya) di atas jam 7 pagi
-        $jamLate = $lateMap[$sId][$d] ?? null; // HH:MM atau null jika tidak terlambat
-        
+        // Cek anomali 1: Ngaji Pagi bohong
+        // weeklyData[$d] = form yang diisi PADA tgl $d, tentang kegiatan KEMARIN ($d-1)
+        // Bukti kesiangan pada $d-1 = apakah ada form yang dikirim pada $d-1 lewat jam 07:00?
+        $yesterday     = date('Y-m-d', strtotime($d . ' -1 day'));
+        $jamLate       = $lateMap[$sId][$yesterday] ?? null; // HH:MM atau null
+
         if ($jamLate !== null) {
             foreach ($ngajiQIds as $qid) {
-                // Apakah pada klaim HARI $d (laporan kegiatannya), dia mengklaim Ikut Ngaji?
                 if (isset($dayData['jawaban'][$qid])) {
                     $ans = strtolower(trim($dayData['jawaban'][$qid]['jawaban']));
-                    // Anggap dia ikut kalau jawabannya BUKAN negatif
                     if ($ans !== 'tidak' && $ans !== 'alpha' && $ans !== 'sakit' && $ans !== 'izin' && $ans !== 'udzur' && $ans !== 'tidak hadir') {
-                        $tglKlaim = isset($dayData['waktu_isi'])
+                        $tglKlaim   = isset($dayData['waktu_isi'])
                             ? date('d M Y', strtotime($dayData['waktu_isi']))
-                            : '-';
+                            : date('d M Y', strtotime($d));
+                        $tglKegiatan = date('d M Y', strtotime($yesterday));
                         $anomalies[] = [
-                            'type' => 'danger',
+                            'type'  => 'danger',
                             'title' => 'Indikasi Berbohong Ngaji Pagi - ' . htmlspecialchars($nama),
-                            'desc' => 'Pada tanggal <strong>' . $tglKlaim . '</strong> ananda mengklaim ikut ngaji pagi untuk tanggal <strong>' . date('d M Y', strtotime($d)) . '</strong>. Namun record menunjukkan bahwa pada tanggal tersebut ananda baru mengisi form pukul <strong>' . $jamLate . '</strong> (setelah jam 07:00 pagi).'
+                            'desc'  => 'Pada tanggal <strong>' . $tglKlaim . '</strong> ananda mengklaim ikut ngaji pagi untuk tanggal <strong>' . $tglKegiatan . '</strong>. Namun record menunjukkan bahwa pada tanggal tersebut ananda baru mengisi form pukul <strong>' . $jamLate . '</strong> (setelah jam 07:00 pagi).'
                         ];
-                        break; // Hentikan loop agar tidak duplikat jika ada 2 pertanyaan ngaji
+                        break;
                     }
                 }
             }
