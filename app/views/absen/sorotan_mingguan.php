@@ -69,9 +69,9 @@ foreach ($siswa as $sObj) {
         
         // Cek anomali 1: Ngaji Pagi bohong (berdasarkan waktu pengisian di tanggal $d)
         // Kita cek apakah pada HARI $d tersebut, siswa men-submit form apapun (form untuk hari sebelumnya) di atas jam 7 pagi
-        $isLateToday = isset($lateMap[$sId][$d]);
+        $jamLate = $lateMap[$sId][$d] ?? null; // HH:MM atau null jika tidak terlambat
         
-        if ($isLateToday) {
+        if ($jamLate !== null) {
             foreach ($ngajiQIds as $qid) {
                 // Apakah pada klaim HARI $d (laporan kegiatannya), dia mengklaim Ikut Ngaji?
                 if (isset($dayData['jawaban'][$qid])) {
@@ -81,7 +81,7 @@ foreach ($siswa as $sObj) {
                         $anomalies[] = [
                             'type' => 'danger',
                             'title' => 'Indikasi Berbohong Ngaji Pagi - ' . htmlspecialchars($nama),
-                            'desc' => 'Mengklaim ikut ngaji pagi untuk tanggal <strong>' . date('d M', strtotime($d)) . '</strong>. Namun record menunjukkan bahwa pada tanggal <strong>' . date('d M', strtotime($d)) . '</strong> pagi ia tercatat kesiangan (mengirim/membuka form lewat dari jam 07:00 pagi).'
+                            'desc' => 'Mengklaim ikut ngaji pagi untuk tanggal <strong>' . date('d M', strtotime($d)) . '</strong>. Namun record menunjukkan bahwa pada tanggal tersebut ananda baru mengisi form pukul <strong>' . $jamLate . '</strong> (setelah jam 07:00 pagi).'
                         ];
                         break; // Hentikan loop agar tidak duplikat jika ada 2 pertanyaan ngaji
                     }

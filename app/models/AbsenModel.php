@@ -153,7 +153,7 @@ class AbsenModel extends Model
     public function getLateSubmissionsByDate(string $startDate, string $endDate, int $userId): array
     {
         $this->db->query("
-            SELECT h.id_siswa, DATE(h.waktu_isi) as tgl_isi
+            SELECT h.id_siswa, DATE(h.waktu_isi) as tgl_isi, TIME(h.waktu_isi) as jam_isi
             FROM absen_header h
             JOIN siswa s ON h.id_siswa = s.id
             WHERE s.user_id = :user_id 
@@ -167,7 +167,7 @@ class AbsenModel extends Model
         $result = $this->db->resultSet();
         $lateMap = [];
         foreach ($result as $row) {
-            $lateMap[$row['id_siswa']][$row['tgl_isi']] = true;
+            $lateMap[$row['id_siswa']][$row['tgl_isi']] = substr($row['jam_isi'], 0, 5); // HH:MM
         }
         return $lateMap;
     }
