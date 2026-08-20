@@ -107,6 +107,7 @@ $total = count($data);
                         <th class="sortable text-center" data-col="5" style="cursor:pointer;user-select:none;white-space:nowrap">
                             Status Kepedulian <i class="bi bi-arrow-down-up text-muted small"></i>
                         </th>
+                        <th class="text-center" style="white-space:nowrap">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -162,6 +163,18 @@ $total = count($data);
                                 <i class="bi <?= $kepedulian['icon'] ?> me-1"></i><?= $kepedulian['label'] ?>
                             </span>
                         </td>
+                        <td class="text-center">
+                            <?php if ($punyaHp): ?>
+                                <button type="button" class="btn btn-outline-success btn-sm p-1 btn-send-wa" 
+                                    data-idsiswa="<?= $row['id'] ?>" 
+                                    data-tanggal="<?= date('Y-m-d') ?>" 
+                                    data-nohp="<?= htmlspecialchars($row['no_hp']) ?>" 
+                                    data-nama="<?= htmlspecialchars($row['nama'], ENT_QUOTES) ?>" 
+                                    title="Kirim Laporan Hari Ini via WA API">
+                                    <i class="bi bi-whatsapp"></i>
+                                </button>
+                            <?php endif; ?>
+                        </td>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -171,6 +184,55 @@ $total = count($data);
 </div>
 
 <script>
+document.querySelectorAll('.btn-send-wa').forEach(btn => {
+    btn.addEventListener('click', async function() {
+        const idSiswa = this.dataset.idsiswa;
+        const tanggal = this.dataset.tanggal;
+        const noHp = this.dataset.nohp;
+        const nama = this.dataset.nama;
+        const originalHtml = this.innerHTML;
+        
+        if (!confirm(`Yakin ingin mengirim laporan hari ini untuk ananda "${nama}" ke WA ${noHp} (menggunakan format template Anda)?`)) return;
+        
+        this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+        this.disabled = true;
+        
+        try {
+            const response = await fetch('<?= BASE_URL ?>/absen/kirim_wa_manual', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id_siswa: idSiswa,
+                    tanggal: tanggal
+                })
+            });
+            const res = await response.json();
+            
+            if (res.success) {
+                this.innerHTML = '<i class="bi bi-check-lg"></i>';
+                this.classList.remove('btn-outline-success');
+                this.classList.add('btn-success');
+                setTimeout(() => {
+                    this.innerHTML = originalHtml;
+                    this.classList.add('btn-outline-success');
+                    this.classList.remove('btn-success');
+                    this.disabled = false;
+                }, 2000);
+            } else {
+                alert('Gagal: ' + (res.message || 'Kesalahan tidak diketahui'));
+                this.innerHTML = originalHtml;
+                this.disabled = false;
+            }
+        } catch (error) {
+            alert('Terjadi kesalahan jaringan.');
+            this.innerHTML = originalHtml;
+            this.disabled = false;
+        }
+    });
+});
+
 (function () {
     const table   = document.getElementById('tblTracking');
     const tbody   = table.querySelector('tbody');
