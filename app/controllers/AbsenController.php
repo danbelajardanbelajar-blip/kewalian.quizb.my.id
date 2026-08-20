@@ -818,31 +818,34 @@ class AbsenController extends Controller
         }
 
         $tglIndo = date('d F Y', strtotime($tanggal));
+        
+        // Filter siswa yang belum mengisi
+        $siswaBelumIsi = [];
+        foreach ($siswaAsrama as $s) {
+            if (!isset($dataTanggal['siswa'][$s['id']])) {
+                $siswaBelumIsi[] = $s['nama'];
+            }
+        }
+        
+        if (empty($siswaBelumIsi)) {
+            $this->json(['success' => false, 'message' => 'Semua anak di asrama ini sudah mengisi laporan!']);
+            return;
+        }
+
         $msg = "*LAPORAN KEDISIPLINAN ASRAMA*\n";
         $msg .= "Asrama: *{$namaAsrama}*\n";
         $msg .= "Pengurus: *{$pengurus['nama_pengurus']}*\n";
         $msg .= "Tanggal: *{$tglIndo}*\n\n";
+        $msg .= "Anak-anak berikut belum mengisi laporan kedisiplinan:\n";
         
         $no = 1;
-        $adaBelumIsi = false;
-        foreach ($siswaAsrama as $s) {
-            $sId = $s['id'];
-            $nama = $s['nama'];
-            
-            if (isset($dataTanggal['siswa'][$sId])) {
-                $poin = $dataTanggal['siswa'][$sId]['total_poin'] ?? 0;
-                $msg .= "{$no}. {$nama} - Poin: {$poin}\n";
-            } else {
-                $msg .= "{$no}. {$nama} - Belum Mengisi Laporan\n";
-                $adaBelumIsi = true;
-            }
+        foreach ($siswaBelumIsi as $nama) {
+            $msg .= "{$no}. {$nama}\n";
             $no++;
         }
         
-        if ($adaBelumIsi) {
-            $link = BASE_URL . "/absen?wali=" . $userId;
-            $msg .= "\nMohon meminjamkan hp ke anak-anak di atas untuk mengisi laporan di link ini:\n{$link}\n";
-        }
+        $link = BASE_URL . "/absen?wali=" . $userId;
+        $msg .= "\nMohon meminjamkan hp ke anak-anak di atas untuk mengisi laporan di link ini:\n{$link}\n";
         
         $msg .= "\n_Pesan otomatis dari Sistem Kedisiplinan Santri._";
 
