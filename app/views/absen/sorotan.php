@@ -232,6 +232,19 @@ if ($totalSiswa > 0) {
             }
         }
     }
+    
+    // 5. Cek siswa yang tidak mengisi (kecuali hari Jumat)
+    if (date('N', strtotime($tanggal)) != 5) {
+        foreach ($siswa as $sObj) {
+            if (!isset($siswaData[$sObj['id']])) {
+                $anomalies[] = [
+                    'type' => 'warning',
+                    'title' => 'Tidak Mengisi Laporan - ' . htmlspecialchars($sObj['nama']),
+                    'desc' => 'Ananda Tidak mengisi laporan pada tanggal: <strong>' . date('d M Y', strtotime($tanggal)) . '</strong>'
+                ];
+            }
+        }
+    }
 }
 ?>
 

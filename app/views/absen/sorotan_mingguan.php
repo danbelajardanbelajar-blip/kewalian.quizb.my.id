@@ -59,11 +59,16 @@ foreach ($siswa as $sObj) {
     $nama = $sObj['nama'];
     
     $udzurPerDay = []; // Array of true/false per date
+    $missingDays = []; // Track missed days
     
     foreach ($dates as $d) {
         $dayData = $weeklyData[$d]['siswa'][$sId] ?? null;
         if (!$dayData) {
             $udzurPerDay[$d] = false;
+            // Ignore if it's Friday (holiday) or in the future
+            if (date('N', strtotime($d)) != 5 && strtotime($d) <= strtotime('today')) {
+                $missingDays[] = date('d F Y', strtotime($d));
+            }
             continue;
         }
         
@@ -132,6 +137,14 @@ foreach ($siswa as $sObj) {
             'type' => 'danger',
             'title' => 'Udzur Lintas Hari Berseling - ' . htmlspecialchars($nama),
             'desc' => 'Tercatat udzur pada hari yang tidak berurutan/terputus dalam minggu ini: <strong>' . implode(', ', $hariUdzur) . '</strong>.'
+        ];
+    }
+    
+    if (!empty($missingDays)) {
+        $anomalies[] = [
+            'type'  => 'warning',
+            'title' => 'Tidak Mengisi Laporan - ' . htmlspecialchars($nama),
+            'desc'  => 'Ananda Tidak mengisi laporan pada tanggal: <strong>' . implode(', ', $missingDays) . '</strong>'
         ];
     }
 }
