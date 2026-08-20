@@ -854,7 +854,7 @@ class AbsenController extends Controller
         $dataWa = [
             'phone_number'   => $pengurus['no_hp'],
             'message'        => $msg,
-            'scheduled_time' => ''
+            'scheduled_time' => date('Y-m-d\TH:i', strtotime('+5 seconds'))
         ];
 
         $ch = curl_init($url);
@@ -865,6 +865,7 @@ class AbsenController extends Controller
             'Content-Type: application/json',
             'x-api-key: ' . $apiKey
         ]);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -873,7 +874,7 @@ class AbsenController extends Controller
         if ($httpCode >= 200 && $httpCode < 300) {
             $this->json(['success' => true, 'message' => 'Pesan berhasil dikirim via API']);
         } else {
-            $this->json(['success' => false, 'message' => 'Gagal mengirim pesan via API']);
+            $this->json(['success' => false, 'message' => "Gagal mengirim pesan via API (Kode: $httpCode). " . htmlspecialchars($response)]);
         }
     }
 
