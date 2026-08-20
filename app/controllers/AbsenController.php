@@ -824,6 +824,7 @@ class AbsenController extends Controller
         $msg .= "Tanggal: *{$tglIndo}*\n\n";
         
         $no = 1;
+        $adaBelumIsi = false;
         foreach ($siswaAsrama as $s) {
             $sId = $s['id'];
             $nama = $s['nama'];
@@ -833,8 +834,14 @@ class AbsenController extends Controller
                 $msg .= "{$no}. {$nama} - Poin: {$poin}\n";
             } else {
                 $msg .= "{$no}. {$nama} - Belum Mengisi Laporan\n";
+                $adaBelumIsi = true;
             }
             $no++;
+        }
+        
+        if ($adaBelumIsi) {
+            $link = BASE_URL . "/absen?wali=" . $userId;
+            $msg .= "\nMohon meminjamkan hp ke anak-anak di atas untuk mengisi laporan di link ini:\n{$link}\n";
         }
         
         $msg .= "\n_Pesan otomatis dari Sistem Kedisiplinan Santri._";
