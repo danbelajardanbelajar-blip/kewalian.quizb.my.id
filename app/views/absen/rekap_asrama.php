@@ -76,6 +76,12 @@ ksort($grupAsrama);
             
             <?php 
                 $pengurus = $pengurusMap[$namaAsrama] ?? null;
+                $belumIsiCount = 0;
+                foreach ($listSiswa as $s) {
+                    if (!isset($siswaData[$s['id']])) {
+                        $belumIsiCount++;
+                    }
+                }
             ?>
             
             <div class="card-body p-0">
@@ -87,9 +93,15 @@ ksort($grupAsrama);
                                 <i class="bi bi-whatsapp"></i> <?= htmlspecialchars($pengurus['no_hp']) ?>
                             </a>
                         </div>
-                        <button class="btn btn-sm btn-success w-100 btn-kirim-asrama" data-asrama="<?= htmlspecialchars($namaAsrama) ?>" data-tanggal="<?= $tanggal ?>">
-                            <i class="bi bi-send me-1"></i> Kirim Laporan ke Pengurus
-                        </button>
+                        <?php if ($belumIsiCount > 0): ?>
+                            <button class="btn btn-sm btn-success w-100 btn-kirim-asrama" data-asrama="<?= htmlspecialchars($namaAsrama) ?>" data-tanggal="<?= $tanggal ?>">
+                                <i class="bi bi-send me-1"></i> Kirim Laporan ke Pengurus
+                            </button>
+                        <?php else: ?>
+                            <button class="btn btn-sm btn-secondary w-100" disabled>
+                                <i class="bi bi-check-all me-1"></i> Semua Sudah Mengisi
+                            </button>
+                        <?php endif; ?>
                     <?php else: ?>
                         <?php if ($namaAsrama !== 'Tanpa Asrama'): ?>
                             <small class="text-danger"><i class="bi bi-exclamation-triangle me-1"></i> Pengurus belum diatur</small>
