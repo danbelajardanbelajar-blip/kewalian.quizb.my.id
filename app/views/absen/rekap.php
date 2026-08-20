@@ -135,9 +135,6 @@ $siswaData = $dataTanggal['siswa'] ?? [];
                             <td class="fw-medium"><?= htmlspecialchars($namaSiswa) ?></td>
 
                             <?php 
-                            $waMessage = "Salam Ayah dan Ibu.\nIni kulo, ananda *" . ucwords(strtolower(trim($namaSiswa))) . "*.\n";
-                            $waMessage .= "Berikut adalah rekap harian kulo untuk hari ini:\n\n";
-
                             foreach ($pertanyaan as $p): 
                                 $pId = $p['id'];
                                 $ans = $s['jawaban'][$pId] ?? null;
@@ -172,8 +169,6 @@ $siswaData = $dataTanggal['siswa'] ?? [];
                                         }
                                         $badgeClass = ($val > 0) ? 'bg-primary' : 'bg-danger';
                                     }
-                                    
-                                    $waMessage .= "• " . $p['judul'] . ": " . $dispLabel . " (+" . $poin . " Poin)\n";
                                 }
                             ?>
                                 <td class="text-center">
@@ -194,8 +189,7 @@ $siswaData = $dataTanggal['siswa'] ?? [];
                                 <?php
                                 $noHp = $sObj['no_hp'] ?? '';
                                 if (!empty($noHp)) {
-                                    $waMessage .= "\nTotal Poin Harian: " . ($s['total_poin'] ?? 0) . " Poin.\nMohon doanya Ayah dan Ibu. Matur nuwun.";
-                                    echo '<button type="button" class="btn btn-outline-success btn-sm p-1 me-1 btn-send-wa" data-nohp="' . htmlspecialchars($noHp) . '" data-pesan="' . htmlspecialchars($waMessage, ENT_QUOTES) . '" title="Kirim WA via API"><i class="bi bi-whatsapp"></i></button>';
+                                    echo '<button type="button" class="btn btn-outline-success btn-sm p-1 me-1 btn-send-wa" data-idsiswa="' . $sObj['id'] . '" data-tanggal="' . htmlspecialchars($tanggal) . '" data-nohp="' . htmlspecialchars($noHp) . '" title="Kirim Laporan WA via API"><i class="bi bi-whatsapp"></i></button>';
                                 }
                                 ?>
                                 <form action="<?= BASE_URL ?>/absen/hapus_siswa" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus data absen <?= htmlspecialchars($namaSiswa) ?> pada tanggal ini?');">
@@ -242,11 +236,12 @@ document.getElementById('pilihTanggal').addEventListener('change', function () {
 });
 document.querySelectorAll('.btn-send-wa').forEach(btn => {
     btn.addEventListener('click', async function() {
+        const idSiswa = this.dataset.idsiswa;
+        const tanggal = this.dataset.tanggal;
         const noHp = this.dataset.nohp;
-        const pesan = this.dataset.pesan;
         const originalHtml = this.innerHTML;
         
-        if (!confirm('Yakin ingin mengirim pesan WA secara manual ke nomor ' + noHp + '?')) return;
+        if (!confirm('Yakin ingin mengirim laporan hari ini ke nomor WA ' + noHp + ' (menggunakan format template Anda)?')) return;
         
         this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
         this.disabled = true;
@@ -258,8 +253,8 @@ document.querySelectorAll('.btn-send-wa').forEach(btn => {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    no_hp: noHp,
-                    pesan: pesan
+                    id_siswa: idSiswa,
+                    tanggal: tanggal
                 })
             });
             const res = await response.json();

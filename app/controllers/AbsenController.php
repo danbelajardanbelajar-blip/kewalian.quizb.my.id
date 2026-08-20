@@ -583,12 +583,78 @@ class AbsenController extends Controller
         }
 
         $input = json_decode(file_get_contents('php://input'), true) ?? $_POST;
-        $noHp = trim($input['no_hp'] ?? '');
-        $pesan = trim($input['pesan'] ?? '');
+        $id = (int)($input['id_siswa'] ?? 0);
+        $tanggal = trim($input['tanggal'] ?? '');
+        $userId = Session::get('user_id');
 
-        if (empty($noHp) || empty($pesan)) {
-            $this->json(['success' => false, 'message' => 'Nomor HP atau pesan kosong']);
+        if ($id <= 0 || empty($tanggal)) {
+            $this->json(['success' => false, 'message' => 'Data tidak lengkap']);
         }
+
+        // Get student data
+        $dbSiswa = new Database();
+        $dbSiswa->query("SELECT nama, no_hp FROM siswa WHERE id = :id AND user_id = :user_id");
+        $dbSiswa->bind(':id', $id);
+        $dbSiswa->bind(':user_id', $userId);
+        $siswaRow = $dbSiswa->single();
+
+        if (!$siswaRow || empty($siswaRow['no_hp'])) {
+            $this->json(['success' => false, 'message' => 'Siswa tidak ditemukan atau nomor HP kosong']);
+            return;
+        }
+
+        $noHp = $siswaRow['no_hp'];
+        $namaSiswa = ucwords(strtolower($siswaRow['nama']));
+
+        require_once APP_PATH . '/models/WaTemplateModel.php';
+        require_once APP_PATH . '/models/WalimuridModel.php';
+
+        $waModel = new WaTemplateModel();
+        $template = $waModel->getTemplate((int)$userId);
+        
+        if (empty($template)) {
+            $template = "Salam Bapak/Ibu, Semoga senantiasa diberi kesehatan.\nIzin menghaturkan rekap kegiatan ananda *{nama_siswa}* selama sehari di tanggal *{tanggal}*.\n\n*--- RINCIAN LAPORAN ---*\n\n{rincian}\n*Rating Harian:* {rating}/5\n\nUntuk melihat statistik dan riwayat lengkap ananda, silakan klik tautan berikut:\n{link_laporan}";
+        }
+        
+        $walimuridModel = new WalimuridModel();
+        $riwayat = $walimuridModel->getRiwayatDetail($id);
+        $hariIni = $riwayat[$tanggal] ?? null;
+
+        if (!$hariIni) {
+            $this->json(['success' => false, 'message' => 'Data absen pada tanggal tersebut tidak ditemukan']);
+            return;
+        }
+        
+        $rincian = "";
+        if (!empty($hariIni['detail'])) {
+            foreach ($hariIni['detail'] as $det) {
+                if (!empty($det['label_singkat'])) {
+                    $qText = trim($det['label_singkat']);
+                } else {
+                    $qText = strtolower(trim($det['pertanyaan']));
+                    $qText = str_replace(['apakah ', 'kemarin ', 'pagi ', 'sore ', 'malam ', 'siang ', 'hari ini', 'tadi ', 'ananda ', '{{nama}}', 'berapa ', 'kapan ', 'sudahkah ', 'telahkah ', 'tolong '], '', $qText);
+                    $qText = str_replace(['?', ':', '!', '.', ','], '', $qText);
+                    $qText = trim(preg_replace('/\s+/', ' ', $qText));
+                    $qText = ucwords($qText);
+                }
+                
+                $rincian .= "*" . $qText . "*\n";
+                $rincian .= $det['jawaban'] . "\n";
+                if (!empty($det['keterangan'])) {
+                    $rincian .= "_Catatan: " . $det['keterangan'] . "_\n";
+                }
+                $rincian .= "\n";
+            }
+        }
+        
+        $link = "https://wali.quizb.my.id/walimurid?id=" . $id;
+        $tanggalIndo = date('d F Y', strtotime($tanggal));
+        
+        $pesan = str_replace(
+            ['{nama_siswa}', '{tanggal}', '{rincian}', '{rating}', '{link_laporan}'],
+            [$namaSiswa, $tanggalIndo, trim($rincian), ($hariIni['rating'] ?? 0), $link],
+            $template
+        );
 
         $waData = [
             'phone_number' => $noHp,
