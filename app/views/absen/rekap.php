@@ -189,7 +189,7 @@ $siswaData = $dataTanggal['siswa'] ?? [];
                                 <?php
                                 $noHp = $sObj['no_hp'] ?? '';
                                 if (!empty($noHp)) {
-                                    echo '<button type="button" class="btn btn-outline-success btn-sm p-1 me-1 btn-send-wa" data-idsiswa="' . $sObj['id'] . '" data-tanggal="' . htmlspecialchars($tanggal) . '" data-nohp="' . htmlspecialchars($noHp) . '" title="Kirim Laporan WA via API"><i class="bi bi-whatsapp"></i></button>';
+                                    echo '<button type="button" class="btn btn-outline-success btn-sm p-1 me-1 btn-send-wa" data-idsiswa="' . $sObj['id'] . '" data-tanggal="' . htmlspecialchars($tanggal) . '" data-nohp="' . htmlspecialchars($noHp) . '" data-nama="' . htmlspecialchars($namaSiswa, ENT_QUOTES) . '" title="Kirim Laporan WA via API"><i class="bi bi-whatsapp"></i></button>';
                                 }
                                 ?>
                                 <form action="<?= BASE_URL ?>/absen/hapus_siswa" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus data absen <?= htmlspecialchars($namaSiswa) ?> pada tanggal ini?');">
@@ -239,9 +239,10 @@ document.querySelectorAll('.btn-send-wa').forEach(btn => {
         const idSiswa = this.dataset.idsiswa;
         const tanggal = this.dataset.tanggal;
         const noHp = this.dataset.nohp;
+        const nama = this.dataset.nama;
         const originalHtml = this.innerHTML;
         
-        if (!confirm('Yakin ingin mengirim laporan hari ini ke nomor WA ' + noHp + ' (menggunakan format template Anda)?')) return;
+        if (!confirm(`Yakin ingin mengirim laporan hari ini untuk ananda "${nama}" ke WA ${noHp} (menggunakan format template Anda)?`)) return;
         
         this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
         this.disabled = true;
