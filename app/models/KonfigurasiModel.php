@@ -14,6 +14,10 @@ class KonfigurasiModel extends Model
             $this->db->query("ALTER TABLE siswa ADD COLUMN kode_akses VARCHAR(50) DEFAULT NULL AFTER no_hp");
             $this->db->execute();
         } catch (Exception $e) {}
+        try {
+            $this->db->query("ALTER TABLE siswa ADD COLUMN asrama VARCHAR(50) DEFAULT NULL AFTER alamat");
+            $this->db->execute();
+        } catch (Exception $e) {}
     }
     /**
      * Ambil nama kelas

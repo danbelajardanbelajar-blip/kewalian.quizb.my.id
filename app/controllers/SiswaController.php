@@ -60,6 +60,7 @@ class SiswaController extends Controller
         }
 
         $alamat = trim($_POST['alamat'] ?? '');
+        $asrama = trim($_POST['asrama'] ?? '');
         $noHp   = preg_replace('/[^0-9]/', '', $_POST['no_hp'] ?? '');
 
         $fotoName = null;
@@ -78,11 +79,12 @@ class SiswaController extends Controller
         }
 
         // INSERT langsung tanpa mengelola id manual
-        $db->query("INSERT INTO siswa (user_id, nama, no_hp, alamat, foto) VALUES (:uid, :nama, :no_hp, :alamat, :foto)");
+        $db->query("INSERT INTO siswa (user_id, nama, no_hp, alamat, asrama, foto) VALUES (:uid, :nama, :no_hp, :alamat, :asrama, :foto)");
         $db->bind(':uid',    $userId);
         $db->bind(':nama',   $namaBaru);
         $db->bind(':no_hp',  $noHp);
         $db->bind(':alamat', $alamat ?: null);
+        $db->bind(':asrama', $asrama ?: null);
         $db->bind(':foto',   $fotoName);
 
         if ($db->execute()) {
@@ -212,11 +214,14 @@ class SiswaController extends Controller
             }
         }
 
+        $asramaBaru = trim($_POST['asrama'] ?? '');
+
         // UPDATE langsung
-        $db->query("UPDATE siswa SET nama = :nama, no_hp = :no_hp, alamat = :alamat, foto = :foto WHERE id = :id AND user_id = :uid");
+        $db->query("UPDATE siswa SET nama = :nama, no_hp = :no_hp, alamat = :alamat, asrama = :asrama, foto = :foto WHERE id = :id AND user_id = :uid");
         $db->bind(':nama',   $namaBaru);
         $db->bind(':no_hp',  $noHpBaru);
         $db->bind(':alamat', $alamatBaru ?: null);
+        $db->bind(':asrama', $asramaBaru ?: null);
         $db->bind(':foto',   $fotoName);
         $db->bind(':id',     $idEdit);
         $db->bind(':uid',    $userId);

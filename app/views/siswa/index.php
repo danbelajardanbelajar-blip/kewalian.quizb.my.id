@@ -52,6 +52,15 @@
                         <div class="form-text text-muted">Awali dengan 62 tanpa spasi/simbol.</div>
                     </div>
                     <div class="mb-3">
+                        <label for="asramaBaru" class="form-label fw-semibold">Asrama (Opsional)</label>
+                        <select class="form-select" id="asramaBaru" name="asrama">
+                            <option value="">-- Pilih Asrama --</option>
+                            <?php foreach (['Asrama A', 'Asrama B', 'Asrama C', 'Asrama D', 'Asrama E', 'Asrama F'] as $opt): ?>
+                                <option value="<?= $opt ?>"><?= $opt ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="mb-3">
                         <label for="alamatBaru" class="form-label fw-semibold">Alamat (Opsional)</label>
                         <textarea class="form-control" id="alamatBaru" name="alamat" rows="2" placeholder="Contoh: Jl. Sudirman No. 123..."></textarea>
                     </div>
@@ -129,6 +138,9 @@
                                     <?php endif; ?>
                                     <div class="d-flex flex-column">
                                         <span class="fw-medium siswa-nama"><?= htmlspecialchars($s['nama']) ?></span>
+                                        <?php if (!empty($s['asrama'])): ?>
+                                            <span class="text-muted small" style="font-size:0.8rem"><i class="bi bi-building me-1"></i><?= htmlspecialchars($s['asrama']) ?></span>
+                                        <?php endif; ?>
                                         <?php if (!empty($s['no_hp'])): ?>
                                             <span class="text-muted small" style="font-size:0.8rem"><i class="bi bi-whatsapp text-success me-1"></i><?= htmlspecialchars($s['no_hp']) ?></span>
                                         <?php endif; ?>
@@ -169,6 +181,7 @@
                                             data-nama="<?= htmlspecialchars($s['nama'], ENT_QUOTES) ?>"
                                             data-nohp="<?= htmlspecialchars($s['no_hp'] ?? '', ENT_QUOTES) ?>"
                                             data-alamat="<?= htmlspecialchars($s['alamat'] ?? '', ENT_QUOTES) ?>"
+                                            data-asrama="<?= htmlspecialchars($s['asrama'] ?? '', ENT_QUOTES) ?>"
                                             data-foto="<?= !empty($s['foto']) ? htmlspecialchars(BASE_URL . '/public/uploads/foto_siswa/' . $s['foto'], ENT_QUOTES) : '' ?>"
                                             title="Edit Siswa">
                                         <i class="bi bi-pencil"></i>
@@ -209,6 +222,15 @@
                     <label for="editNoHp" class="form-label fw-semibold">Nomor WhatsApp (Opsional)</label>
                     <input type="text" class="form-control" id="editNoHp" name="no_hp" placeholder="Contoh: 6281234567890" autocomplete="off">
                     <div class="form-text text-muted">Awali dengan 62 tanpa spasi/simbol.</div>
+                </div>
+                <div class="mb-3">
+                    <label for="editAsrama" class="form-label fw-semibold">Asrama (Opsional)</label>
+                    <select class="form-select" id="editAsrama" name="asrama">
+                        <option value="">-- Pilih Asrama --</option>
+                        <?php foreach (['Asrama A', 'Asrama B', 'Asrama C', 'Asrama D', 'Asrama E', 'Asrama F'] as $opt): ?>
+                            <option value="<?= $opt ?>"><?= $opt ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
                 <div class="mb-3">
                     <label for="editAlamat" class="form-label fw-semibold">Alamat (Opsional)</label>
@@ -300,6 +322,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('editNama').value  = this.dataset.nama;
                 document.getElementById('editNoHp').value  = this.dataset.nohp;
                 document.getElementById('editAlamat').value = this.dataset.alamat;
+                document.getElementById('editAsrama').value = this.dataset.asrama;
 
                 // Tampilkan preview foto jika ada
                 const fotoUrl    = this.dataset.foto;
