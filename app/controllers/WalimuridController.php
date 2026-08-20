@@ -66,6 +66,15 @@ class WalimuridController extends Controller
         // Cek apakah sudah login sebagai wali murid
         $sessionKey = "walimurid_logged_in_" . $id;
         $isSet = !empty($siswa['kode_akses_wali']);
+        
+        // Auto-login via auth parameter from WA link
+        $authKode = $_GET['auth'] ?? '';
+        if (!empty($authKode) && $isSet && strtoupper(trim($authKode)) === strtoupper($siswa['kode_akses_wali'])) {
+            Session::set($sessionKey, true);
+            // Redirect to clean URL to hide the auth key from the address bar
+            header("Location: " . BASE_URL . "/walimurid?id=" . $id);
+            exit;
+        }
 
         if (!Session::get($sessionKey)) {
             $this->view("walimurid/login", [

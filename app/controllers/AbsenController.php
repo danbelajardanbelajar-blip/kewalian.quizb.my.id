@@ -322,8 +322,17 @@ class AbsenController extends Controller
                 if ($dayOfWeek == 6) {
                     $rincian = "_Catatan: Laporan yang dikirim pada hari Sabtu ini adalah rincian kegiatan ananda pada hari Kamis._\n\n" . $rincian;
                 }
-
+                
+                $dbSiswaInfo = new Database();
+                $dbSiswaInfo->query("SELECT kode_akses_wali FROM siswa WHERE id = :id");
+                $dbSiswaInfo->bind(':id', $id);
+                $siswaInfo = $dbSiswaInfo->single();
+                
                 $link = "https://wali.quizb.my.id/walimurid?id=" . $id;
+                if ($siswaInfo && !empty($siswaInfo['kode_akses_wali'])) {
+                    $link .= "&auth=" . urlencode($siswaInfo['kode_akses_wali']);
+                }
+                
                 $tanggalIndo = date('d F Y', strtotime($tanggal));
                 
                 $pesan = str_replace(
@@ -685,6 +694,14 @@ class AbsenController extends Controller
         }
 
         $link = "https://wali.quizb.my.id/walimurid?id=" . $id;
+        $dbSiswaInfo = new Database();
+        $dbSiswaInfo->query("SELECT kode_akses_wali FROM siswa WHERE id = :id");
+        $dbSiswaInfo->bind(':id', $id);
+        $siswaInfo = $dbSiswaInfo->single();
+        if ($siswaInfo && !empty($siswaInfo['kode_akses_wali'])) {
+            $link .= "&auth=" . urlencode($siswaInfo['kode_akses_wali']);
+        }
+        
         $tanggalIndo = date('d F Y', strtotime($tanggal));
         
         $pesan = str_replace(
