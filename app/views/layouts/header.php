@@ -89,6 +89,17 @@ $pageTitle = $title ?? 'Dashboard Wali Kelas';
                                 <i class="bi bi-bar-chart-line me-2 text-primary"></i> Rekap Kumulatif
                             </a>
                         </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item <?= strpos($_SERVER['REQUEST_URI'], '/absen/rekap_asrama') !== false ? 'active' : '' ?>" href="<?= BASE_URL ?>/absen/rekap_asrama">
+                                <i class="bi bi-building me-2 text-primary"></i> Rekap Per Asrama
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item <?= strpos($_SERVER['REQUEST_URI'], '/asrama') !== false ? 'active' : '' ?>" href="<?= BASE_URL ?>/asrama">
+                                <i class="bi bi-person-badge me-2 text-primary"></i> Pengurus Asrama
+                            </a>
+                        </li>
                     </ul>
                 </li>
 
