@@ -80,31 +80,41 @@ $total = count($data);
 
 <!-- Tabel Detail -->
 <div class="card card-main shadow-sm">
-    <div class="card-header-custom">
-        <i class="bi bi-table me-2"></i> Detail Per Siswa
-        <small class="ms-2 text-muted fw-normal">— klik header kolom untuk mengurutkan</small>
+    <div class="card-header-custom d-flex justify-content-between align-items-center">
+        <div>
+            <i class="bi bi-table me-2"></i> Detail Per Siswa
+            <small class="ms-2 text-muted fw-normal">— klik header kolom untuk mengurutkan</small>
+        </div>
+        <div>
+            <button class="btn btn-sm btn-success" id="btnBulkWa" style="display: none;">
+                <i class="bi bi-whatsapp me-1"></i> Kirim WA ke Terpilih (<span id="bulkWaCount">0</span>)
+            </button>
+        </div>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0" id="tblTracking">
                 <thead class="table-light">
                     <tr>
-                        <th class="sortable" data-col="0" style="cursor:pointer;user-select:none;white-space:nowrap">
-                            # <i class="bi bi-arrow-down-up text-muted small"></i>
+                        <th class="text-center" style="width:40px;">
+                            <input class="form-check-input" type="checkbox" id="chkSelectAll">
                         </th>
                         <th class="sortable" data-col="1" style="cursor:pointer;user-select:none;white-space:nowrap">
+                            # <i class="bi bi-arrow-down-up text-muted small"></i>
+                        </th>
+                        <th class="sortable" data-col="2" style="cursor:pointer;user-select:none;white-space:nowrap">
                             Nama Siswa <i class="bi bi-arrow-down-up text-muted small"></i>
                         </th>
-                        <th class="sortable text-center" data-col="2" style="cursor:pointer;user-select:none;white-space:nowrap">
+                        <th class="sortable text-center" data-col="3" style="cursor:pointer;user-select:none;white-space:nowrap">
                             No HP Wali <i class="bi bi-arrow-down-up text-muted small"></i>
                         </th>
-                        <th class="sortable text-center" data-col="3" style="cursor:pointer;user-select:none;white-space:nowrap">
+                        <th class="sortable text-center" data-col="4" style="cursor:pointer;user-select:none;white-space:nowrap">
                             Kunjungan Laporan <i class="bi bi-arrow-down-up text-muted small"></i>
                         </th>
-                        <th class="sortable text-center" data-col="4" style="cursor:pointer;user-select:none;white-space:nowrap">
+                        <th class="sortable text-center" data-col="5" style="cursor:pointer;user-select:none;white-space:nowrap">
                             Terakhir Kunjung <i class="bi bi-arrow-down-up text-muted small"></i>
                         </th>
-                        <th class="sortable text-center" data-col="5" style="cursor:pointer;user-select:none;white-space:nowrap">
+                        <th class="sortable text-center" data-col="6" style="cursor:pointer;user-select:none;white-space:nowrap">
                             Status Kepedulian <i class="bi bi-arrow-down-up text-muted small"></i>
                         </th>
                         <th class="text-center" style="white-space:nowrap">Aksi</th>
@@ -123,6 +133,14 @@ $total = count($data);
                             );
                     ?>
                     <tr>
+                        <td class="text-center">
+                            <?php if ($punyaHp): ?>
+                                <input class="form-check-input chk-siswa" type="checkbox" 
+                                    data-idsiswa="<?= $row['id'] ?>"
+                                    data-nohp="<?= htmlspecialchars($row['no_hp']) ?>"
+                                    data-nama="<?= htmlspecialchars($row['nama'], ENT_QUOTES) ?>">
+                            <?php endif; ?>
+                        </td>
                         <td class="text-muted"><?= $i + 1 ?></td>
                         <td>
                             <a href="<?= BASE_URL ?>/laporan/siswa/<?= $row['id'] ?>" class="text-decoration-none fw-bold text-primary" title="Lihat Performa Siswa">
@@ -262,15 +280,15 @@ document.querySelectorAll('.btn-send-wa').forEach(btn => {
                 const va = a.cells[col]?.innerText.trim().toLowerCase() ?? '';
                 const vb = b.cells[col]?.innerText.trim().toLowerCase() ?? '';
 
-                // Numeric sort for columns 0 and 3
-                if (col === 0 || col === 3) {
+                // Numeric sort for columns 1 and 4
+                if (col === 1 || col === 4) {
                     const na = parseFloat(va.replace(/[^\d.]/g, '')) || 0;
                     const nb = parseFloat(vb.replace(/[^\d.]/g, '')) || 0;
                     return asc ? na - nb : nb - na;
                 }
 
-                // Date sort for column 4
-                if (col === 4) {
+                // Date sort for column 5
+                if (col === 5) {
                     // Convert "dd Mon yyyy hh:mm" ke timestamp sortable
                     const da = va === '—' ? 0 : new Date(va.replace(/(\d+) (\w+) (\d+)/, '$2 $1 $3')).getTime() || 0;
                     const db = vb === '—' ? 0 : new Date(vb.replace(/(\d+) (\w+) (\d+)/, '$2 $1 $3')).getTime() || 0;
@@ -281,12 +299,112 @@ document.querySelectorAll('.btn-send-wa').forEach(btn => {
                 return asc ? va.localeCompare(vb) : vb.localeCompare(va);
             });
 
-            // Re-number column 0 after sort
+            // Re-number column 1 after sort
             rows.forEach((row, idx) => {
-                row.cells[0].textContent = idx + 1;
+                row.cells[1].textContent = idx + 1;
                 tbody.appendChild(row);
             });
         });
     });
 })();
+
+// Bulk Checkbox Logic
+const chkSelectAll = document.getElementById('chkSelectAll');
+const chkSiswaList = document.querySelectorAll('.chk-siswa');
+const btnBulkWa = document.getElementById('btnBulkWa');
+const bulkWaCount = document.getElementById('bulkWaCount');
+
+function updateBulkWaButton() {
+    const checkedCount = document.querySelectorAll('.chk-siswa:checked').length;
+    if (checkedCount > 0) {
+        btnBulkWa.style.display = 'inline-block';
+        bulkWaCount.textContent = checkedCount;
+    } else {
+        btnBulkWa.style.display = 'none';
+    }
+    chkSelectAll.checked = (checkedCount === chkSiswaList.length && chkSiswaList.length > 0);
+}
+
+chkSelectAll.addEventListener('change', function() {
+    chkSiswaList.forEach(chk => {
+        chk.checked = this.checked;
+    });
+    updateBulkWaButton();
+});
+
+chkSiswaList.forEach(chk => {
+    chk.addEventListener('change', updateBulkWaButton);
+});
+
+btnBulkWa.addEventListener('click', async function() {
+    const checkedBoxes = Array.from(document.querySelectorAll('.chk-siswa:checked'));
+    if (checkedBoxes.length === 0) return;
+    
+    if (!confirm(`Yakin ingin mengirim laporan WA ke ${checkedBoxes.length} wali murid terpilih secara massal?`)) return;
+    
+    const originalHtml = this.innerHTML;
+    this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Mengirim...';
+    this.disabled = true;
+    
+    let successCount = 0;
+    let failCount = 0;
+    
+    for (let i = 0; i < checkedBoxes.length; i++) {
+        const chk = checkedBoxes[i];
+        const idSiswa = chk.dataset.idsiswa;
+        
+        // Find corresponding WA button row to show progress
+        const btnWa = document.querySelector(`.btn-send-wa[data-idsiswa="${idSiswa}"]`);
+        if (btnWa) {
+            btnWa.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+        }
+        
+        try {
+            const response = await fetch('<?= BASE_URL ?>/absen/kirim_wa_manual', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id_siswa: idSiswa,
+                    tanggal: '<?= date("Y-m-d") ?>'
+                })
+            });
+            const res = await response.json();
+            
+            if (res.success) {
+                successCount++;
+                if (btnWa) {
+                    btnWa.classList.remove('btn-outline-success');
+                    btnWa.classList.add('btn-success');
+                    btnWa.innerHTML = '<i class="bi bi-check-lg"></i>';
+                }
+            } else {
+                failCount++;
+                if (btnWa) btnWa.innerHTML = '<i class="bi bi-x-lg"></i>';
+            }
+        } catch (error) {
+            failCount++;
+            if (btnWa) btnWa.innerHTML = '<i class="bi bi-x-lg"></i>';
+        }
+        
+        // delay slightly to prevent rate limit issues if necessary
+        await new Promise(r => setTimeout(r, 500));
+    }
+    
+    alert(`Pengiriman massal selesai!\nBerhasil: ${successCount}\nGagal: ${failCount}`);
+    
+    this.innerHTML = originalHtml;
+    this.disabled = false;
+    chkSelectAll.checked = false;
+    chkSiswaList.forEach(chk => chk.checked = false);
+    updateBulkWaButton();
+    
+    // reset individual buttons
+    setTimeout(() => {
+        document.querySelectorAll('.btn-send-wa').forEach(btn => {
+            btn.innerHTML = '<i class="bi bi-whatsapp"></i>';
+            btn.classList.add('btn-outline-success');
+            btn.classList.remove('btn-success');
+        });
+    }, 2000);
+});
 </script>
