@@ -344,7 +344,7 @@ class AbsenController extends Controller
                 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($waData));
                 curl_setopt($ch, CURLOPT_HTTPHEADER, [
                     "Content-Type: application/json",
-                    "x-api-key: wa-key-923332d62d67d2511393e0c6d8ff5e59"
+                    "x-api-key: wa-key-1e0a672693117e4d09db166e49979691"
                 ]);
                 curl_setopt($ch, CURLOPT_TIMEOUT, 5); 
                 curl_exec($ch);
@@ -705,7 +705,7 @@ class AbsenController extends Controller
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($waData));
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             "Content-Type: application/json",
-            "x-api-key: wa-key-923332d62d67d2511393e0c6d8ff5e59"
+            "x-api-key: wa-key-1e0a672693117e4d09db166e49979691"
         ]);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10); 
         $result = curl_exec($ch);
