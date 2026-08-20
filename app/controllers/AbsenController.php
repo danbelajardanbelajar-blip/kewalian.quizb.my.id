@@ -807,7 +807,7 @@ class AbsenController extends Controller
         
         $siswaAsrama = [];
         foreach ($siswa as $s) {
-            if (trim($s['asrama']) === $namaAsrama) {
+            if (trim($s['asrama'] ?? '') === $namaAsrama) {
                 $siswaAsrama[] = $s;
             }
         }

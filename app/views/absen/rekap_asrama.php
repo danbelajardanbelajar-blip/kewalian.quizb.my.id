@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * absen/rekap_asrama.php
  */
@@ -7,7 +7,7 @@ $siswaData = $dataTanggal['siswa'] ?? [];
 // Kelompokkan siswa berdasarkan asrama
 $grupAsrama = [];
 foreach ($siswa as $s) {
-    $asrama = trim($s['asrama']);
+    $asrama = trim($s['asrama'] ?? '');
     if (empty($asrama)) {
         $asrama = 'Tanpa Asrama';
     }
