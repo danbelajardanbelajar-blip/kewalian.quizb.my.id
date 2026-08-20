@@ -55,6 +55,12 @@ class AbsenController extends Controller
         $kelas  = $userWali['kelas'];
         $tanggal = $_GET['tanggal'] ?? date('Y-m-d');
         
+        // Blokir form jika hari Jumat (5)
+        if (date('N', strtotime($tanggal)) == 5) {
+            $this->view('absen/libur', [], false);
+            return;
+        }
+
         $siswa   = $this->konfig->getSiswa($userId);
 
         // Tandai siapa yang sudah isi
@@ -117,11 +123,31 @@ class AbsenController extends Controller
             if ($s['id'] === $id) $nama = $s['nama'];
         }
 
+        // Blokir form jika hari Jumat (5)
+        $dayOfWeek = date('N', strtotime($tanggal));
+        if ($dayOfWeek == 5) {
+            $this->view('absen/libur', ['namaSiswa' => $nama], false);
+            return;
+        }
+
         // Ambil data existing jika sudah pernah isi
         $existing = $this->absenModel->getSiswaByTanggal($tanggal, $id, $userId);
         
         // Ambil daftar pertanyaan aktif untuk kelas ini
         $pertanyaan = $this->pertanyaanModel->getActive($userId);
+
+        // Ubah kata 'kemarin' menjadi 'hari Kamis' secara live khusus di hari Sabtu (6)
+        $isSabtu = ($dayOfWeek == 6);
+        if ($isSabtu) {
+            foreach ($pertanyaan as &$p) {
+                // Gunakan str_ireplace agar case-insensitive (kemarin, Kemarin, KEMARIN)
+                $p['judul'] = str_ireplace('kemarin', 'hari Kamis', $p['judul']);
+                if (!empty($p['opsi'])) {
+                    $p['opsi'] = str_ireplace('kemarin', 'hari Kamis', $p['opsi']);
+                }
+            }
+            unset($p); // break reference
+        }
         
         // Ambil setting acak
         $settings = $this->pertanyaanModel->getUserSettings($userId);
@@ -141,7 +167,8 @@ class AbsenController extends Controller
             'isEdit'   => !empty($existing),
             'pertanyaan' => $pertanyaan,
             'settings' => $settings,
-            'idWali' => $idWali
+            'idWali' => $idWali,
+            'isSabtu' => $isSabtu
         ], false);
     }
 
@@ -291,6 +318,11 @@ class AbsenController extends Controller
                     }
                 }
                 
+                $dayOfWeek = date('N', strtotime($tanggal));
+                if ($dayOfWeek == 6) {
+                    $rincian = "_Catatan: Laporan yang dikirim pada hari Sabtu ini adalah rincian kegiatan ananda pada hari Kamis._\n\n" . $rincian;
+                }
+
                 $link = "https://wali.quizb.my.id/walimurid?id=" . $id;
                 $tanggalIndo = date('d F Y', strtotime($tanggal));
                 
@@ -647,6 +679,11 @@ class AbsenController extends Controller
             }
         }
         
+        $dayOfWeek = date('N', strtotime($tanggal));
+        if ($dayOfWeek == 6) {
+            $rincian = "_Catatan: Laporan yang dikirim pada hari Sabtu ini adalah rincian kegiatan ananda pada hari Kamis._\n\n" . $rincian;
+        }
+
         $link = "https://wali.quizb.my.id/walimurid?id=" . $id;
         $tanggalIndo = date('d F Y', strtotime($tanggal));
         

@@ -42,7 +42,11 @@ if ($totalStep === 0) {
     </div>
     <div>
         <div class="wizard-name-text"><?= htmlspecialchars($namaProper) ?></div>
-        <div class="wizard-date-text"><?= date('d F Y', strtotime($tanggal)) ?></div>
+        <?php if ($isSabtu ?? false): ?>
+            <div class="wizard-date-text">Laporan Kegiatan <strong>Hari Kamis</strong><br><small>(Diisi hari Sabtu, <?= date('d M Y', strtotime($tanggal)) ?>)</small></div>
+        <?php else: ?>
+            <div class="wizard-date-text"><?= date('d F Y', strtotime($tanggal)) ?></div>
+        <?php endif; ?>
     </div>
     <?php if ($isEdit ?? false): ?>
         <span class="badge bg-warning text-dark ms-auto">Edit</span>
