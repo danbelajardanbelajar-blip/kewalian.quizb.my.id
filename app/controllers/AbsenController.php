@@ -329,8 +329,21 @@ class AbsenController extends Controller
                 $siswaInfo = $dbSiswaInfo->single();
                 
                 $link = "https://wali.quizb.my.id/walimurid?id=" . $id;
-                if ($siswaInfo && !empty($siswaInfo['kode_akses_wali'])) {
-                    $link .= "&auth=" . urlencode($siswaInfo['kode_akses_wali']);
+                $kodeAuth = '';
+                if ($siswaInfo) {
+                    if (empty($siswaInfo['kode_akses_wali'])) {
+                        $kodeAuth = substr(str_shuffle("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 8);
+                        $dbUpdate = new Database();
+                        $dbUpdate->query("UPDATE siswa SET kode_akses_wali = :kode WHERE id = :id");
+                        $dbUpdate->bind(':kode', $kodeAuth);
+                        $dbUpdate->bind(':id', $id);
+                        $dbUpdate->execute();
+                    } else {
+                        $kodeAuth = $siswaInfo['kode_akses_wali'];
+                    }
+                }
+                if (!empty($kodeAuth)) {
+                    $link .= "&auth=" . urlencode($kodeAuth);
                 }
                 
                 $tanggalIndo = date('d F Y', strtotime($tanggal));
@@ -698,8 +711,21 @@ class AbsenController extends Controller
         $dbSiswaInfo->query("SELECT kode_akses_wali FROM siswa WHERE id = :id");
         $dbSiswaInfo->bind(':id', $id);
         $siswaInfo = $dbSiswaInfo->single();
-        if ($siswaInfo && !empty($siswaInfo['kode_akses_wali'])) {
-            $link .= "&auth=" . urlencode($siswaInfo['kode_akses_wali']);
+        $kodeAuth = '';
+        if ($siswaInfo) {
+            if (empty($siswaInfo['kode_akses_wali'])) {
+                $kodeAuth = substr(str_shuffle("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 8);
+                $dbUpdate = new Database();
+                $dbUpdate->query("UPDATE siswa SET kode_akses_wali = :kode WHERE id = :id");
+                $dbUpdate->bind(':kode', $kodeAuth);
+                $dbUpdate->bind(':id', $id);
+                $dbUpdate->execute();
+            } else {
+                $kodeAuth = $siswaInfo['kode_akses_wali'];
+            }
+        }
+        if (!empty($kodeAuth)) {
+            $link .= "&auth=" . urlencode($kodeAuth);
         }
         
         $tanggalIndo = date('d F Y', strtotime($tanggal));
