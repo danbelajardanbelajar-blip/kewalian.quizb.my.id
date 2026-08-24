@@ -152,6 +152,36 @@ class AbsenController extends Controller
         // Ambil setting acak
         $settings = $this->pertanyaanModel->getUserSettings($userId);
         
+        // --- PEER REVIEW LOGIC ---
+        require_once APP_PATH . '/models/PeerReviewModel.php';
+        $peerModel = new PeerReviewModel();
+        
+        // 1. Ambil soal aktif, lalu acak dan ambil maksimal 2
+        $peerSoalAktif = $peerModel->getActivePertanyaan($userId);
+        $peerPertanyaanTampil = [];
+        if (!empty($peerSoalAktif)) {
+            shuffle($peerSoalAktif);
+            $peerPertanyaanTampil = array_slice($peerSoalAktif, 0, 2);
+        }
+        
+        // 2. Ambil data siswa yang satu jenis kelamin dengan penjawab (kecuali dirinya sendiri)
+        $jkPenjawab = 'L'; // default
+        foreach ($siswa as $s) {
+            if ($s['id'] === $id) {
+                $jkPenjawab = $s['jenis_kelamin'] ?? 'L';
+                break;
+            }
+        }
+        
+        $temanSebaya = [];
+        foreach ($siswa as $s) {
+            // Abaikan diri sendiri dan beda jenis kelamin
+            if ($s['id'] !== $id && ($s['jenis_kelamin'] ?? 'L') === $jkPenjawab) {
+                $temanSebaya[] = $s;
+            }
+        }
+        // ------------------------
+        
         // Acak pertanyaan jika diset
         if (!empty($settings['acak_pertanyaan'])) {
             shuffle($pertanyaan);

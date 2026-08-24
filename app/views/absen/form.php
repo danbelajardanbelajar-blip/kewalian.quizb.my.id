@@ -18,6 +18,9 @@
 $namaProper = ucwords(strtolower($nama));
 
 $totalStep = count($pertanyaan);
+if (isset($peerPertanyaan) && is_array($peerPertanyaan)) {
+    $totalStep += count($peerPertanyaan);
+}
 if ($totalStep === 0) {
     echo '<div class="container mt-5"><div class="alert alert-warning text-center">Belum ada pertanyaan yang dikonfigurasi.</div></div></body></html>';
     exit;
@@ -243,6 +246,65 @@ if ($totalStep === 0) {
 
             </div><!-- /wizard-step -->
         <?php endforeach; ?>
+        
+        <?php 
+        // --- PEER REVIEW STEPS ---
+        if (isset($peerPertanyaan) && is_array($peerPertanyaan)): 
+            $startIdx = count($pertanyaan);
+            foreach ($peerPertanyaan as $idx => $peer): 
+                $stepIdx = $startIdx + $idx;
+                $isFirst = $stepIdx === 0;
+                $isLast  = $stepIdx === $totalStep - 1;
+                $pId = 'peer_' . $peer['id'];
+        ?>
+            <!-- STEP PEER REVIEW <?= $stepIdx + 1 ?> -->
+            <div class="wizard-step <?= $isFirst ? 'active' : '' ?>" id="step_<?= $stepIdx + 1 ?>">
+                <div class="wizard-content">
+                    <h3 class="wizard-q-title">
+                        <i class="bi bi-people-fill text-primary me-2"></i><?= htmlspecialchars($peer['pertanyaan']) ?>
+                    </h3>
+                    <div class="alert alert-light border shadow-sm rounded-4 mb-4 small text-muted">
+                        <i class="bi bi-shield-lock-fill me-1"></i>Pilihan Anda 100% anonim dan tidak akan diberitahukan kepada siapapun.
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <select name="peer_vote[<?= $peer['id'] ?>]" class="form-select form-select-lg mb-3 shadow-sm border-0" style="background-color: #f8f9fa;" required>
+                            <option value="">-- Pilih Teman --</option>
+                            <?php if (isset($temanSebaya) && is_array($temanSebaya)): ?>
+                                <?php foreach ($temanSebaya as $teman): ?>
+                                    <option value="<?= $teman['id'] ?>"><?= htmlspecialchars($teman['nama']) ?></option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                            <option value="-1">-- Tidak Ada / Abstain --</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Navigasi step -->
+                <div class="wizard-nav mt-auto">
+                    <?php if (!$isFirst): ?>
+                        <button type="button" class="btn-wizard-prev" data-step="<?= $stepIdx + 1 ?>">
+                            <i class="bi bi-arrow-left me-1"></i> Kembali
+                        </button>
+                    <?php else: ?>
+                        <div></div>
+                    <?php endif; ?>
+
+                    <?php if (!$isLast): ?>
+                        <button type="button" class="btn-wizard-next" data-step="<?= $stepIdx + 1 ?>" id="btnNext_<?= $pId ?>">
+                            Lanjut <i class="bi bi-arrow-right ms-1"></i>
+                        </button>
+                    <?php else: ?>
+                        <button type="submit" class="btn-wizard-submit" id="btnSubmit">
+                            <i class="bi bi-check-lg me-1"></i> Selesai &amp; Simpan
+                        </button>
+                    <?php endif; ?>
+                </div>
+            </div><!-- /wizard-step -->
+        <?php 
+            endforeach; 
+        endif; 
+        ?>
 
     </div><!-- /wizardContainer -->
 </form>
@@ -297,7 +359,7 @@ if ($totalStep === 0) {
 
         // Cek textarea dan input angka yang required atau min/max pada step ini
         // Abaikan elemen yang dibungkus di dalam div yang tersembunyi (display: none)
-        stepEl.querySelectorAll('textarea, input[type="number"]').forEach(el => {
+        stepEl.querySelectorAll('select, textarea, input[type="number"]').forEach(el => {
             // Cek apakah elemen ini sedang disembunyikan oleh sistem
             const isHidden = el.closest('div[style*="display: none"]');
             if (isHidden) return;
