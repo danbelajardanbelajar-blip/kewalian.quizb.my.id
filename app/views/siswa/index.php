@@ -47,6 +47,14 @@
                         </div>
                     </div>
                     <div class="mb-3">
+                        <label class="form-label fw-semibold">Jenis Kelamin</label>
+                        <select class="form-select" name="jenis_kelamin" required>
+                            <option value="">-- Pilih Jenis Kelamin --</option>
+                            <option value="L">Laki-laki</option>
+                            <option value="P">Perempuan</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
                         <label for="noHpBaru" class="form-label fw-semibold">Nomor WhatsApp (Opsional)</label>
                         <input type="text" class="form-control" id="noHpBaru" name="no_hp" placeholder="Contoh: 6281234567890" autocomplete="off">
                         <div class="form-text text-muted">Awali dengan 62 tanpa spasi/simbol.</div>
@@ -137,7 +145,14 @@
                                         </div>
                                     <?php endif; ?>
                                     <div class="d-flex flex-column">
-                                        <span class="fw-medium siswa-nama"><?= htmlspecialchars($s['nama']) ?></span>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="fw-medium siswa-nama"><?= htmlspecialchars($s['nama']) ?></span>
+                                            <?php if ($s['jenis_kelamin'] === 'L'): ?>
+                                                <span class="badge bg-info bg-opacity-10 text-info border border-info rounded-pill px-2 py-0" style="font-size:0.7rem">L</span>
+                                            <?php elseif ($s['jenis_kelamin'] === 'P'): ?>
+                                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger rounded-pill px-2 py-0" style="font-size:0.7rem">P</span>
+                                            <?php endif; ?>
+                                        </div>
                                         <?php if (!empty($s['asrama'])): ?>
                                             <span class="text-muted small" style="font-size:0.8rem"><i class="bi bi-building me-1"></i><?= htmlspecialchars($s['asrama']) ?></span>
                                         <?php endif; ?>
@@ -179,6 +194,7 @@
                                     <button type="button" class="btn btn-sm btn-outline-primary me-1 btn-edit-siswa"
                                             data-id="<?= $s['id'] ?>"
                                             data-nama="<?= htmlspecialchars($s['nama'], ENT_QUOTES) ?>"
+                                            data-jk="<?= htmlspecialchars($s['jenis_kelamin'] ?? '', ENT_QUOTES) ?>"
                                             data-nohp="<?= htmlspecialchars($s['no_hp'] ?? '', ENT_QUOTES) ?>"
                                             data-alamat="<?= htmlspecialchars($s['alamat'] ?? '', ENT_QUOTES) ?>"
                                             data-asrama="<?= htmlspecialchars($s['asrama'] ?? '', ENT_QUOTES) ?>"
@@ -320,6 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
             btn.addEventListener('click', function() {
                 document.getElementById('editId').value    = this.dataset.id;
                 document.getElementById('editNama').value  = this.dataset.nama;
+                document.getElementById('editJk').value    = this.dataset.jk;
                 document.getElementById('editNoHp').value  = this.dataset.nohp;
                 document.getElementById('editAlamat').value = this.dataset.alamat;
                 document.getElementById('editAsrama').value = this.dataset.asrama;
