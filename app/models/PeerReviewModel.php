@@ -25,6 +25,38 @@ class PeerReviewModel extends Model
             $this->db->execute();
         } catch (Exception $e) {}
 
+        // Seed Template Soal (jika tabel masih kosong)
+        try {
+            $this->db->query("SELECT COUNT(*) as total FROM peer_pertanyaan");
+            $row = $this->db->single();
+            if ($row && $row['total'] == 0) {
+                // Ambil semua user (Wali Kelas) untuk diberikan template default
+                $this->db->query("SELECT id FROM users");
+                $users = $this->db->resultSet();
+                
+                $templates = [
+                    ['Paling rajin beribadah / belajar', 'positif'],
+                    ['Paling disiplin dan tepat waktu', 'positif'],
+                    ['Paling taat kepada guru dan pengurus pondok', 'positif'],
+                    ['Paling memperhatikan di kelas', 'positif'],
+                    ['Pernah atau sering membully teman', 'negatif'],
+                    ['Pernah atau sering mengajak tidak hadir (bolos)', 'negatif'],
+                    ['Pernah atau sering mengolok-olok teman', 'negatif'],
+                    ['Pernah atau sering ngomong kasar ke teman', 'negatif']
+                ];
+                
+                foreach ($users as $u) {
+                    foreach ($templates as $t) {
+                        $this->db->query("INSERT INTO peer_pertanyaan (user_id, pertanyaan, sifat, status) VALUES (:uid, :p, :s, 1)");
+                        $this->db->bind(':uid', $u['id']);
+                        $this->db->bind(':p', $t[0]);
+                        $this->db->bind(':s', $t[1]);
+                        $this->db->execute();
+                    }
+                }
+            }
+        } catch (Exception $e) {}
+
         try {
             $this->db->query("
                 CREATE TABLE IF NOT EXISTS peer_vote (
