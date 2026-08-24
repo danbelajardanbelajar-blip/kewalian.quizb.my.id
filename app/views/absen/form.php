@@ -258,7 +258,7 @@ if ($totalStep === 0) {
                 $pId = 'peer_' . $peer['id'];
         ?>
             <!-- STEP PEER REVIEW <?= $stepIdx + 1 ?> -->
-            <div class="wizard-step <?= $isFirst ? 'active' : '' ?>" id="step_<?= $stepIdx + 1 ?>">
+            <div class="wizard-step <?= $isFirst ? 'wizard-step--active' : '' ?>" data-step="<?= $stepIdx + 1 ?>" id="step<?= $stepIdx + 1 ?>">
                 <div class="wizard-content">
                     <h3 class="wizard-q-title">
                         <i class="bi bi-people-fill text-primary me-2"></i><?= htmlspecialchars($peer['pertanyaan']) ?>

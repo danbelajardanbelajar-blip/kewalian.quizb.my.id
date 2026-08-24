@@ -156,10 +156,10 @@ class AbsenController extends Controller
         require_once APP_PATH . '/models/PeerReviewModel.php';
         $peerModel = new PeerReviewModel();
         
-        // 1. Ambil soal aktif, lalu acak dan ambil maksimal 2
+        // 1. Ambil soal aktif, lalu acak dan ambil maksimal 2 (KECUALI JIKA MODE EDIT)
         $peerSoalAktif = $peerModel->getActivePertanyaan($userId);
         $peerPertanyaanTampil = [];
-        if (!empty($peerSoalAktif)) {
+        if (!empty($peerSoalAktif) && empty($existing)) {
             shuffle($peerSoalAktif);
             $peerPertanyaanTampil = array_slice($peerSoalAktif, 0, 2);
         }
