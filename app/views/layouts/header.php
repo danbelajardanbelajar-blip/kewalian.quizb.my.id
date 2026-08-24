@@ -120,6 +120,12 @@ $pageTitle = $title ?? 'Dashboard Wali Kelas';
                                 <i class="bi bi-calendar-week me-2 text-warning"></i> Sorotan Mingguan
                             </a>
                         </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item <?= strpos($_SERVER['REQUEST_URI'], '/peer/dashboard') !== false ? 'active' : '' ?>" href="<?= BASE_URL ?>/peer/dashboard">
+                                <i class="bi bi-pie-chart-fill me-2 text-primary"></i> Analisa Peer Review
+                            </a>
+                        </li>
                     </ul>
                 </li>
 
@@ -158,6 +164,12 @@ $pageTitle = $title ?? 'Dashboard Wali Kelas';
                         <li>
                             <a class="dropdown-item <?= strpos($_SERVER['REQUEST_URI'], '/watemplate') !== false ? 'active' : '' ?>" href="<?= BASE_URL ?>/watemplate">
                                 <i class="bi bi-whatsapp me-2 text-success"></i> Template WA
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item <?= strpos($_SERVER['REQUEST_URI'], '/peer') !== false && strpos($_SERVER['REQUEST_URI'], '/peer/dashboard') === false ? 'active' : '' ?>" href="<?= BASE_URL ?>/peer">
+                                <i class="bi bi-people-fill me-2 text-primary"></i> Bank Soal Peer
                             </a>
                         </li>
                     </ul>
