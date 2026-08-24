@@ -148,9 +148,11 @@
                                         <div class="d-flex align-items-center gap-2">
                                             <span class="fw-medium siswa-nama"><?= htmlspecialchars($s['nama']) ?></span>
                                             <?php if ($s['jenis_kelamin'] === 'L'): ?>
-                                                <span class="badge bg-info bg-opacity-10 text-info border border-info rounded-pill px-2 py-0" style="font-size:0.7rem">L</span>
+                                                <span class="badge bg-info bg-opacity-10 text-info border border-info rounded-pill px-2 py-0" style="font-size:0.7rem">Laki-laki</span>
                                             <?php elseif ($s['jenis_kelamin'] === 'P'): ?>
-                                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger rounded-pill px-2 py-0" style="font-size:0.7rem">P</span>
+                                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger rounded-pill px-2 py-0" style="font-size:0.7rem">Perempuan</span>
+                                            <?php else: ?>
+                                                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning rounded-pill px-2 py-0" style="font-size:0.7rem"><i class="bi bi-exclamation-circle me-1"></i>Gender ?</span>
                                             <?php endif; ?>
                                         </div>
                                         <?php if (!empty($s['asrama'])): ?>
