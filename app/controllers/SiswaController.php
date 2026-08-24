@@ -223,9 +223,8 @@ class SiswaController extends Controller
 
         // UPDATE langsung
         $db->query("UPDATE siswa SET nama = :nama, jenis_kelamin = :jk, no_hp = :no_hp, alamat = :alamat, asrama = :asrama, foto = :foto WHERE id = :id AND user_id = :uid");
-        $db->bind(':jk', $jkBaru);
         $db->bind(':nama',   $namaBaru);
-        $db->bind(':jk',     $jk);
+        $db->bind(':jk',     $jkBaru);
         $db->bind(':no_hp',  $noHpBaru);
         $db->bind(':alamat', $alamatBaru ?: null);
         $db->bind(':asrama', $asramaBaru ?: null);
