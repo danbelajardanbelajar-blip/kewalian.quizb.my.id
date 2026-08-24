@@ -235,6 +235,14 @@
                     <input type="text" class="form-control" id="editNama" name="nama" required autocomplete="off">
                 </div>
                 <div class="mb-3">
+                    <label class="form-label fw-semibold">Jenis Kelamin</label>
+                    <select class="form-select" id="editJk" name="jenis_kelamin" required>
+                        <option value="">-- Pilih Jenis Kelamin --</option>
+                        <option value="L">Laki-laki</option>
+                        <option value="P">Perempuan</option>
+                    </select>
+                </div>
+                <div class="mb-3">
                     <label for="editNoHp" class="form-label fw-semibold">Nomor WhatsApp (Opsional)</label>
                     <input type="text" class="form-control" id="editNoHp" name="no_hp" placeholder="Contoh: 6281234567890" autocomplete="off">
                     <div class="form-text text-muted">Awali dengan 62 tanpa spasi/simbol.</div>
