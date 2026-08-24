@@ -84,7 +84,7 @@
                                         </td>
                                         <td class="text-end pe-4">
                                             <button class="btn btn-sm btn-outline-primary me-1" 
-                                                    onclick="editPeer(<?= $p['id'] ?>, '<?= htmlspecialchars($p['pertanyaan'], ENT_QUOTES) ?>', '<?= $p['sifat'] ?>', <?= $p['status'] ?>)">
+                                                    onclick='editPeer(<?= $p['id'] ?>, <?= json_encode($p['pertanyaan']) ?>, "<?= $p['sifat'] ?>", <?= $p['status'] ?>)'>
                                                 <i class="bi bi-pencil"></i>
                                             </button>
                                             <form action="<?= BASE_URL ?>/peer/hapus" method="POST" class="d-inline" onsubmit="return confirm('Hapus pertanyaan ini? Data vote terkait juga akan terhapus.')">
