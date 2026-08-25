@@ -164,6 +164,19 @@ class AbsenController extends Controller
             $peerPertanyaanTampil = array_slice($peerSoalAktif, 0, 2);
         }
         
+        // TEMPORARY LOGGING
+        $logData = date('Y-m-d H:i:s') . " - userId: $userId, idSiswa: $id, existing: " . (empty($existing) ? 'EMPTY' : 'NOT_EMPTY') . ", peerSoalAktif count: " . count($peerSoalAktif) . "\n";
+        file_put_contents(ROOT_PATH . '/public/debug_peer.txt', $logData, FILE_APPEND);
+        
+        // --- TEMP LOGGING ---
+        file_put_contents('debug_peer.txt', print_r([
+            'userId' => $userId,
+            'existing_is_empty' => empty($existing),
+            'peerSoalAktif_count' => count($peerSoalAktif),
+            'peerPertanyaanTampil_count' => count($peerPertanyaanTampil)
+        ], true));
+        // --------------------
+        
         // 2. Ambil data siswa yang satu jenis kelamin dengan penjawab (kecuali dirinya sendiri)
         $jkPenjawab = 'L'; // default
         foreach ($siswa as $s) {
