@@ -318,6 +318,19 @@ class AbsenController extends Controller
         $isEdit = $this->absenModel->sudahIsi($tanggal, $id);
 
         if ($this->absenModel->simpanSiswa($tanggal, $id, $data)) {
+            // Simpan data peer review jika ada
+            $postPeerVote = $_POST['peer_vote'] ?? [];
+            if (!empty($postPeerVote) && is_array($postPeerVote)) {
+                require_once APP_PATH . '/models/PeerReviewModel.php';
+                $peerModel = new PeerReviewModel();
+                foreach ($postPeerVote as $idPertanyaan => $idSiswaTerpilih) {
+                    $idSiswaTerpilih = (int)$idSiswaTerpilih;
+                    if ($idSiswaTerpilih > 0) { // -1 adalah abstain
+                        $peerModel->saveVote((int)$idPertanyaan, $idSiswaTerpilih, $tanggal);
+                    }
+                }
+            }
+
             // Mengirim notifikasi WA ke orang tua
             $dbSiswa = new Database();
             $dbSiswa->query("SELECT nama, no_hp FROM siswa WHERE id = :id");
