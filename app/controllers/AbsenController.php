@@ -211,7 +211,9 @@ class AbsenController extends Controller
             'pertanyaan' => $pertanyaan,
             'settings' => $settings,
             'idWali' => $idWali,
-            'isSabtu' => $isSabtu
+            'isSabtu' => $isSabtu,
+            'peerPertanyaan' => $peerPertanyaanTampil,
+            'temanSebaya' => $temanSebaya
         ], false);
     }
 
