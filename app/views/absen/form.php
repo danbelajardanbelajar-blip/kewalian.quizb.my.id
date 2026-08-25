@@ -262,13 +262,18 @@ if ($totalStep === 0) {
                 <div class="wizard-content">
                     <h3 class="wizard-q-title">
                         <i class="bi bi-people-fill text-primary me-2"></i><?= htmlspecialchars($peer['pertanyaan']) ?>
+                        <?php if ($peer['sifat'] === 'negatif'): ?>
+                            <span class="badge bg-secondary ms-1 fs-6 fw-normal">Opsional</span>
+                        <?php else: ?>
+                            <span class="badge bg-danger ms-1 fs-6 fw-normal">Wajib</span>
+                        <?php endif; ?>
                     </h3>
                     <div class="alert alert-light border shadow-sm rounded-4 mb-4 small text-muted">
                         <i class="bi bi-shield-lock-fill me-1"></i>Pilihan Anda 100% anonim dan tidak akan diberitahukan kepada siapapun.
                     </div>
                     
                     <div class="d-grid gap-2">
-                        <select name="peer_vote[<?= $peer['id'] ?>]" class="form-select form-select-lg mb-3 shadow-sm border-0" style="background-color: #f8f9fa;" required>
+                        <select name="peer_vote[<?= $peer['id'] ?>]" class="form-select form-select-lg mb-3 shadow-sm border-0" style="background-color: #f8f9fa;" <?= ($peer['sifat'] === 'positif') ? 'required' : '' ?>>
                             <option value="">-- Pilih Teman --</option>
                             <?php if (isset($temanSebaya) && is_array($temanSebaya)): ?>
                                 <?php foreach ($temanSebaya as $teman): ?>

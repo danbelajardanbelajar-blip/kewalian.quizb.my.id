@@ -156,13 +156,23 @@ class AbsenController extends Controller
         require_once APP_PATH . '/models/PeerReviewModel.php';
         $peerModel = new PeerReviewModel();
         
-        // 1. Ambil soal aktif, lalu acak dan ambil maksimal 2 (KECUALI JIKA MODE EDIT)
+        // 1. Ambil soal aktif, pisahkan berdasarkan sifat, acak dan ambil masing-masing 1 (KECUALI JIKA MODE EDIT)
         $peerSoalAktif = $peerModel->getActivePertanyaan($userId);
         $peerPertanyaanTampil = [];
         if (!empty($peerSoalAktif) && empty($existing)) {
-            shuffle($peerSoalAktif);
-            $peerPertanyaanTampil = array_slice($peerSoalAktif, 0, 2);
+            $soalPositif = array_filter($peerSoalAktif, fn($p) => $p['sifat'] === 'positif');
+            $soalNegatif = array_filter($peerSoalAktif, fn($p) => $p['sifat'] === 'negatif');
+            
+            if (!empty($soalPositif)) {
+                shuffle($soalPositif);
+                $peerPertanyaanTampil[] = array_shift($soalPositif);
+            }
+            if (!empty($soalNegatif)) {
+                shuffle($soalNegatif);
+                $peerPertanyaanTampil[] = array_shift($soalNegatif);
+            }
         }
+
         
         // TEMPORARY LOGGING
         $logData = date('Y-m-d H:i:s') . " - userId: $userId, idSiswa: $id, existing: " . (empty($existing) ? 'EMPTY' : 'NOT_EMPTY') . ", peerSoalAktif count: " . count($peerSoalAktif) . "\n";
