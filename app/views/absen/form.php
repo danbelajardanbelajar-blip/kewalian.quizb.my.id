@@ -280,7 +280,10 @@ if ($totalStep === 0) {
                                     <option value="<?= $teman['id'] ?>"><?= htmlspecialchars($teman['nama']) ?></option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
-                            <option value="-1">-- Tidak Ada / Abstain --</option>
+                            
+                            <?php if ($peer['sifat'] !== 'positif'): ?>
+                                <option value="-1">-- Tidak Ada / Abstain --</option>
+                            <?php endif; ?>
                         </select>
                     </div>
                 </div>
